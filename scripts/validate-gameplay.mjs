@@ -8,6 +8,31 @@ assert.equal(nextRacerSpeed(20, false, false, GAME.targetSpeed, GAME.acceleratio
 assert.equal(nextRacerSpeed(20, true, true, GAME.targetSpeed, GAME.acceleration, 1), 0, 'Brake input must override acceleration');
 assert.equal(GAME.aiObstacleResetDelay, 2, 'AI racers must wait two seconds before bypassing an obstacle');
 
+const diagnosticWorld = {
+  racers: [{
+    progress: .1,
+    speed: 42,
+    actualForwardSpeed: 40,
+    windowForwardMovement: 12,
+    stuck: 0,
+    lateral: -3,
+    body: {
+      linvel: () => ({ x: 12, y: 0, z: 16 }),
+      translation: () => ({ x: 123, y: 9, z: -456 }),
+    },
+  }],
+  track: { length: 6000 },
+  direction: -1,
+  activePlayerContacts: new Map(),
+  playerLives: GAME.playerLives,
+  lastCollision: null,
+  lastRecovery: null,
+};
+const diagnostics = GameWorld.prototype.getDiagnostics.call(diagnosticWorld);
+assert.equal(diagnostics.raceDistance, 600, 'Race distance must increase from the selected starting point');
+assert.equal(diagnostics.trackDistance, 5400, 'Track location must remain measured from the Tuen Mun end');
+assert.deepEqual(diagnostics.localPosition, { x: 123, y: 9, z: -456 });
+
 const lifeLosses = [];
 const gameOvers = [];
 let recoveries = 0;

@@ -55,7 +55,7 @@ function showRaceNotification(message, kind) {
 
 function mountDiagnostics() {
   if (document.querySelector('#diagnostics-panel')) return;
-  ui.insertAdjacentHTML('beforeend', `<aside class="diagnostics-panel hidden" id="diagnostics-panel" aria-label="${t('diagnostics')}"><div class="diagnostics-title">${t('diagnostics')}</div><dl><div><dt>${t('diagRequested')}</dt><dd id="diag-requested">--</dd></div><div><dt>${t('diagActual')}</dt><dd id="diag-actual">--</dd></div><div><dt>${t('diagVelocity')}</dt><dd id="diag-velocity">--</dd></div><div><dt>${t('diagContacts')}</dt><dd id="diag-contacts">--</dd></div><div><dt>${t('diagFps')}</dt><dd id="diag-fps">--</dd></div><div><dt>${t('diagMovement')}</dt><dd id="diag-movement">--</dd></div><div><dt>${t('diagStuck')}</dt><dd id="diag-stuck">--</dd></div><div><dt>${t('diagLateral')}</dt><dd id="diag-lateral">--</dd></div><div><dt>${t('diagCollision')}</dt><dd id="diag-collision">${t('diagNone')}</dd></div><div><dt>${t('diagRecovery')}</dt><dd id="diag-recovery">${t('diagNone')}</dd></div></dl></aside>`);
+  ui.insertAdjacentHTML('beforeend', `<aside class="diagnostics-panel hidden" id="diagnostics-panel" aria-label="${t('diagnostics')}"><div class="diagnostics-title">${t('diagnostics')}</div><dl><div><dt>${t('diagRequested')}</dt><dd id="diag-requested">--</dd></div><div><dt>${t('diagActual')}</dt><dd id="diag-actual">--</dd></div><div><dt>${t('diagVelocity')}</dt><dd id="diag-velocity">--</dd></div><div><dt>${t('diagContacts')}</dt><dd id="diag-contacts">--</dd></div><div><dt>${t('diagFps')}</dt><dd id="diag-fps">--</dd></div><div><dt>${t('diagMovement')}</dt><dd id="diag-movement">--</dd></div><div><dt>${t('diagStuck')}</dt><dd id="diag-stuck">--</dd></div><div><dt>${t('diagLateral')}</dt><dd id="diag-lateral">--</dd></div><div><dt>${t('diagRaceDistance')}</dt><dd id="diag-race-distance">--</dd></div><div><dt>${t('diagTrackLocation')}</dt><dd id="diag-track-location">--</dd></div><div><dt>${t('diagLocalPosition')}</dt><dd id="diag-local-position">--</dd></div><div><dt>${t('diagCollision')}</dt><dd id="diag-collision">${t('diagNone')}</dd></div><div><dt>${t('diagRecovery')}</dt><dd id="diag-recovery">${t('diagNone')}</dd></div></dl></aside>`);
   document.querySelector('#diagnostics-panel').classList.toggle('hidden', !settings.diagnostics);
 }
 
@@ -79,6 +79,9 @@ function updateDiagnostics() {
   set('#diag-movement', `${data.forwardMovement.toFixed(1)} m`);
   set('#diag-stuck', `${data.stuckTimer.toFixed(1)} / 3.0 s`);
   set('#diag-lateral', `${data.lateral.toFixed(1)} / +/-${data.trackLimit.toFixed(1)} m`);
+  set('#diag-race-distance', `${data.raceDistance.toFixed(1)} / ${data.trackLength.toFixed(0)} m`);
+  set('#diag-track-location', `TM+${data.trackDistance.toFixed(1)} m`);
+  set('#diag-local-position', `${data.localPosition.x.toFixed(1)}, ${data.localPosition.y.toFixed(1)}, ${data.localPosition.z.toFixed(1)}`);
   set('#diag-collision', data.lastCollision ? `${t(collisionKey[data.lastCollision.type] ?? 'diagNone')} (${data.lastCollision.force.toFixed(0)} N)` : t('diagNone'));
   set('#diag-recovery', data.lastRecovery ? t(recoveryKey[data.lastRecovery.reason] ?? 'diagNone') : t('diagNone'));
 }

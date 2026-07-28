@@ -73,6 +73,20 @@ async function runViewport(name, viewport, direction, quality = 'high') {
   assert.ok(racePixels.available && racePixels.opaque > 60 && racePixels.unique > 5, `${name} race canvas is blank or flat: ${JSON.stringify(racePixels)}`);
   assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `${name} race HUD overflows horizontally`);
   assert.ok(await page.locator('#race-time').isVisible(), `${name} race HUD did not render`);
+  await page.keyboard.press('F3');
+  assert.ok(await page.locator('#diagnostics-panel').isVisible(), `${name} F3 diagnostics did not open`);
+  await page.waitForFunction(() => {
+    const value = document.querySelector('#diag-race-distance')?.textContent;
+    return value && value !== '--';
+  });
+  for (const id of ['#diag-race-distance', '#diag-track-location', '#diag-local-position']) {
+    const value = await page.locator(id).textContent();
+    assert.ok(value && value !== '--', `${name} location diagnostic ${id} was not populated`);
+  }
+  assert.ok(await page.evaluate(() => {
+    const panel = document.querySelector('#diagnostics-panel');
+    return panel.scrollHeight <= panel.clientHeight + 1;
+  }), `${name} diagnostics panel clips location data`);
   const measuredFps = await page.evaluate(() => new Promise((resolve) => {
     let frames = 0;
     const started = performance.now();
