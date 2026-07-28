@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { GAME } from '../src/config.js';
-import { GameWorld, isRailContactNearBoundary, nextRacerSpeed } from '../src/world.js';
+import { GameWorld, isRailContactNearBoundary, nextRacerSpeed, shouldFollowGround } from '../src/world.js';
 
 assert.equal(nextRacerSpeed(0, false, false, GAME.targetSpeed, GAME.acceleration, 1), 0, 'The player must remain stopped without acceleration input');
 assert.equal(nextRacerSpeed(0, true, false, GAME.targetSpeed, GAME.acceleration, 1), GAME.acceleration, 'Acceleration input must increase speed');
@@ -9,6 +9,10 @@ assert.equal(nextRacerSpeed(20, true, true, GAME.targetSpeed, GAME.acceleration,
 assert.equal(GAME.aiObstacleResetDelay, 2, 'AI racers must wait two seconds before bypassing an obstacle');
 assert.equal(isRailContactNearBoundary(2.2), false, 'A centre-road player position cannot produce barrier feedback');
 assert.equal(isRailContactNearBoundary(GAME.trackWidth / 2 - .2), true, 'A player beside the road edge can produce barrier feedback');
+assert.equal(shouldFollowGround(false, .1, -.4), true, 'A grounded cow must follow a small downhill road step');
+assert.equal(shouldFollowGround(false, .3, 0), true, 'A grounded cow must remain attached across sampled elevation changes');
+assert.equal(shouldFollowGround(false, .4, 0), false, 'A meaningful drop must still make the cow airborne');
+assert.equal(shouldFollowGround(true, .1, -1), false, 'An airborne cow must not be snapped down before landing');
 
 const diagnosticWorld = {
   racers: [{

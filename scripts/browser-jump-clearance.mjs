@@ -26,14 +26,29 @@ try {
   assert.equal(await page.locator('#progress').textContent(), '0%', 'Player moved without holding W or Up Arrow');
   assert.equal(await page.locator('#lives').textContent(), '3 / 3');
 
+  await page.keyboard.press('F3');
   await page.keyboard.down('KeyW');
-  await page.waitForFunction(() => Number.parseInt(document.querySelector('#progress')?.textContent ?? '0', 10) >= 2, null, { timeout: 15000 });
+  try {
+    await page.waitForFunction(() => Number.parseInt(document.querySelector('#progress')?.textContent ?? '0', 10) >= 2, null, { timeout: 15000 });
+  } catch (error) {
+    if (!await page.locator('#diagnostics-panel').isVisible()) await page.keyboard.press('F3');
+    await page.waitForTimeout(100);
+    const diagnosticText = await page.locator('#diagnostics-panel').textContent();
+    throw new Error(`Player did not reach 2% progress: ${await page.locator('#progress').textContent()} | ${diagnosticText}`, { cause: error });
+  }
   await page.keyboard.down('Space');
   await page.getByText('Airborne', { exact: true }).waitFor({ state: 'visible', timeout: 1500 });
   await mkdir(path.resolve('artifacts'), { recursive: true });
   await page.screenshot({ path: path.join(path.resolve('artifacts'), 'jump-clears-accident.png'), fullPage: true });
   await page.keyboard.up('Space');
-  await page.waitForFunction(() => Number.parseInt(document.querySelector('#progress')?.textContent ?? '0', 10) >= 5 || document.body.textContent.includes('Game over'), null, { timeout: 15000 });
+  try {
+    await page.waitForFunction(() => Number.parseFloat(document.querySelector('#diag-race-distance')?.textContent ?? '0') >= 265 || document.body.textContent.includes('Game over'), null, { timeout: 15000 });
+  } catch (error) {
+    if (!await page.locator('#diagnostics-panel').isVisible()) await page.keyboard.press('F3');
+    await page.waitForTimeout(100);
+    const diagnosticText = await page.locator('#diagnostics-panel').textContent();
+    throw new Error(`Player did not continue after jumping: ${await page.locator('#progress').textContent()} | ${diagnosticText}`, { cause: error });
+  }
   assert.equal(await page.getByText('Game over', { exact: true }).count(), 0, 'Jumping through the accident caused game over');
   assert.equal(await page.locator('#lives').textContent(), '3 / 3', 'Jumping through the accident consumed a life');
   assert.deepEqual(errors, [], `Browser errors: ${errors.join(' | ')}`);

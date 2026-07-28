@@ -16,6 +16,8 @@ const CONTACT_FORCE_THRESHOLD = 40;
 const COLLISION_COOLDOWN = .5;
 const RAIL_FEEDBACK_COOLDOWN = 1.2;
 const RAIL_FEEDBACK_MARGIN = .75;
+const GROUND_FOLLOW_DISTANCE = .35;
+const GROUND_PENETRATION_LIMIT = 1;
 const MOVEMENT_WINDOW = .75;
 const MIN_WINDOW_MOVEMENT = 1.5;
 const COW_SCALE = 1.6;
@@ -36,6 +38,10 @@ export function nextRacerSpeed(speed, accelerating, braking, target, acceleratio
 
 export function isRailContactNearBoundary(lateral) {
   return Math.abs(lateral) >= GAME.trackWidth / 2 - COW_COLLIDER_HALF_WIDTH - RAIL_FEEDBACK_MARGIN;
+}
+
+export function shouldFollowGround(airborne, groundGap, verticalSpeed) {
+  return !airborne && groundGap <= GROUND_FOLLOW_DISTANCE && groundGap >= -GROUND_PENETRATION_LIMIT && verticalSpeed <= 1;
 }
 
 function setRacerCollisionFilter(racer, filter) {
@@ -603,11 +609,17 @@ export class GameWorld {
     racer.speed=nextRacerSpeed(racer.speed,accelerating,braking,target,acceleration,dt);
     racer.jumpCooldown=Math.max(0,racer.jumpCooldown-dt);racer.protection=Math.max(0,racer.protection-dt);if(racer.protection<=0&&!racer.jumpPhasing)setRacerCollisionFilter(racer,COLLISION_FILTER_NORMAL);
     const groundY=s.point.y+COW_GROUND_OFFSET;const vertical=racer.body.linvel().y;
-    racer.grounded=pos.y<=groundY+.12&&vertical<=1;
+    const groundGap=pos.y-groundY;
+    racer.grounded=shouldFollowGround(racer.airborne,groundGap,vertical);
     let didJump=false;
-    if(racer.grounded){racer.airborne=false;if(pos.y<groundY){racer.body.setTranslation({x:pos.x,y:groundY,z:pos.z},true);pos.y=groundY;}if(vertical<0){const velocity=racer.body.linvel();racer.body.setLinvel({x:velocity.x,y:0,z:velocity.z},true);}if(jump&&racer.jumpCooldown<=0){racer.body.setLinvel({x:0,y:GAME.jumpVelocity,z:0},true);racer.grounded=false;racer.airborne=true;racer.jumpPhasing=true;didJump=true;setRacerCollisionFilter(racer,COLLISION_FILTER_JUMP);this.audio.play('jump');}}
+    if(racer.grounded){
+      racer.airborne=false;
+      if(Math.abs(groundGap)>.001){racer.body.setTranslation({x:pos.x,y:groundY,z:pos.z},true);pos.y=groundY;}
+      if(vertical!==0){const velocity=racer.body.linvel();racer.body.setLinvel({x:velocity.x,y:0,z:velocity.z},true);}
+      if(jump&&racer.jumpCooldown<=0){racer.body.setLinvel({x:0,y:GAME.jumpVelocity,z:0},true);racer.grounded=false;racer.airborne=true;racer.jumpPhasing=true;didJump=true;setRacerCollisionFilter(racer,COLLISION_FILTER_JUMP);this.audio.play('jump');}
+    }else if(!racer.airborne&&groundGap>GROUND_FOLLOW_DISTANCE)racer.airborne=true;
     const landingPosition=racer.body.translation();const landingVertical=racer.body.linvel().y;
-    if(!didJump&&!racer.grounded&&landingVertical<0&&landingPosition.y<=groundY+.18){racer.body.setTranslation({x:landingPosition.x,y:groundY,z:landingPosition.z},true);racer.body.setLinvel({x:0,y:0,z:0},true);racer.grounded=true;racer.airborne=false;racer.jumpPhasing=false;racer.jumpCooldown=GAME.jumpCooldown;if(racer.protection<=0)setRacerCollisionFilter(racer,COLLISION_FILTER_NORMAL);if(racer.isPlayer)this.audio.play('land');}
+    if(!didJump&&racer.airborne&&landingVertical<0&&landingPosition.y<=groundY+.18){racer.body.setTranslation({x:landingPosition.x,y:groundY,z:landingPosition.z},true);racer.body.setLinvel({x:0,y:0,z:0},true);racer.grounded=true;racer.airborne=false;racer.jumpPhasing=false;racer.jumpCooldown=GAME.jumpCooldown;if(racer.protection<=0)setRacerCollisionFilter(racer,COLLISION_FILTER_NORMAL);if(racer.isPlayer)this.audio.play('land');}
     const headingTurnRate=GAME.steerRate*(racer.airborne?.45:1);
     racer.heading=normalizeAngle(racer.heading+racer.steer*headingTurnRate*dt);
     const velocity=tmp.set(Math.sin(racer.heading),0,Math.cos(racer.heading)).multiplyScalar(racer.speed);
