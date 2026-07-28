@@ -1,12 +1,14 @@
 import assert from 'node:assert/strict';
 import { GAME } from '../src/config.js';
-import { GameWorld, nextRacerSpeed } from '../src/world.js';
+import { GameWorld, isRailContactNearBoundary, nextRacerSpeed } from '../src/world.js';
 
 assert.equal(nextRacerSpeed(0, false, false, GAME.targetSpeed, GAME.acceleration, 1), 0, 'The player must remain stopped without acceleration input');
 assert.equal(nextRacerSpeed(0, true, false, GAME.targetSpeed, GAME.acceleration, 1), GAME.acceleration, 'Acceleration input must increase speed');
 assert.equal(nextRacerSpeed(20, false, false, GAME.targetSpeed, GAME.acceleration, 1), 2, 'Releasing acceleration must coast toward zero');
 assert.equal(nextRacerSpeed(20, true, true, GAME.targetSpeed, GAME.acceleration, 1), 0, 'Brake input must override acceleration');
 assert.equal(GAME.aiObstacleResetDelay, 2, 'AI racers must wait two seconds before bypassing an obstacle');
+assert.equal(isRailContactNearBoundary(2.2), false, 'A centre-road player position cannot produce barrier feedback');
+assert.equal(isRailContactNearBoundary(GAME.trackWidth / 2 - .2), true, 'A player beside the road edge can produce barrier feedback');
 
 const diagnosticWorld = {
   racers: [{

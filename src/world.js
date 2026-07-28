@@ -14,9 +14,12 @@ const COLLISION_FILTER_JUMP = COLLISION_GROUP_RACER | COLLISION_GROUP_RAIL;
 const interactionGroups = (membership, filter) => (membership << 16) | filter;
 const CONTACT_FORCE_THRESHOLD = 40;
 const COLLISION_COOLDOWN = .5;
+const RAIL_FEEDBACK_COOLDOWN = 1.2;
+const RAIL_FEEDBACK_MARGIN = .75;
 const MOVEMENT_WINDOW = .75;
 const MIN_WINDOW_MOVEMENT = 1.5;
 const COW_SCALE = 1.6;
+const COW_COLLIDER_HALF_WIDTH = .95 * COW_SCALE;
 const COW_GROUND_OFFSET = 1.55 * COW_SCALE;
 const CAR_SCALE = { x: 1.7, y: 1.4, z: 1.7 };
 const BUS_SCALE = { x: 2, y: 1.35, z: 1.65 };
@@ -29,6 +32,10 @@ export function nextRacerSpeed(speed, accelerating, braking, target, acceleratio
   if (braking) return Math.max(0, speed - GAME.brake * dt);
   if (!accelerating) return Math.max(0, speed - GAME.coastDeceleration * dt);
   return Math.min(target, speed + acceleration * dt);
+}
+
+export function isRailContactNearBoundary(lateral) {
+  return Math.abs(lateral) >= GAME.trackWidth / 2 - COW_COLLIDER_HALF_WIDTH - RAIL_FEEDBACK_MARGIN;
 }
 
 function setRacerCollisionFilter(racer, filter) {
@@ -116,6 +123,7 @@ export class GameWorld {
     this.colliderMetadata = new Map();
     this.activePlayerContacts = new Map();
     this.collisionCooldowns = new Map();
+    this.collisionTypeCooldowns = new Map();
     this.lastCollision = null;
     this.lastRecovery = null;
     this.resize = this.resize.bind(this);
@@ -533,7 +541,7 @@ export class GameWorld {
 
   clearRace() {
     this.racers.forEach((r)=>{this.scene.remove(r.visual);this.colliderMetadata.delete(r.collider.handle);this.physics.removeRigidBody(r.body);}); this.racers=[];
-    this.activePlayerContacts.clear();this.collisionCooldowns.clear();this.lastCollision=null;this.lastRecovery=null;
+    this.activePlayerContacts.clear();this.collisionCooldowns.clear();this.collisionTypeCooldowns.clear();this.lastCollision=null;this.lastRecovery=null;
   }
 
   startRace(direction, appearance) {
@@ -541,7 +549,7 @@ export class GameWorld {
     this.busLaneActive=false;this.busLaneViolationTime=0;this.busLaneGameOverTriggered=false;this.obstacleGameOverTriggered=false;this.playerLives=GAME.playerLives;this.raceElapsed=0;this.setBusLaneVisual(false);
     const choices=[appearance,...COWS.filter((c)=>c.id!==appearance.id)];
     const laneOffset=GAME.trackWidth/3;const lanes=[-laneOffset,0,laneOffset,-laneOffset,0,laneOffset];
-    for(let i=0;i<6;i+=1){const progress=i<3?.004:0;const s=this.track.sample(progress,direction);const pos=s.point.clone().addScaledVector(s.right,lanes[i]);pos.y+=COW_GROUND_OFFSET;const body=this.physics.createRigidBody(RAPIER.RigidBodyDesc.dynamic().setTranslation(pos.x,pos.y,pos.z).setLinearDamping(.25).lockRotations().setCcdEnabled(true));const events=RAPIER.ActiveEvents.COLLISION_EVENTS|RAPIER.ActiveEvents.CONTACT_FORCE_EVENTS;const collider=this.createCollider(RAPIER.ColliderDesc.cuboid(.95*COW_SCALE,.85*COW_SCALE,1.42*COW_SCALE).setRestitution(.72).setFriction(.25).setActiveEvents(events).setContactForceEventThreshold(0).setCollisionGroups(interactionGroups(COLLISION_GROUP_RACER,COLLISION_FILTER_NORMAL)),{type:'racer',id:i},body);const visual=createCow(choices[i%choices.length],i===0);visual.scale.setScalar(COW_SCALE);visual.position.set(pos.x,pos.y-COW_GROUND_OFFSET,pos.z);this.scene.add(visual);this.racers.push({id:i,body,collider,visual,isPlayer:i===0,progress,checkpoint:0,speed:0,heading:Math.atan2(s.tangent.x,s.tangent.z),turnSpeedFactor:1,lateral:lanes[i],grounded:true,jumpCooldown:0,airborne:false,jumpPhasing:false,finished:false,finishTime:null,stuck:0,lastProgress:0,protection:0,steer:0,accelerating:i!==0,braking:false,lane:lanes[i],aiAvoidLateral:lanes[i],aiObstacleDistance:null,busLaneViolationTime:0,mistake:Math.random()*6,lastPosition:pos.clone(),movementWindow:0,forwardMovement:0,windowForwardMovement:0,actualForwardSpeed:0});}
+    for(let i=0;i<6;i+=1){const progress=i<3?.004:0;const s=this.track.sample(progress,direction);const pos=s.point.clone().addScaledVector(s.right,lanes[i]);pos.y+=COW_GROUND_OFFSET;const body=this.physics.createRigidBody(RAPIER.RigidBodyDesc.dynamic().setTranslation(pos.x,pos.y,pos.z).setLinearDamping(.25).lockRotations().setCcdEnabled(true));const events=RAPIER.ActiveEvents.COLLISION_EVENTS|RAPIER.ActiveEvents.CONTACT_FORCE_EVENTS;const collider=this.createCollider(RAPIER.ColliderDesc.cuboid(COW_COLLIDER_HALF_WIDTH,.85*COW_SCALE,1.42*COW_SCALE).setRestitution(.72).setFriction(.25).setActiveEvents(events).setContactForceEventThreshold(0).setCollisionGroups(interactionGroups(COLLISION_GROUP_RACER,COLLISION_FILTER_NORMAL)),{type:'racer',id:i},body);const visual=createCow(choices[i%choices.length],i===0);visual.scale.setScalar(COW_SCALE);visual.position.set(pos.x,pos.y-COW_GROUND_OFFSET,pos.z);this.scene.add(visual);this.racers.push({id:i,body,collider,visual,isPlayer:i===0,progress,checkpoint:0,speed:0,heading:Math.atan2(s.tangent.x,s.tangent.z),turnSpeedFactor:1,lateral:lanes[i],grounded:true,jumpCooldown:0,airborne:false,jumpPhasing:false,finished:false,finishTime:null,stuck:0,lastProgress:0,protection:0,steer:0,accelerating:i!==0,braking:false,lane:lanes[i],aiAvoidLateral:lanes[i],aiObstacleDistance:null,busLaneViolationTime:0,mistake:Math.random()*6,lastPosition:pos.clone(),movementWindow:0,forwardMovement:0,windowForwardMovement:0,actualForwardSpeed:0});}
   }
 
   setRaceRunning(running){this.raceRunning=running;}
@@ -627,9 +635,55 @@ export class GameWorld {
 
   takePlayerLife(details){const player=this.racers[0];if(!player||player.protection>0||player.airborne||this.obstacleGameOverTriggered)return;this.playerLives=Math.max(0,this.playerLives-1);if(this.playerLives<=0){this.obstacleGameOverTriggered=true;this.onObstacleGameOver?.(details);return;}this.onPlayerLifeLost?.({...details,remaining:this.playerLives,total:GAME.playerLives});this.activePlayerContacts.clear();this.recover(player,'obstacle',false);}
 
-  drainPhysicsEvents(){const player=this.racers[0];if(!player)return;const playerHandle=player.collider.handle;this.events.drainCollisionEvents((h1,h2,started)=>{if(h1!==playerHandle&&h2!==playerHandle)return;const otherHandle=h1===playerHandle?h2:h1;const metadata=this.colliderMetadata.get(otherHandle);if(!metadata||metadata.type==='road')return;if(started){this.activePlayerContacts.set(otherHandle,{notified:false});if(metadata.type==='obstacle')this.takePlayerLife({type:metadata.obstacleType??'obstacle',otherId:metadata.id,vehicleType:metadata.vehicleType??null});}else this.activePlayerContacts.delete(otherHandle);});this.events.drainContactForceEvents((event)=>{const h1=event.collider1(),h2=event.collider2();if(h1!==playerHandle&&h2!==playerHandle)return;const otherHandle=h1===playerHandle?h2:h1;const metadata=this.colliderMetadata.get(otherHandle);if(!metadata||metadata.type==='road'||metadata.type==='obstacle'&&player.protection>0)return;const force=event.maxForceMagnitude();this.lastCollision={type:metadata.type,force,otherId:metadata.id,time:this.clockTime};const contact=this.activePlayerContacts.get(otherHandle)??{notified:false};this.activePlayerContacts.set(otherHandle,contact);const lastAt=this.collisionCooldowns.get(otherHandle)??-Infinity;if(force<CONTACT_FORCE_THRESHOLD||contact.notified||this.clockTime-lastAt<COLLISION_COOLDOWN)return;contact.notified=true;this.collisionCooldowns.set(otherHandle,this.clockTime);this.audio.play('hit');this.onCollision?.({type:metadata.type,force,otherId:metadata.id});});}
+  drainPhysicsEvents() {
+    const player = this.racers[0];
+    if (!player) return;
+    const playerHandle = player.collider.handle;
+    this.events.drainCollisionEvents((h1, h2, started) => {
+      if (h1 !== playerHandle && h2 !== playerHandle) return;
+      const otherHandle = h1 === playerHandle ? h2 : h1;
+      const metadata = this.colliderMetadata.get(otherHandle);
+      if (!metadata || metadata.type === 'road') return;
+      if (started) {
+        this.activePlayerContacts.set(otherHandle, { notified: false });
+        if (metadata.type === 'obstacle') this.takePlayerLife({ type: metadata.obstacleType ?? 'obstacle', otherId: metadata.id, vehicleType: metadata.vehicleType ?? null });
+      } else this.activePlayerContacts.delete(otherHandle);
+    });
+    this.events.drainContactForceEvents((event) => {
+      const h1 = event.collider1(), h2 = event.collider2();
+      if (h1 !== playerHandle && h2 !== playerHandle) return;
+      const otherHandle = h1 === playerHandle ? h2 : h1;
+      const metadata = this.colliderMetadata.get(otherHandle);
+      if (!metadata || metadata.type === 'road' || metadata.type === 'obstacle' && player.protection > 0) return;
+      const force = event.maxForceMagnitude();
+      const contact = this.activePlayerContacts.get(otherHandle) ?? { notified: false };
+      this.activePlayerContacts.set(otherHandle, contact);
+      const lastAt = this.collisionCooldowns.get(otherHandle) ?? -Infinity;
+      const lastTypeAt = this.collisionTypeCooldowns.get(metadata.type) ?? -Infinity;
+      if (force < CONTACT_FORCE_THRESHOLD || contact.notified || this.clockTime - lastAt < COLLISION_COOLDOWN) return;
+      if (metadata.type === 'rail' && (!isRailContactNearBoundary(player.lateral) || this.clockTime - lastTypeAt < RAIL_FEEDBACK_COOLDOWN)) return;
 
-  getDiagnostics(){const player=this.racers[0];if(!player)return null;const velocity=player.body.linvel();const position=player.body.translation();const bodyForwardSpeed=Math.hypot(velocity.x,velocity.z);const raceDistance=player.progress*this.track.length;const trackDistance=this.direction===1?raceDistance:this.track.length-raceDistance;return{requestedSpeed:player.speed,actualForwardSpeed:player.actualForwardSpeed,bodyForwardSpeed,activeContacts:this.activePlayerContacts.size,forwardMovement:player.windowForwardMovement,stuckTimer:player.stuck,lateral:player.lateral,trackLimit:GAME.trackWidth/2,lives:this.playerLives,raceDistance,trackDistance,trackLength:this.track.length,localPosition:{x:position.x,y:position.y,z:position.z},lastCollision:this.lastCollision,lastRecovery:this.lastRecovery};}
+      contact.notified = true;
+      this.collisionCooldowns.set(otherHandle, this.clockTime);
+      this.collisionTypeCooldowns.set(metadata.type, this.clockTime);
+      const position = player.body.translation();
+      const raceDistance = player.progress * this.track.length;
+      const trackDistance = this.direction === 1 ? raceDistance : this.track.length - raceDistance;
+      this.lastCollision = {
+        type: metadata.type,
+        force,
+        otherId: metadata.id,
+        time: this.clockTime,
+        trackDistance,
+        lateral: player.lateral,
+        localPosition: { x: position.x, y: position.y, z: position.z },
+      };
+      this.audio.play('hit');
+      this.onCollision?.({ type: metadata.type, force, otherId: metadata.id });
+    });
+  }
+
+  getDiagnostics(){const player=this.racers[0];if(!player)return null;const velocity=player.body.linvel();const position=player.body.translation();const bodyForwardSpeed=Math.hypot(velocity.x,velocity.z);const raceDistance=player.progress*this.track.length;const trackDistance=this.direction===1?raceDistance:this.track.length-raceDistance;return{requestedSpeed:player.speed,actualForwardSpeed:player.actualForwardSpeed,bodyForwardSpeed,activeContacts:this.activePlayerContacts.size,forwardMovement:player.windowForwardMovement,stuckTimer:player.stuck,lateral:player.lateral,trackLimit:GAME.trackWidth/2,lives:this.playerLives,raceDistance,trackDistance,trackLength:this.track.length,localPosition:{x:position.x,y:position.y,z:position.z},clockTime:this.clockTime,lastCollision:this.lastCollision,lastRecovery:this.lastRecovery};}
 
   syncRacer(racer){const p=racer.body.translation();racer.visual.position.set(p.x,p.y-COW_GROUND_OFFSET,p.z);racer.visual.rotation.y=racer.heading;animateCow(racer.visual,this.clockTime,racer.speed,racer.steer,racer.airborne,racer.braking);}
 
