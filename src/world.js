@@ -285,39 +285,32 @@ export class GameWorld {
     companionDashes.name = 'opposite-carriageway-markings';
     this.scene.add(companionDashes);
 
-    const railSegments = 280;
+    const railSegments = GAME.railSegments;
+    const railOffset = GAME.trackWidth / 2 + GAME.railShoulderOffset;
+    const railOverlap = GAME.railSegmentOverlap;
     const railGeo = new THREE.BoxGeometry(.4, 1.15, 1);
     const railMaterial = new THREE.MeshStandardMaterial({ color: 0xdbe4df, metalness: .25, roughness: .6 });
     const rails = new THREE.InstancedMesh(railGeo, railMaterial, railSegments * 2);
     let railIndex = 0;
     for (let i = 0; i < railSegments; i += 1) {
-      const progress = (i + .5) / railSegments;
-      const sample = this.track.sample(progress, 1);
-      const next = this.track.sample(Math.min(1, progress + 1 / railSegments), 1);
-      const length = sample.point.distanceTo(next.point) + 1.5;
       for (const side of [-1, 1]) {
-        const position = sample.point.clone().addScaledVector(sample.right, side * (GAME.trackWidth / 2 + 1.6));
+        const segment = this.track.offsetSegment(i, railSegments, side * railOffset, railOverlap);
+        const position = segment.position.clone();
         position.y += .6;
-        setRouteTransform(matrix, sample, position, new THREE.Vector3(1, 1, length));
+        matrix.compose(position, segment.rotation, new THREE.Vector3(1, 1, segment.length));
         rails.setMatrixAt(railIndex++, matrix);
       }
     }
     rails.name = 'road-safety-barriers';
     this.scene.add(rails);
 
-    const colliderSegments = 180;
-    for (let i = 0; i < colliderSegments; i += 1) {
-      const progress = (i + .5) / colliderSegments;
-      const sample = this.track.sample(progress, 1);
-      const next = this.track.sample(Math.min(1, progress + 1 / colliderSegments), 1);
-      const length = sample.point.distanceTo(next.point) + 2;
-      const normal = sample.tangent.clone().cross(sample.right).normalize();
-      const rotation = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(sample.right, normal, sample.tangent));
+    for (let i = 0; i < railSegments; i += 1) {
       for (const side of [-1, 1]) {
-        const position = sample.point.clone().addScaledVector(sample.right, side * (GAME.trackWidth / 2 + 1.5));
-        position.y += 1;
+        const segment = this.track.offsetSegment(i, railSegments, side * railOffset, railOverlap);
+        const position = segment.position.clone();
+        position.y += GAME.railColliderHalfHeight;
         this.createCollider(
-          RAPIER.ColliderDesc.cuboid(.65, 1.5, length / 2).setTranslation(position.x, position.y, position.z).setRotation(rotation).setRestitution(.55).setCollisionGroups(interactionGroups(COLLISION_GROUP_RAIL, COLLISION_GROUP_RACER)),
+          RAPIER.ColliderDesc.cuboid(GAME.railColliderHalfWidth, GAME.railColliderHalfHeight, segment.length / 2).setTranslation(position.x, position.y, position.z).setRotation(segment.rotation).setRestitution(.55).setCollisionGroups(interactionGroups(COLLISION_GROUP_RAIL, COLLISION_GROUP_RACER)),
           { type: 'rail', id: `rail-${i}-${side}` },
         );
       }

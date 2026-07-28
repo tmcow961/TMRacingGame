@@ -162,6 +162,28 @@ export class Track {
     return direction === 1 ? obstacle.progress : 1 - obstacle.progress;
   }
 
+  offsetSegment(index, segments, lateral = 0, overlap = 0) {
+    const startSample = this.sample(index / segments, 1);
+    const endSample = this.sample((index + 1) / segments, 1);
+    const start = startSample.point.clone().addScaledVector(startSample.right, lateral);
+    const end = endSample.point.clone().addScaledVector(endSample.right, lateral);
+    const tangent = end.clone().sub(start);
+    const length = tangent.length() + overlap;
+    tangent.normalize();
+    const right = new THREE.Vector3(tangent.z, 0, -tangent.x).normalize();
+    const normal = tangent.clone().cross(right).normalize();
+    const rotation = new THREE.Quaternion().setFromRotationMatrix(
+      new THREE.Matrix4().makeBasis(right, normal, tangent),
+    );
+    return {
+      position: start.add(end).multiplyScalar(.5),
+      rotation,
+      length,
+      right,
+      tangent,
+    };
+  }
+
   makeRoadGeometry(width = GAME.trackWidth, segments = 600, offset = 0, lateral = 0, start = 0, end = 1) {
     const positions = [];
     const uvs = [];

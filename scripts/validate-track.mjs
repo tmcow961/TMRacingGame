@@ -17,6 +17,25 @@ assert.ok(track.obstacles.every((obstacle) => obstacle.distance > 0 && obstacle.
 assert.ok(track.obstacles.every((obstacle) => obstacle.type === 'accident'), 'Only vehicle accident scenes may be gameplay obstacles');
 assert.ok(track.obstacles.every((obstacle) => obstacle.cars.length >= 3 && obstacle.cars.length <= 5), 'Every accident must contain 3-5 vehicles');
 
+const railOffset = GAME.trackWidth / 2 + GAME.railShoulderOffset;
+let maximumRailIntrusion = -Infinity;
+for (let i = 0; i < GAME.railSegments; i += 1) {
+  for (const side of [-1, 1]) {
+    const segment = track.offsetSegment(i, GAME.railSegments, side * railOffset, GAME.railSegmentOverlap);
+    for (const x of [-GAME.railColliderHalfWidth, GAME.railColliderHalfWidth]) {
+      for (const z of [-segment.length / 2, segment.length / 2]) {
+        const corner = segment.position.clone().addScaledVector(segment.right, x).addScaledVector(segment.tangent, z);
+        const hint = (i + .5) / GAME.railSegments;
+        const road = track.sample(track.nearestProgress(corner, hint, 1), 1);
+        const lateral = corner.clone().sub(road.point).dot(road.right);
+        const intrusion = side === 1 ? GAME.trackWidth / 2 - lateral : lateral + GAME.trackWidth / 2;
+        maximumRailIntrusion = Math.max(maximumRailIntrusion, intrusion);
+      }
+    }
+  }
+}
+assert.ok(maximumRailIntrusion <= 0, `Rail collider intrudes ${maximumRailIntrusion.toFixed(2)} units into the playable road`);
+
 let minimumRadius = Infinity;
 let maximumGrade = 0;
 let previousHeading = null;
@@ -62,4 +81,5 @@ console.log(JSON.stringify({
   minimumCurveRadius: Number(minimumRadius.toFixed(1)),
   maximumGradePercent: Number((maximumGrade * 100).toFixed(1)),
   minimumNonlocalDistance: Number(minimumNonlocalDistance.toFixed(1)),
+  maximumRailIntrusion: Number(maximumRailIntrusion.toFixed(2)),
 }, null, 2));
