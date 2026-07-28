@@ -1,0 +1,250 @@
+import { mkdir, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import * as THREE from 'three';
+
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const DATA_DIR = path.join(ROOT, 'src', 'data');
+const TARGET_LENGTH = 6000;
+const OSRM_URL = 'https://router.project-osrm.org/route/v1/driving/113.9782,22.3895;114.1110,22.3742?overview=full&geometries=geojson&steps=true';
+
+const anchors = [
+  { id: 'tuen-mun', labelEn: 'Tuen Mun', labelZh: '屯門', type: 'terminus', lon: 113.97822, lat: 22.38951, side: -1 },
+  { id: 'castle-peak-bay', labelEn: 'Castle Peak Bay', labelZh: '青山灣', type: 'coast', lon: 113.9804, lat: 22.3833, side: 1 },
+  { id: 'siu-lam', labelEn: 'Siu Lam', labelZh: '小欖', type: 'district', lon: 114.0018, lat: 22.3672, side: 1 },
+  { id: 'tai-lam-chung', labelEn: 'Tai Lam Chung', labelZh: '大欖涌', type: 'bridge', lon: 114.0168, lat: 22.3609, side: 1 },
+  { id: 'tsing-lung-tau', labelEn: 'Tsing Lung Tau', labelZh: '青龍頭', type: 'district', lon: 114.0453, lat: 22.3658, side: 1 },
+  { id: 'sham-tseng', labelEn: 'Sham Tseng', labelZh: '深井', type: 'urban', lon: 114.0586, lat: 22.3682, side: -1 },
+  { id: 'ting-kau', labelEn: 'Ting Kau Bridge', labelZh: '汀九橋', type: 'bridge-view', lon: 114.0795, lat: 22.3717, side: 1 },
+  { id: 'yau-kom-tau', labelEn: 'Yau Kom Tau', labelZh: '油柑頭', type: 'viaduct', lon: 114.0941, lat: 22.3700, side: 1 },
+  { id: 'tsuen-wan', labelEn: 'Tsuen Wan', labelZh: '荃灣', type: 'terminus', lon: 114.10202, lat: 22.37399, side: -1 },
+];
+
+const distance2 = (a, b) => {
+  const x = (a[0] - b[0]) * 111320 * Math.cos(((a[1] + b[1]) * .5) * Math.PI / 180);
+  const y = (a[1] - b[1]) * 110540;
+  return x * x + y * y;
+};
+
+function perpendicularDistance(point, start, end) {
+  const dx = end[0] - start[0];
+  const dy = end[1] - start[1];
+  if (dx === 0 && dy === 0) return Math.sqrt(distance2(point, start));
+  const t = Math.max(0, Math.min(1, ((point[0] - start[0]) * dx + (point[1] - start[1]) * dy) / (dx * dx + dy * dy)));
+  const projected = [start[0] + t * dx, start[1] + t * dy];
+  return Math.sqrt(distance2(point, projected));
+}
+
+function simplify(points, tolerance) {
+  if (points.length <= 2) return points;
+  let maxDistance = 0;
+  let split = 0;
+  for (let i = 1; i < points.length - 1; i += 1) {
+    const d = perpendicularDistance(points[i], points[0], points.at(-1));
+    if (d > maxDistance) { maxDistance = d; split = i; }
+  }
+  if (maxDistance <= tolerance) return [points[0], points.at(-1)];
+  return [...simplify(points.slice(0, split + 1), tolerance).slice(0, -1), ...simplify(points.slice(split), tolerance)];
+}
+
+function cumulativeDistances(points) {
+  const distances = [0];
+  for (let i = 1; i < points.length; i += 1) distances.push(distances[i - 1] + Math.sqrt(distance2(points[i - 1], points[i])));
+  return distances;
+}
+
+function resampleByDistance(points, distances, count) {
+  const result = [];
+  let segment = 1;
+  for (let i = 0; i < count; i += 1) {
+    const target = distances.at(-1) * i / (count - 1);
+    while (segment < distances.length - 1 && distances[segment] < target) segment += 1;
+    const startDistance = distances[segment - 1];
+    const endDistance = distances[segment];
+    const mix = (target - startDistance) / Math.max(.001, endDistance - startDistance);
+    result.push([
+      THREE.MathUtils.lerp(points[segment - 1][0], points[segment][0], mix),
+      THREE.MathUtils.lerp(points[segment - 1][1], points[segment][1], mix),
+    ]);
+  }
+  return result;
+}
+
+async function fetchElevations(points) {
+  const elevations = [];
+  for (let start = 0; start < points.length; start += 80) {
+    const chunk = points.slice(start, start + 80);
+    const latitude = chunk.map((point) => point[1].toFixed(6)).join(',');
+    const longitude = chunk.map((point) => point[0].toFixed(6)).join(',');
+    const response = await fetch(`https://api.open-meteo.com/v1/elevation?latitude=${latitude}&longitude=${longitude}`);
+    if (!response.ok) throw new Error(`Elevation service returned ${response.status}`);
+    elevations.push(...(await response.json()).elevation);
+  }
+  let result = elevations.map((value) => Number.isFinite(value) ? value : 0);
+  for (let pass = 0; pass < 4; pass += 1) {
+    result = result.map((value, i, values) => i === 0 || i === values.length - 1
+      ? value
+      : values[i - 1] * .25 + value * .5 + values[i + 1] * .25);
+  }
+  return result;
+}
+
+function progressForCoordinate(coordinate, route, distances) {
+  let best = 0;
+  let bestDistance = Infinity;
+  route.forEach((point, index) => {
+    const d = distance2(coordinate, point);
+    if (d < bestDistance) { bestDistance = d; best = index; }
+  });
+  return distances[best] / distances.at(-1);
+}
+
+function round(value, places = 3) {
+  const scale = 10 ** places;
+  return Math.round(value * scale) / scale;
+}
+
+async function main() {
+  const routeResponse = await fetch(OSRM_URL, { headers: { 'User-Agent': 'TuenMunCowRacing/1.0 local-development' } });
+  if (!routeResponse.ok) throw new Error(`OSRM returned ${routeResponse.status}`);
+  const routeResult = await routeResponse.json();
+  if (routeResult.code !== 'Ok') throw new Error(`OSRM route failed: ${routeResult.code}`);
+  const routeStep = routeResult.routes[0].legs[0].steps.find((step) => step.name.includes('Tuen Mun Road'));
+  if (!routeStep) throw new Error('The routed result did not contain a Tuen Mun Road step');
+  const sourceCoordinates = routeStep.geometry.coordinates;
+  const sourceDistances = cumulativeDistances(sourceCoordinates);
+  const simplified = simplify(sourceCoordinates, 25);
+  const elevations = await fetchElevations(simplified);
+
+  const origin = simplified[0];
+  const latitudeScale = 110540;
+  const longitudeScale = 111320 * Math.cos(origin[1] * Math.PI / 180);
+  const local = simplified.map(([lon, lat]) => ({ east: (lon - origin[0]) * longitudeScale, north: (lat - origin[1]) * latitudeScale }));
+  const minimapPoints = resampleByDistance(sourceCoordinates, sourceDistances, 161).map(([lon, lat]) => [
+    round((lon - origin[0]) * longitudeScale),
+    round((lat - origin[1]) * latitudeScale),
+  ]);
+  const end = local.at(-1);
+  const forwardLength = Math.hypot(end.east, end.north);
+  const forward = { east: end.east / forwardLength, north: end.north / forwardLength };
+  const projected = local.map(({ east, north }, i) => ({
+    x: east * forward.north - north * forward.east,
+    y: 6 + Math.max(0, elevations[i] - Math.min(...elevations)) * .18,
+    z: east * forward.east + north * forward.north,
+  }));
+
+  const playableAlignment = projected;
+  let horizontalScale = TARGET_LENGTH / sourceDistances.at(-1);
+  let points;
+  let curve;
+  for (let pass = 0; pass < 4; pass += 1) {
+    points = playableAlignment.map((point) => new THREE.Vector3(point.x * horizontalScale, point.y, point.z * horizontalScale));
+    curve = new THREE.CatmullRomCurve3(points, false, 'centripetal');
+    horizontalScale *= TARGET_LENGTH / curve.getLength();
+  }
+  points = playableAlignment.map((point) => new THREE.Vector3(point.x * horizontalScale, point.y, point.z * horizontalScale));
+  curve = new THREE.CatmullRomCurve3(points, false, 'centripetal');
+
+  const normalizedAnchors = anchors.map((anchor) => {
+    const progress = progressForCoordinate([anchor.lon, anchor.lat], sourceCoordinates, sourceDistances);
+    return { ...anchor, distance: round(progress * curve.getLength()), progress: round(progress, 6) };
+  });
+  const anchorDistance = (id) => normalizedAnchors.find((anchor) => anchor.id === id).distance;
+  const coveredSections = [
+    { id: 'tuen-mun-covered-road', type: 'covered-road', startDistance: 120, endDistance: 260 },
+    { id: 'sham-tseng-gallery', type: 'rock-gallery', startDistance: anchorDistance('sham-tseng') - 90, endDistance: anchorDistance('sham-tseng') + 75 },
+    { id: 'tsuen-wan-covered-road', type: 'covered-road', startDistance: anchorDistance('tsuen-wan') - 185, endDistance: anchorDistance('tsuen-wan') - 45 },
+  ];
+  const environmentZones = [
+    { id: 'tuen-mun-urban', type: 'urban', startDistance: 0, endDistance: anchorDistance('castle-peak-bay') + 100, seaSide: -1 },
+    { id: 'western-coast', type: 'coast', startDistance: anchorDistance('castle-peak-bay'), endDistance: anchorDistance('tsing-lung-tau'), seaSide: -1 },
+    { id: 'sham-tseng', type: 'urban-coast', startDistance: anchorDistance('tsing-lung-tau'), endDistance: anchorDistance('ting-kau'), seaSide: -1 },
+    { id: 'ting-kau', type: 'bridge-view', startDistance: anchorDistance('ting-kau') - 160, endDistance: anchorDistance('yau-kom-tau') + 120, seaSide: -1 },
+    { id: 'tsuen-wan-urban', type: 'urban', startDistance: anchorDistance('yau-kom-tau'), endDistance: round(curve.getLength()), seaSide: -1 },
+  ];
+  const accidentScenes = Array.from({ length: 27 }, (_, index) => ({
+    id: `accident-${String(index + 1).padStart(2, '0')}`,
+    type: 'accident',
+    distance: round(curve.getLength() * (.04 + (index / 26) * .92)),
+    layout: index % 5,
+  }));
+  const obstacles = accidentScenes;
+  const checkpoints = Array.from({ length: 17 }, (_, index) => {
+    const distance = curve.getLength() * index / 16;
+    return {
+      id: `checkpoint-${String(index).padStart(2, '0')}`,
+      distance: round(distance),
+      recoveryDistance: round(Math.max(0, distance - 90)),
+    };
+  });
+
+  const geojson = {
+    type: 'FeatureCollection',
+    name: 'Tuen Mun Road source alignment',
+    crs: { type: 'name', properties: { name: 'urn:ogc:def:crs:OGC:1.3:CRS84' } },
+    features: [{
+      type: 'Feature',
+      properties: {
+        name: 'Tuen Mun Road: Tuen Mun to Tsuen Wan',
+        source: 'OpenStreetMap contributors via OSRM',
+        sourceDistanceMetres: routeStep.distance,
+        retrieved: new Date().toISOString().slice(0, 10),
+      },
+      geometry: { type: 'LineString', coordinates: sourceCoordinates },
+    }],
+  };
+  const trackData = {
+    version: 1,
+    id: 'tuen-mun-road',
+    canonicalDirection: 'tuen-mun-to-tsuen-wan',
+    targetLength: TARGET_LENGTH,
+    generatedLength: round(curve.getLength()),
+    originWgs84: origin,
+    projection: 'Local tangent plane, rotated to canonical route direction',
+    elevation: 'Copernicus DEM-derived terrain profile, smoothed and vertically compressed for gameplay',
+    routePoints: points.map((point) => [round(point.x), round(point.y), round(point.z)]),
+    minimapPoints,
+    anchors: normalizedAnchors.map(({ lon, lat, ...anchor }) => anchor),
+    coveredSections,
+    environmentZones,
+    startFinish: {
+      canonicalStartDistance: 0,
+      canonicalFinishDistance: round(curve.getLength()),
+    },
+    checkpoints,
+    obstacles,
+  };
+  const sources = {
+    updated: new Date().toISOString().slice(0, 10),
+    sources: [
+      {
+        id: 'openstreetmap-route',
+        title: 'OpenStreetMap road network',
+        url: 'https://www.openstreetmap.org/copyright',
+        author: 'OpenStreetMap contributors',
+        license: 'Open Database License 1.0 (ODbL)',
+        use: 'Tuen Mun Road route alignment and road context, routed with OSRM',
+        modified: 'Simplified, rotated, distance-compressed, and converted to local game coordinates',
+        attribution: 'Map data © OpenStreetMap contributors',
+      },
+      {
+        id: 'copernicus-dem',
+        title: 'Copernicus DEM GLO-90 elevation through Open-Meteo',
+        url: 'https://open-meteo.com/en/docs/elevation-api',
+        author: 'European Union, Copernicus programme; Open-Meteo API',
+        license: 'Copernicus data terms; Open-Meteo attribution requested',
+        use: 'Preliminary elevation character along the route',
+        modified: 'Smoothed and vertically compressed; not survey-grade road elevation',
+        attribution: 'Elevation data: Copernicus DEM via Open-Meteo',
+      },
+    ],
+  };
+
+  await mkdir(DATA_DIR, { recursive: true });
+  await writeFile(path.join(DATA_DIR, 'tuen-mun-road.source.geojson'), `${JSON.stringify(geojson, null, 2)}\n`);
+  await writeFile(path.join(DATA_DIR, 'tuen-mun-road.track.json'), `${JSON.stringify(trackData, null, 2)}\n`);
+  await writeFile(path.join(DATA_DIR, 'sources.json'), `${JSON.stringify(sources, null, 2)}\n`);
+  console.log(`Generated ${points.length} route points, ${curve.getLength().toFixed(1)} game units, from ${sourceCoordinates.length} OSM route points.`);
+}
+
+await main();

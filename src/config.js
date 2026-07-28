@@ -1,0 +1,42 @@
+export const COWS = [
+  { id: 'gold', color: 0xd7a928, secondary: 0xffe99a },
+  { id: 'silver', color: 0xaab7c4, secondary: 0xeaf1f5 },
+  { id: 'red', color: 0xc64236, secondary: 0xffb3a9 },
+  { id: 'blackWhite', color: 0xf4f2e9, secondary: 0x171a1c, spotted: true },
+  { id: 'brown', color: 0x8a5538, secondary: 0xd39a6e },
+];
+
+export const GAME = {
+  racerCount: 6,
+  targetSpeed: 102,
+  aiBaseSpeed: 105.06,
+  aiObstacleResetDelay: 2,
+  playerLives: 3,
+  acceleration: 12,
+  brake: 28,
+  coastDeceleration: 18,
+  steerRate: 1.15,
+  turnSpeedMultiplier: 0.5,
+  turnRecoveryTime: 2,
+  turnSteerThreshold: 0.12,
+  trackWidth: 33,
+  jumpVelocity: 24,
+  jumpCooldown: 2,
+  clockDayDuration: 120,
+  busLaneStartMinutes: 7 * 60 + 30,
+  busLaneEndMinutes: 9 * 60,
+  busLaneGraceTime: 2,
+  gravity: -24,
+  checkpointCount: 16,
+  fixedStep: 1 / 60,
+};
+
+export const DEFAULT_SETTINGS = {
+  language: 'en',
+  master: 0.75,
+  music: 0.42,
+  sfx: 0.75,
+  quality: 'high',
+  reducedMotion: false,
+  diagnostics: false,
+};

@@ -1,0 +1,25 @@
+{
+  "updated": "2026-07-27",
+  "sources": [
+    {
+      "id": "openstreetmap-route",
+      "title": "OpenStreetMap road network",
+      "url": "https://www.openstreetmap.org/copyright",
+      "author": "OpenStreetMap contributors",
+      "license": "Open Database License 1.0 (ODbL)",
+      "use": "Tuen Mun Road route alignment and road context, routed with OSRM",
+      "modified": "Simplified, rotated, distance-compressed, and converted to local game coordinates",
+      "attribution": "Map data © OpenStreetMap contributors"
+    },
+    {
+      "id": "copernicus-dem",
+      "title": "Copernicus DEM GLO-90 elevation through Open-Meteo",
+      "url": "https://open-meteo.com/en/docs/elevation-api",
+      "author": "European Union, Copernicus programme; Open-Meteo API",
+      "license": "Copernicus data terms; Open-Meteo attribution requested",
+      "use": "Preliminary elevation character along the route",
+      "modified": "Smoothed and vertically compressed; not survey-grade road elevation",
+      "attribution": "Elevation data: Copernicus DEM via Open-Meteo"
+    }
+  ]
+}
