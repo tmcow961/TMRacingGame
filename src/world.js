@@ -29,7 +29,7 @@ const AI_OBSTACLE_LOOKAHEAD = 390;
 const AI_BYPASS_DISTANCE = 72;
 const AI_STEER_LOOKAHEAD = 72;
 const COW_INTERCHANGE_APPROACH_DISTANCE = 140;
-const COW_INTERCHANGE_STOP_DISTANCE = 11;
+const DEFAULT_COW_INTERCHANGE_TRIGGER_HALF_LENGTH = 48;
 const normalizeAngle = (angle) => Math.atan2(Math.sin(angle), Math.cos(angle));
 
 export function nextRacerSpeed(speed, accelerating, braking, target, acceleration, dt) {
@@ -692,16 +692,17 @@ export class GameWorld {
     const raceDistance = player.progress * this.track.length;
     const canonicalDistance = this.direction === 1 ? raceDistance : this.track.length - raceDistance;
     const forwardDistance = (stop.distance - canonicalDistance) * this.direction;
+    const triggerHalfLength = stop.triggerHalfLength ?? DEFAULT_COW_INTERCHANGE_TRIGGER_HALF_LENGTH;
     const leftmostRequired = this.direction === 1;
     if (!this.cowInterchangeAnnounced && forwardDistance > 0 && forwardDistance <= COW_INTERCHANGE_APPROACH_DISTANCE) {
       this.cowInterchangeAnnounced = true;
       this.onCowInterchangeApproach?.(stop, { leftmostRequired });
     }
-    if (forwardDistance < -COW_INTERCHANGE_STOP_DISTANCE) {
+    if (forwardDistance < -triggerHalfLength) {
       this.cowInterchangeVisited = true;
       return;
     }
-    if (Math.abs(forwardDistance) > COW_INTERCHANGE_STOP_DISTANCE) return;
+    if (Math.abs(forwardDistance) > triggerHalfLength) return;
     if (leftmostRequired && !this.track.isRaceLeftLane(player.lateral, canonicalDistance)) return;
     this.cowInterchangeVisited = true;
     this.raceRunning = false;

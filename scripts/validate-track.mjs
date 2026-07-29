@@ -10,6 +10,7 @@ assert.ok(track.anchors.every((anchor, index) => index === 0 || anchor.distance 
 assert.equal(track.cowStops.length, 1, 'The route must contain the Tuen Mun Road Cow Interchange');
 assert.equal(track.cowStops[0].id, 'tuen-mun-road-cow-interchange');
 assert.ok(Math.abs(track.cowStops[0].distance - 2300.57) < 1, 'Cow interchange must match the OpenStreetMap-derived TM+2301 m location');
+assert.ok(track.cowStops[0].triggerHalfLength >= 45, 'Cow-changing must remain active along the full interchange platform');
 assert.equal(track.roadWidthAtDistance(0), GAME.trackWidth, 'The normal route must remain three lanes wide');
 assert.equal(track.roadWidthAtDistance(track.cowStops[0].distance), GAME.trackWidth * 4 / 3, 'The cow interchange must have four full-width lanes');
 assert.ok(track.isRaceLeftLane(16.5, track.cowStops[0].distance), 'The far-left interchange lane must be detected');

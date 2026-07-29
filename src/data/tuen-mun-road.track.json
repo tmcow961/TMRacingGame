@@ -967,6 +967,7 @@
       "fourLaneStartDistance": 2020.57,
       "fourLaneEndDistance": 2580.57,
       "laneTransitionDistance": 80,
+      "triggerHalfLength": 48,
       "sourceWgs84": [
         114.019451,
         22.357906

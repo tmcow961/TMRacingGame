@@ -111,10 +111,15 @@ const wrongLaneWorld = {
 };
 GameWorld.prototype.checkCowInterchange.call(wrongLaneWorld);
 assert.equal(interchangeStops, 1, 'Tuen Mun to Tsuen Wan must not open cow changing outside the far-left lane');
+wrongLanePlayer.progress = (stop.distance + 40) / 6000;
+wrongLanePlayer.lateral = 16.5;
+GameWorld.prototype.checkCowInterchange.call(wrongLaneWorld);
+assert.equal(interchangeStops, 2, 'Entering the far-left lane beside the platform must still open cow changing');
 
 const reversePlayer = {
   ...wrongLanePlayer,
   progress: (6000 - stop.distance) / 6000,
+  lateral: 5.5,
 };
 const reverseWorld = {
   ...interchangeWorld,
@@ -125,7 +130,7 @@ const reverseWorld = {
   cowInterchangeVisited: false,
 };
 GameWorld.prototype.checkCowInterchange.call(reverseWorld);
-assert.equal(interchangeStops, 2, 'Tsuen Wan to Tuen Mun may open cow changing from any lane');
+assert.equal(interchangeStops, 3, 'Tsuen Wan to Tuen Mun may open cow changing from any lane');
 
 const gravity = Math.abs(GAME.gravity);
 const jumpApex = GAME.jumpVelocity ** 2 / (2 * gravity);

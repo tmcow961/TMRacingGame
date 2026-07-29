@@ -31,6 +31,7 @@ const cowStops = [
     fourLaneStartOffset: -280,
     fourLaneEndOffset: 280,
     laneTransitionDistance: 80,
+    triggerHalfLength: 48,
   },
 ];
 
