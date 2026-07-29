@@ -2,6 +2,9 @@
 
 A single-player 3D browser racing game based on a playful, compressed interpretation of Tuen Mun Road. Race a cow and rider against five AI cows in either direction between Tuen Mun and Tsuen Wan.
 
+Github Page (Directly Run online)
+https://tmcow961.github.io/TMRacingGame/
+
 ## Run locally
 
 ```powershell
