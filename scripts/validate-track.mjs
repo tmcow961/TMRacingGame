@@ -7,6 +7,15 @@ assert.ok(Math.abs(track.length - 6000) <= 300, `Track length ${track.length.toF
 assert.equal(track.anchors[0].id, 'tuen-mun');
 assert.equal(track.anchors.at(-1).id, 'tsuen-wan');
 assert.ok(track.anchors.every((anchor, index) => index === 0 || anchor.distance > track.anchors[index - 1].distance), 'Landmark anchors must be ordered');
+assert.equal(track.cowStops.length, 1, 'The route must contain the Tuen Mun Road Cow Interchange');
+assert.equal(track.cowStops[0].id, 'tuen-mun-road-cow-interchange');
+assert.ok(Math.abs(track.cowStops[0].distance - 2300.57) < 1, 'Cow interchange must match the OpenStreetMap-derived TM+2301 m location');
+assert.equal(track.roadWidthAtDistance(0), GAME.trackWidth, 'The normal route must remain three lanes wide');
+assert.equal(track.roadWidthAtDistance(track.cowStops[0].distance), GAME.trackWidth * 4 / 3, 'The cow interchange must have four full-width lanes');
+assert.ok(track.isRaceLeftLane(16.5, track.cowStops[0].distance), 'The far-left interchange lane must be detected');
+assert.ok(!track.isRaceLeftLane(5.5, track.cowStops[0].distance), 'The second-left interchange lane must not trigger cow changing');
+assert.ok(track.isBusLane(5.5, track.cowStops[0].distance), 'The second-left interchange lane must be the bus lane');
+assert.ok(!track.isBusLane(16.5, track.cowStops[0].distance), 'The far-left interchange lane must remain available when the bus lane is active');
 assert.equal(track.checkpoints.length, GAME.checkpointCount + 1);
 assert.ok(track.isRaceLeftLane(track.raceLeftLaneCenter()), 'Positive race-relative lateral must be the visual left lane');
 assert.ok(!track.isRaceLeftLane(-track.raceLeftLaneCenter()), 'Negative race-relative lateral must not be the visual left lane');
@@ -17,18 +26,18 @@ assert.ok(track.obstacles.every((obstacle) => obstacle.distance > 0 && obstacle.
 assert.ok(track.obstacles.every((obstacle) => obstacle.type === 'accident'), 'Only vehicle accident scenes may be gameplay obstacles');
 assert.ok(track.obstacles.every((obstacle) => obstacle.cars.length >= 3 && obstacle.cars.length <= 5), 'Every accident must contain 3-5 vehicles');
 
-const railOffset = GAME.trackWidth / 2 + GAME.railShoulderOffset;
 let maximumRailIntrusion = -Infinity;
 for (let i = 0; i < GAME.railSegments; i += 1) {
   for (const side of [-1, 1]) {
-    const segment = track.offsetSegment(i, GAME.railSegments, side * railOffset, GAME.railSegmentOverlap);
+    const segment = track.offsetSegment(i, GAME.railSegments, (progress) => side * (track.roadWidthAtProgress(progress) / 2 + GAME.railShoulderOffset), GAME.railSegmentOverlap);
     for (const x of [-GAME.railColliderHalfWidth, GAME.railColliderHalfWidth]) {
       for (const z of [-segment.length / 2, segment.length / 2]) {
         const corner = segment.position.clone().addScaledVector(segment.right, x).addScaledVector(segment.tangent, z);
         const hint = (i + .5) / GAME.railSegments;
         const road = track.sample(track.nearestProgress(corner, hint, 1), 1);
         const lateral = corner.clone().sub(road.point).dot(road.right);
-        const intrusion = side === 1 ? GAME.trackWidth / 2 - lateral : lateral + GAME.trackWidth / 2;
+        const roadHalfWidth = track.roadWidthAtDistance(road.distance) / 2;
+        const intrusion = side === 1 ? roadHalfWidth - lateral : lateral + roadHalfWidth;
         maximumRailIntrusion = Math.max(maximumRailIntrusion, intrusion);
       }
     }
@@ -63,7 +72,7 @@ for (let i = 0; i < track.samples.length; i += 4) {
     );
   }
 }
-assert.ok(minimumNonlocalDistance > GAME.trackWidth + 30, `Route self-approach ${minimumNonlocalDistance.toFixed(1)} may overlap the road environment`);
+assert.ok(minimumNonlocalDistance > GAME.trackWidth * 4 / 3 + 30, `Route self-approach ${minimumNonlocalDistance.toFixed(1)} may overlap the widened road environment`);
 
 for (const progress of [.05, .25, .5, .75, .95]) {
   const forward = track.sample(progress, 1);

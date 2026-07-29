@@ -57,7 +57,7 @@ async function runViewport(name, viewport, direction, quality = 'high') {
 
   if (name.startsWith('desktop')) {
     await page.locator('[data-action="credits"]').click();
-    assert.equal(await page.locator('.source-list li').count(), 2, 'Credits must list both geographic data sources');
+    assert.equal(await page.locator('.source-list li').count(), 4, 'Credits must list route, elevation, interchange location and visual-reference sources');
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'Credits overflow horizontally');
     await page.screenshot({ path: path.join(outputDirectory, 'desktop-credits.png'), fullPage: true });
     await page.locator('[data-action="title"]').click();

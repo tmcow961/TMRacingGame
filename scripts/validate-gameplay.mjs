@@ -27,7 +27,7 @@ const diagnosticWorld = {
       translation: () => ({ x: 123, y: 9, z: -456 }),
     },
   }],
-  track: { length: 6000 },
+  track: { length: 6000, roadWidthAtDistance: () => GAME.trackWidth },
   direction: -1,
   activePlayerContacts: new Map(),
   playerLives: GAME.playerLives,
@@ -62,6 +62,71 @@ assert.equal(recoveries, 2, 'The first two obstacle hits must recover the player
 assert.equal(fakeWorld.playerLives, 0);
 assert.equal(gameOvers.length, 1, 'Only the third obstacle hit may end the game');
 
+const stop = { id: 'tuen-mun-road-cow-interchange', distance: 2300.57 };
+const interchangePlayer = {
+  progress: (stop.distance - 100) / 6000,
+  lateral: 16.5,
+  finished: false,
+  speed: 80,
+  actualForwardSpeed: 79,
+  body: {
+    linvel: () => ({ x: 10, y: 0, z: 70 }),
+    setLinvel: (velocity) => { interchangePlayer.stoppedVelocity = velocity; },
+  },
+};
+let interchangeApproaches = 0;
+let interchangeStops = 0;
+const interchangeWorld = {
+  track: { length: 6000, cowStops: [stop], isRaceLeftLane: (lateral) => lateral > 11 },
+  racers: [interchangePlayer],
+  direction: 1,
+  raceRunning: true,
+  cowInterchangeAnnounced: false,
+  cowInterchangeVisited: false,
+  onCowInterchangeApproach: () => { interchangeApproaches += 1; },
+  onCowInterchange: () => { interchangeStops += 1; },
+};
+GameWorld.prototype.checkCowInterchange.call(interchangeWorld);
+assert.equal(interchangeApproaches, 1, 'The cow interchange must announce itself on approach');
+interchangePlayer.progress = stop.distance / 6000;
+GameWorld.prototype.checkCowInterchange.call(interchangeWorld);
+assert.equal(interchangeStops, 1, 'The player must stop once at the cow interchange');
+assert.equal(interchangeWorld.raceRunning, false, 'The race clock must pause while choosing a cow');
+assert.deepEqual(interchangePlayer.stoppedVelocity, { x: 0, y: 0, z: 0 });
+GameWorld.prototype.checkCowInterchange.call(interchangeWorld);
+assert.equal(interchangeStops, 1, 'The same interchange must not reopen during one race');
+
+const wrongLanePlayer = {
+  ...interchangePlayer,
+  progress: stop.distance / 6000,
+  lateral: 5.5,
+  body: interchangePlayer.body,
+};
+const wrongLaneWorld = {
+  ...interchangeWorld,
+  racers: [wrongLanePlayer],
+  raceRunning: true,
+  cowInterchangeAnnounced: true,
+  cowInterchangeVisited: false,
+};
+GameWorld.prototype.checkCowInterchange.call(wrongLaneWorld);
+assert.equal(interchangeStops, 1, 'Tuen Mun to Tsuen Wan must not open cow changing outside the far-left lane');
+
+const reversePlayer = {
+  ...wrongLanePlayer,
+  progress: (6000 - stop.distance) / 6000,
+};
+const reverseWorld = {
+  ...interchangeWorld,
+  racers: [reversePlayer],
+  direction: -1,
+  raceRunning: true,
+  cowInterchangeAnnounced: true,
+  cowInterchangeVisited: false,
+};
+GameWorld.prototype.checkCowInterchange.call(reverseWorld);
+assert.equal(interchangeStops, 2, 'Tsuen Wan to Tuen Mun may open cow changing from any lane');
+
 const gravity = Math.abs(GAME.gravity);
 const jumpApex = GAME.jumpVelocity ** 2 / (2 * gravity);
 const airborneTime = 2 * GAME.jumpVelocity / gravity;
@@ -76,4 +141,5 @@ console.log(JSON.stringify({
   jumpApex: Number(jumpApex.toFixed(1)),
   airborneTime: Number(airborneTime.toFixed(1)),
   halfSpeedDistance: Number(halfSpeedDistance.toFixed(1)),
+  cowInterchangeStops: interchangeStops,
 }, null, 2));

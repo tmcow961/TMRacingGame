@@ -12,6 +12,7 @@ const strings = {
     creditsTitle: 'Credits & attributions', creditsBody: 'Original procedural 3D artwork with a geographically derived, distance-compressed Tuen Mun Road alignment. Open route and elevation sources are credited below; no third-party map imagery or extracted 3D models are included.',
     loading: 'Preparing the herd', loadingError: 'The race could not be prepared.', retryLoad: 'Try again', destination: 'Destination', go: 'GO!', recovering: 'Back on track!',
     controlsHint: 'Hold W or Up Arrow to keep moving', lives: 'Lives', lifeLost: 'Life lost', first: '1st', second: '2nd', third: '3rd', fourth: '4th', fifth: '5th', sixth: '6th',
+    cowInterchangeApproach: 'Cow interchange ahead', cowInterchangeLeftLane: 'Cow interchange ahead - use the leftmost lane', cowInterchangePrompt: 'Choose a cow for the next part of the race.', cowInterchangeResume: 'Continue race', cowInterchangeStop: 'Cow interchange',
     accessibility: 'Accessibility', audio: 'Audio', display: 'Display', routePreview: 'Route preview', selected: 'Selected',
     diagnostics: 'Diagnostics', collisionObstacle: 'Hit obstacle', collisionRacer: 'Bumped racer', collisionRail: 'Hit barrier',
     busLaneActive: 'Bus lane active', busLaneLeave: 'Leave bus lane', gameOver: 'Game over', busLaneViolation: 'You did not leave the bus lane within 2 seconds.', obstacleGameOver: 'You hit an obstacle.',
@@ -35,6 +36,7 @@ const strings = {
     creditsTitle: '製作及鳴謝', creditsBody: '本遊戲採用原創程序生成 3D 美術，並以公開地理資料製作經距離壓縮的屯門公路路線。下方列出路線及高程資料來源；遊戲不含第三方地圖影像或擷取的 3D 模型。',
     loading: '牛群準備中', loadingError: '未能準備比賽。', retryLoad: '再試一次', destination: '目的地', go: '出發！', recovering: '重返賽道！',
     controlsHint: '按住 W 或向上方向鍵以保持前進', lives: '生命', lifeLost: '失去一條生命', first: '第 1 名', second: '第 2 名', third: '第 3 名', fourth: '第 4 名', fifth: '第 5 名', sixth: '第 6 名',
+    cowInterchangeApproach: '\u524d\u65b9\u8f49\u725b\u7ad9', cowInterchangeLeftLane: '\u524d\u65b9\u8f49\u725b\u7ad9 - \u8acb\u4f7f\u7528\u6700\u5de6\u7dda', cowInterchangePrompt: '\u9078\u64c7\u4e00\u96bb\u725b\u7e7c\u7e8c\u4e0b\u534a\u7a0b\u6bd4\u8cfd\u3002', cowInterchangeResume: '\u7e7c\u7e8c\u6bd4\u8cfd', cowInterchangeStop: '\u8f49\u725b\u7ad9',
     accessibility: '無障礙', audio: '音訊', display: '顯示', routePreview: '路線預覽', selected: '已選擇',
   },
 };

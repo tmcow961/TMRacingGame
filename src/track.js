@@ -77,6 +77,10 @@ export class Track {
       end: this.progressAtDistance(section.endDistance),
     }));
     this.tunnels = this.coveredSections;
+    this.cowStops = (trackData.cowStops ?? []).map((stop) => ({
+      ...stop,
+      progress: this.progressAtDistance(stop.distance),
+    }));
     this.checkpoints = trackData.checkpoints.map((checkpoint) => ({ ...checkpoint }));
     this.obstacles = trackData.obstacles.map((obstacle) => {
       const progress = this.progressAtDistance(obstacle.distance);
@@ -115,16 +119,47 @@ export class Track {
     return this.progressAtDistance(checkpoint.recoveryDistance);
   }
 
-  raceLeftLaneCenter() {
-    return GAME.trackWidth / 3;
+  fourLaneExpansion(distance) {
+    const stop = this.cowStops[0];
+    if (!stop || distance <= stop.fourLaneStartDistance || distance >= stop.fourLaneEndDistance) return 0;
+    const transition = stop.laneTransitionDistance;
+    const entering = THREE.MathUtils.clamp((distance - stop.fourLaneStartDistance) / transition, 0, 1);
+    const leaving = THREE.MathUtils.clamp((stop.fourLaneEndDistance - distance) / transition, 0, 1);
+    const blend = Math.min(entering, leaving);
+    return blend * blend * (3 - 2 * blend);
   }
 
-  isRaceLeftLane(lateral) {
-    return lateral > GAME.trackWidth / 6;
+  roadWidthAtDistance(distance) {
+    return GAME.trackWidth + (GAME.trackWidth / 3) * this.fourLaneExpansion(distance);
   }
 
-  canonicalLeftLaneCenter(direction) {
-    return direction === 1 ? this.raceLeftLaneCenter() : -this.raceLeftLaneCenter();
+  roadWidthAtProgress(progress) {
+    return this.roadWidthAtDistance(this.distanceAtProgress(progress));
+  }
+
+  raceLeftLaneCenter(distance = 0) {
+    const laneWidth = GAME.trackWidth / 3;
+    return this.roadWidthAtDistance(distance) / 2 - laneWidth / 2;
+  }
+
+  isRaceLeftLane(lateral, distance = 0) {
+    return lateral > this.roadWidthAtDistance(distance) / 2 - GAME.trackWidth / 3;
+  }
+
+  isBusLane(lateral, distance) {
+    const laneWidth = GAME.trackWidth / 3;
+    const centre = laneWidth - laneWidth * .5 * this.fourLaneExpansion(distance);
+    return Math.abs(lateral - centre) <= laneWidth / 2;
+  }
+
+  busLaneCenterCanonical(distance, direction) {
+    const laneWidth = GAME.trackWidth / 3;
+    const centre = laneWidth - laneWidth * .5 * this.fourLaneExpansion(distance);
+    return direction === 1 ? centre : -centre;
+  }
+
+  canonicalLeftLaneCenter(direction, distance = 0) {
+    return direction === 1 ? this.raceLeftLaneCenter(distance) : -this.raceLeftLaneCenter(distance);
   }
 
   sample(progress, direction = 1) {
@@ -165,8 +200,10 @@ export class Track {
   offsetSegment(index, segments, lateral = 0, overlap = 0) {
     const startSample = this.sample(index / segments, 1);
     const endSample = this.sample((index + 1) / segments, 1);
-    const start = startSample.point.clone().addScaledVector(startSample.right, lateral);
-    const end = endSample.point.clone().addScaledVector(endSample.right, lateral);
+    const startLateral = typeof lateral === 'function' ? lateral(index / segments) : lateral;
+    const endLateral = typeof lateral === 'function' ? lateral((index + 1) / segments) : lateral;
+    const start = startSample.point.clone().addScaledVector(startSample.right, startLateral);
+    const end = endSample.point.clone().addScaledVector(endSample.right, endLateral);
     const tangent = end.clone().sub(start);
     const length = tangent.length() + overlap;
     tangent.normalize();
@@ -194,10 +231,11 @@ export class Track {
       const center = this.curve.getPointAt(progress);
       const tangent = this.curve.getTangentAt(progress);
       const right = new THREE.Vector3(tangent.z, 0, -tangent.x).normalize();
+      const roadWidth = typeof width === 'function' ? width(progress, localProgress) : width;
       const lateralOffset = typeof lateral === 'function' ? lateral(progress, localProgress) : lateral;
       center.addScaledVector(right, lateralOffset);
       for (const side of [-1, 1]) {
-        const vertex = center.clone().addScaledVector(right, side * width * .5);
+        const vertex = center.clone().addScaledVector(right, side * roadWidth * .5);
         vertex.y += offset;
         positions.push(vertex.x, vertex.y, vertex.z);
         uvs.push(side === -1 ? 0 : 1, localProgress * Math.max(1, (end - start) * 90));

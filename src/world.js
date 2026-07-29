@@ -28,6 +28,8 @@ const BUS_SCALE = { x: 2, y: 1.35, z: 1.65 };
 const AI_OBSTACLE_LOOKAHEAD = 390;
 const AI_BYPASS_DISTANCE = 72;
 const AI_STEER_LOOKAHEAD = 72;
+const COW_INTERCHANGE_APPROACH_DISTANCE = 140;
+const COW_INTERCHANGE_STOP_DISTANCE = 11;
 const normalizeAngle = (angle) => Math.atan2(Math.sin(angle), Math.cos(angle));
 
 export function nextRacerSpeed(speed, accelerating, braking, target, acceleration, dt) {
@@ -36,8 +38,8 @@ export function nextRacerSpeed(speed, accelerating, braking, target, acceleratio
   return Math.min(target, speed + acceleration * dt);
 }
 
-export function isRailContactNearBoundary(lateral) {
-  return Math.abs(lateral) >= GAME.trackWidth / 2 - COW_COLLIDER_HALF_WIDTH - RAIL_FEEDBACK_MARGIN;
+export function isRailContactNearBoundary(lateral, trackWidth = GAME.trackWidth) {
+  return Math.abs(lateral) >= trackWidth / 2 - COW_COLLIDER_HALF_WIDTH - RAIL_FEEDBACK_MARGIN;
 }
 
 export function shouldFollowGround(airborne, groundGap, verticalSpeed) {
@@ -120,6 +122,8 @@ export class GameWorld {
     this.onBusLaneGameOver = null;
     this.onObstacleGameOver = null;
     this.onPlayerLifeLost = null;
+    this.onCowInterchangeApproach = null;
+    this.onCowInterchange = null;
     this.busLaneActive = false;
     this.busLaneViolationTime = 0;
     this.busLaneGameOverTriggered = false;
@@ -132,6 +136,8 @@ export class GameWorld {
     this.collisionTypeCooldowns = new Map();
     this.lastCollision = null;
     this.lastRecovery = null;
+    this.cowInterchangeAnnounced = false;
+    this.cowInterchangeVisited = false;
     this.resize = this.resize.bind(this);
     window.addEventListener('resize', this.resize);
   }
@@ -226,8 +232,8 @@ export class GameWorld {
     const shoulderMaterial = new THREE.MeshStandardMaterial({ color: 0xc9c5b2, roughness: 1 });
     const asphaltMaterial = new THREE.MeshStandardMaterial({ color: 0x333b3d, roughness: .92 });
     const companionMaterial = new THREE.MeshStandardMaterial({ color: 0x3b4243, roughness: .95 });
-    const shoulder = new THREE.Mesh(this.track.makeRoadGeometry(GAME.trackWidth + 5, 800, -.18), shoulderMaterial);
-    const road = new THREE.Mesh(this.track.makeRoadGeometry(GAME.trackWidth, 800, 0), asphaltMaterial);
+    const shoulder = new THREE.Mesh(this.track.makeRoadGeometry((progress) => this.track.roadWidthAtProgress(progress) + 5, 800, -.18), shoulderMaterial);
+    const road = new THREE.Mesh(this.track.makeRoadGeometry((progress) => this.track.roadWidthAtProgress(progress), 800, 0), asphaltMaterial);
     shoulder.receiveShadow = true;
     road.receiveShadow = true;
     shoulder.name = 'playable-road-shoulder';
@@ -258,8 +264,8 @@ export class GameWorld {
     const laneWidth = GAME.trackWidth / 3;
     const busLaneMaterial = new THREE.MeshStandardMaterial({ color: 0xc9282d, roughness: .88, transparent: true, opacity: .9, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1 });
     this.busLaneMeshes = {
-      negative: new THREE.Mesh(this.track.makeRoadGeometry(laneWidth, 800, .035, -laneWidth), busLaneMaterial),
-      positive: new THREE.Mesh(this.track.makeRoadGeometry(laneWidth, 800, .035, laneWidth), busLaneMaterial),
+      negative: new THREE.Mesh(this.track.makeRoadGeometry(laneWidth, 800, .035, (progress) => this.track.busLaneCenterCanonical(progress * this.track.length, -1)), busLaneMaterial),
+      positive: new THREE.Mesh(this.track.makeRoadGeometry(laneWidth, 800, .035, (progress) => this.track.busLaneCenterCanonical(progress * this.track.length, 1)), busLaneMaterial),
     };
     this.busLaneMeshes.negative.visible = false;
     this.busLaneMeshes.positive.visible = false;
@@ -270,18 +276,24 @@ export class GameWorld {
     const dashMaterial = new THREE.MeshStandardMaterial({ color: 0xf7f0d4, roughness: .8 });
     const dashGeo = new THREE.BoxGeometry(.28, .08, 5.5);
     const dashCount = 260;
-    const dashes = new THREE.InstancedMesh(dashGeo, dashMaterial, dashCount * 2);
+    const dashes = new THREE.InstancedMesh(dashGeo, dashMaterial, dashCount * 3);
     const matrix = new THREE.Matrix4();
     let dashIndex = 0;
     for (let i = 0; i < dashCount; i += 1) {
       const sample = this.track.sample((i + .5) / dashCount, 1);
-      for (const offset of [-GAME.trackWidth / 6, GAME.trackWidth / 6]) {
+      const distance = sample.distance;
+      const expansion = this.track.fourLaneExpansion(distance);
+      const outerMarking = laneWidth / 2 + expansion * laneWidth / 2;
+      const offsets = [-outerMarking, outerMarking];
+      if (expansion >= .5) offsets.push(0);
+      for (const offset of offsets) {
         const position = sample.point.clone().addScaledVector(sample.right, offset);
         position.y += .12;
         setRouteTransform(matrix, sample, position);
         dashes.setMatrixAt(dashIndex++, matrix);
       }
     }
+    dashes.count = dashIndex;
     dashes.name = 'playable-lane-markings';
     this.scene.add(dashes);
 
@@ -300,7 +312,6 @@ export class GameWorld {
     this.scene.add(companionDashes);
 
     const railSegments = GAME.railSegments;
-    const railOffset = GAME.trackWidth / 2 + GAME.railShoulderOffset;
     const railOverlap = GAME.railSegmentOverlap;
     const railGeo = new THREE.BoxGeometry(.4, 1.15, 1);
     const railMaterial = new THREE.MeshStandardMaterial({ color: 0xdbe4df, metalness: .25, roughness: .6 });
@@ -308,7 +319,7 @@ export class GameWorld {
     let railIndex = 0;
     for (let i = 0; i < railSegments; i += 1) {
       for (const side of [-1, 1]) {
-        const segment = this.track.offsetSegment(i, railSegments, side * railOffset, railOverlap);
+        const segment = this.track.offsetSegment(i, railSegments, (progress) => side * (this.track.roadWidthAtProgress(progress) / 2 + GAME.railShoulderOffset), railOverlap);
         const position = segment.position.clone();
         position.y += .6;
         matrix.compose(position, segment.rotation, new THREE.Vector3(1, 1, segment.length));
@@ -320,7 +331,7 @@ export class GameWorld {
 
     for (let i = 0; i < railSegments; i += 1) {
       for (const side of [-1, 1]) {
-        const segment = this.track.offsetSegment(i, railSegments, side * railOffset, railOverlap);
+        const segment = this.track.offsetSegment(i, railSegments, (progress) => side * (this.track.roadWidthAtProgress(progress) / 2 + GAME.railShoulderOffset), railOverlap);
         const position = segment.position.clone();
         position.y += GAME.railColliderHalfHeight;
         this.createCollider(
@@ -339,7 +350,7 @@ export class GameWorld {
     for (let i = 0; i < lampCount; i += 1) {
       const sample = this.track.sample((i + .5) / lampCount, 1);
       const side = i % 2 ? 1 : -1;
-      const position = sample.point.clone().addScaledVector(sample.right, side * (GAME.trackWidth / 2 + 3.6));
+      const position = sample.point.clone().addScaledVector(sample.right, side * (this.track.roadWidthAtDistance(sample.distance) / 2 + 3.6));
       position.y += 4;
       setRouteTransform(matrix, sample, position);
       lamps.setMatrixAt(i, matrix);
@@ -357,7 +368,7 @@ export class GameWorld {
       const progress = (i + .5) / wallCount;
       const sample = this.track.sample(progress, 1);
       const next = this.track.sample(Math.min(1, progress + 1 / wallCount), 1);
-      const position = sample.point.clone().addScaledVector(sample.right, 23);
+      const position = sample.point.clone().addScaledVector(sample.right, this.track.roadWidthAtDistance(sample.distance) / 2 + 6.5);
       position.y += 1.7;
       setRouteTransform(matrix, sample, position, new THREE.Vector3(1, 1, sample.point.distanceTo(next.point) + 2));
       retainingWalls.setMatrixAt(i, matrix);
@@ -372,17 +383,115 @@ export class GameWorld {
     this.buildBuildingCluster('tsuen-wan', -1, 22, 0xc9d0ca);
     this.buildTingKauBridge();
     this.buildCoveredSections();
+    this.buildCowInterchange();
 
     for (const anchorId of ['castle-peak-bay', 'siu-lam', 'sham-tseng', 'ting-kau', 'tsuen-wan']) {
       const anchor = this.track.getAnchor(anchorId);
       const sample = this.track.sample(anchor.progress, 1);
       const sign = makeTextSprite(`${anchor.labelZh}  ${anchor.labelEn}`);
-      sign.position.copy(sample.point).addScaledVector(sample.right, anchor.side * (GAME.trackWidth / 2 + 8));
+      sign.position.copy(sample.point).addScaledVector(sample.right, anchor.side * (this.track.roadWidthAtDistance(anchor.distance) / 2 + 8));
       sign.position.y += 8;
       sign.name = `location-sign-${anchor.id}`;
       this.scene.add(sign);
     }
     this.buildObstacleScenes();
+  }
+
+  buildCowInterchange() {
+    const stop = this.track.cowStops[0];
+    if (!stop) return;
+
+    const platformMaterial = new THREE.MeshStandardMaterial({ color: 0xc9c6b8, roughness: .96 });
+    const green = new THREE.MeshStandardMaterial({ color: 0x16835f, roughness: .72, metalness: .08 });
+    const darkGreen = new THREE.MeshStandardMaterial({ color: 0x0e5f49, roughness: .78 });
+    const concrete = new THREE.MeshStandardMaterial({ color: 0xcbd2cd, roughness: .9 });
+    const glass = new THREE.MeshStandardMaterial({ color: 0xaed7d3, transparent: true, opacity: .42, depthWrite: false });
+    const matrix = new THREE.Matrix4();
+    const moduleCount = 9;
+    const moduleLength = 10;
+    const sides = [
+      { lateral: 29, name: 'playable-side' },
+      { lateral: -64, name: 'opposite-side' },
+    ];
+
+    for (const side of sides) {
+      const platform = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), platformMaterial, moduleCount);
+      const roofs = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), green, moduleCount);
+      const posts = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), darkGreen, moduleCount * 2);
+      const screens = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), glass, moduleCount);
+      let postIndex = 0;
+      for (let i = 0; i < moduleCount; i += 1) {
+        const distance = stop.distance + (i - (moduleCount - 1) / 2) * moduleLength;
+        const sample = this.track.sampleDistance(distance, 1);
+        const position = sample.point.clone().addScaledVector(sample.right, side.lateral);
+        position.y += .18;
+        setRouteTransform(matrix, sample, position, new THREE.Vector3(8.2, .35, moduleLength + .35));
+        platform.setMatrixAt(i, matrix);
+
+        const roofPosition = position.clone();
+        roofPosition.y += 5.25;
+        setRouteTransform(matrix, sample, roofPosition, new THREE.Vector3(8.7, .35, moduleLength + .65));
+        roofs.setMatrixAt(i, matrix);
+
+        for (const postSide of [-1, 1]) {
+          const postPosition = position.clone().addScaledVector(sample.right, postSide * 3.4);
+          postPosition.y += 2.65;
+          setRouteTransform(matrix, sample, postPosition, new THREE.Vector3(.28, 5.3, .34));
+          posts.setMatrixAt(postIndex++, matrix);
+        }
+
+        const screenPosition = position.clone().addScaledVector(sample.right, side.lateral > 0 ? 3.05 : -3.05);
+        screenPosition.y += 2.45;
+        setRouteTransform(matrix, sample, screenPosition, new THREE.Vector3(.16, 3.7, moduleLength * .72));
+        screens.setMatrixAt(i, matrix);
+      }
+      platform.receiveShadow = true;
+      roofs.castShadow = true;
+      posts.castShadow = true;
+      platform.name = `cow-interchange-${side.name}-platform`;
+      roofs.name = `cow-interchange-${side.name}-green-canopy`;
+      posts.name = `cow-interchange-${side.name}-posts`;
+      screens.name = `cow-interchange-${side.name}-screens`;
+      this.scene.add(platform, roofs, posts, screens);
+    }
+
+    const bridgeSample = this.track.sampleDistance(stop.distance + 52, 1);
+    const bridgePosition = bridgeSample.point.clone().addScaledVector(bridgeSample.right, -20);
+    bridgePosition.y += 10.5;
+    const footbridge = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), concrete);
+    setRouteTransform(footbridge.matrix, bridgeSample, bridgePosition, new THREE.Vector3(94, 2.2, 5.2));
+    footbridge.matrixAutoUpdate = false;
+    footbridge.castShadow = true;
+    footbridge.name = 'cow-interchange-footbridge';
+    this.scene.add(footbridge);
+    for (const lateral of [28, -64]) {
+      const base = bridgeSample.point.clone().addScaledVector(bridgeSample.right, lateral);
+      const pillar = new THREE.Mesh(new THREE.BoxGeometry(2.2, 10.5, 2.2), concrete);
+      pillar.position.copy(base);
+      pillar.position.y += 5.25;
+      pillar.castShadow = true;
+      this.scene.add(pillar);
+    }
+
+    const stopSample = this.track.sampleDistance(stop.distance, 1);
+    const sign = makeTextSprite(`${stop.labelZh}  ${stop.labelEn}`, '#ffffff', '#08785a');
+    sign.position.copy(stopSample.point).addScaledVector(stopSample.right, 27);
+    sign.position.y += 8.5;
+    sign.scale.set(14.4, 4.5, 1);
+    sign.name = 'tuen-mun-road-cow-interchange-sign';
+    this.scene.add(sign);
+
+    COWS.forEach((appearance, index) => {
+      const distance = stop.distance - 28 + index * 14;
+      const sample = this.track.sampleDistance(distance, 1);
+      const waitingCow = createCow(appearance, false);
+      waitingCow.scale.setScalar(.72);
+      waitingCow.position.copy(sample.point).addScaledVector(sample.right, 29);
+      waitingCow.position.y += .35;
+      waitingCow.rotation.y = Math.atan2(sample.tangent.x, sample.tangent.z) + Math.PI / 2;
+      waitingCow.name = `cow-interchange-waiting-${appearance.id}`;
+      this.scene.add(waitingCow);
+    });
   }
 
   buildBuildingCluster(anchorId, side, count, color) {
@@ -552,7 +661,7 @@ export class GameWorld {
 
   startRace(direction, appearance) {
     this.clearRace(); this.direction=direction; this.mode='race'; if(this.previewCow)this.previewCow.visible=false;
-    this.busLaneActive=false;this.busLaneViolationTime=0;this.busLaneGameOverTriggered=false;this.obstacleGameOverTriggered=false;this.playerLives=GAME.playerLives;this.raceElapsed=0;this.setBusLaneVisual(false);
+    this.busLaneActive=false;this.busLaneViolationTime=0;this.busLaneGameOverTriggered=false;this.obstacleGameOverTriggered=false;this.playerLives=GAME.playerLives;this.raceElapsed=0;this.cowInterchangeAnnounced=false;this.cowInterchangeVisited=false;this.setBusLaneVisual(false);
     const choices=[appearance,...COWS.filter((c)=>c.id!==appearance.id)];
     const laneOffset=GAME.trackWidth/3;const lanes=[-laneOffset,0,laneOffset,-laneOffset,0,laneOffset];
     for(let i=0;i<6;i+=1){const progress=i<3?.004:0;const s=this.track.sample(progress,direction);const pos=s.point.clone().addScaledVector(s.right,lanes[i]);pos.y+=COW_GROUND_OFFSET;const body=this.physics.createRigidBody(RAPIER.RigidBodyDesc.dynamic().setTranslation(pos.x,pos.y,pos.z).setLinearDamping(.25).lockRotations().setCcdEnabled(true));const events=RAPIER.ActiveEvents.COLLISION_EVENTS|RAPIER.ActiveEvents.CONTACT_FORCE_EVENTS;const collider=this.createCollider(RAPIER.ColliderDesc.cuboid(COW_COLLIDER_HALF_WIDTH,.85*COW_SCALE,1.42*COW_SCALE).setRestitution(.72).setFriction(.25).setActiveEvents(events).setContactForceEventThreshold(0).setCollisionGroups(interactionGroups(COLLISION_GROUP_RACER,COLLISION_FILTER_NORMAL)),{type:'racer',id:i},body);const visual=createCow(choices[i%choices.length],i===0);visual.scale.setScalar(COW_SCALE);visual.position.set(pos.x,pos.y-COW_GROUND_OFFSET,pos.z);this.scene.add(visual);this.racers.push({id:i,body,collider,visual,isPlayer:i===0,progress,checkpoint:0,speed:0,heading:Math.atan2(s.tangent.x,s.tangent.z),turnSpeedFactor:1,lateral:lanes[i],grounded:true,jumpCooldown:0,airborne:false,jumpPhasing:false,finished:false,finishTime:null,stuck:0,lastProgress:0,protection:0,steer:0,accelerating:i!==0,braking:false,lane:lanes[i],aiAvoidLateral:lanes[i],aiObstacleDistance:null,busLaneViolationTime:0,mistake:Math.random()*6,lastPosition:pos.clone(),movementWindow:0,forwardMovement:0,windowForwardMovement:0,actualForwardSpeed:0});}
@@ -567,12 +676,54 @@ export class GameWorld {
     if(this.raceRunning){
       this.updateBusLaneState(elapsed);
       for(const racer of this.racers)this.updateRacer(racer,dt,elapsed,input);
+      this.checkCowInterchange();
       this.checkBusLaneViolations(dt);
       this.physics.timestep=dt;this.physics.step(this.events);
       this.drainPhysicsEvents();
     }
     this.racers.forEach((r)=>this.syncRacer(r,dt));
     this.updateRaceCamera(dt);
+  }
+
+  checkCowInterchange() {
+    const stop = this.track.cowStops[0];
+    const player = this.racers[0];
+    if (!stop || !player || player.finished || this.cowInterchangeVisited) return;
+    const raceDistance = player.progress * this.track.length;
+    const canonicalDistance = this.direction === 1 ? raceDistance : this.track.length - raceDistance;
+    const forwardDistance = (stop.distance - canonicalDistance) * this.direction;
+    const leftmostRequired = this.direction === 1;
+    if (!this.cowInterchangeAnnounced && forwardDistance > 0 && forwardDistance <= COW_INTERCHANGE_APPROACH_DISTANCE) {
+      this.cowInterchangeAnnounced = true;
+      this.onCowInterchangeApproach?.(stop, { leftmostRequired });
+    }
+    if (forwardDistance < -COW_INTERCHANGE_STOP_DISTANCE) {
+      this.cowInterchangeVisited = true;
+      return;
+    }
+    if (Math.abs(forwardDistance) > COW_INTERCHANGE_STOP_DISTANCE) return;
+    if (leftmostRequired && !this.track.isRaceLeftLane(player.lateral, canonicalDistance)) return;
+    this.cowInterchangeVisited = true;
+    this.raceRunning = false;
+    player.speed = 0;
+    player.actualForwardSpeed = 0;
+    const velocity = player.body.linvel();
+    player.body.setLinvel({ x: 0, y: velocity.y, z: 0 }, true);
+    this.onCowInterchange?.(stop);
+  }
+
+  changePlayerCow(appearance) {
+    const player = this.racers[0];
+    if (!player || !appearance) return;
+    this.scene.remove(player.visual);
+    const visual = createCow(appearance, true);
+    visual.scale.setScalar(COW_SCALE);
+    const position = player.body.translation();
+    visual.position.set(position.x, position.y - COW_GROUND_OFFSET, position.z);
+    visual.rotation.y = player.heading;
+    player.visual = visual;
+    player.appearance = appearance;
+    this.scene.add(visual);
   }
 
   updateRacer(racer,dt,elapsed,input){
@@ -584,10 +735,12 @@ export class GameWorld {
       let desired=racer.lane+Math.sin(elapsed*.7+racer.mistake)*.65;
       let nearestDistance=Infinity;
       const racerDistance = racer.progress * this.track.length;
+      const canonicalDistance = this.direction === 1 ? racerDistance : this.track.length - racerDistance;
+      const roadHalfWidth = this.track.roadWidthAtDistance(canonicalDistance) / 2;
       racer.aiObstacleDistance=null;
-      for(const obstacle of this.track.obstacles){const obstacleDistance=this.direction===1?obstacle.distance:this.track.length-obstacle.distance;const delta=obstacleDistance-racerDistance;if(delta>0&&delta<AI_OBSTACLE_LOOKAHEAD&&delta<nearestDistance){nearestDistance=delta;racer.aiObstacleDistance=obstacleDistance;const safeLane=this.direction===1?obstacle.avoidLateral:-obstacle.avoidLateral;const laneSpread=((racer.id-1)%3-1)*1.1;desired=THREE.MathUtils.clamp(safeLane+laneSpread,-GAME.trackWidth/2+2.5,GAME.trackWidth/2-2.5);}}
+      for(const obstacle of this.track.obstacles){const obstacleDistance=this.direction===1?obstacle.distance:this.track.length-obstacle.distance;const delta=obstacleDistance-racerDistance;if(delta>0&&delta<AI_OBSTACLE_LOOKAHEAD&&delta<nearestDistance){nearestDistance=delta;racer.aiObstacleDistance=obstacleDistance;const safeLane=this.direction===1?obstacle.avoidLateral:-obstacle.avoidLateral;const laneSpread=((racer.id-1)%3-1)*1.1;desired=THREE.MathUtils.clamp(safeLane+laneSpread,-roadHalfWidth+2.5,roadHalfWidth-2.5);}}
       if(this.busLaneActive)desired=Math.min(desired,-1.1-((racer.id-1)%3)*2.2);
-      const edgeCorrection=GAME.trackWidth/2-7;
+      const edgeCorrection=roadHalfWidth-7;
       if(racer.lateral<-edgeCorrection)desired=Math.max(desired,7);else if(racer.lateral>edgeCorrection)desired=Math.min(desired,-7);
       const lateralResponse=Math.abs(racer.lateral)>edgeCorrection?11:1.3;
       racer.aiAvoidLateral=THREE.MathUtils.lerp(racer.aiAvoidLateral,desired,Math.min(1,dt*lateralResponse));
@@ -626,24 +779,25 @@ export class GameWorld {
     racer.body.setLinvel({x:velocity.x,y:racer.body.linvel().y,z:velocity.z},true);
     if(accelerating&&racer.grounded&&racer.speed>=16){racer.movementWindow+=dt;racer.forwardMovement+=Math.max(0,forwardStep);if(racer.movementWindow>=MOVEMENT_WINDOW){racer.windowForwardMovement=racer.forwardMovement;if(racer.forwardMovement<MIN_WINDOW_MOVEMENT)racer.stuck+=racer.movementWindow;else racer.stuck=0;racer.movementWindow=0;racer.forwardMovement=0;}}else{racer.movementWindow=0;racer.forwardMovement=0;racer.stuck=0;}
     racer.lastProgress=racer.progress;
-    if(Math.abs(racer.lateral)>GAME.trackWidth/2+6)this.recover(racer,'off-track');else if(pos.y<s.point.y-12)this.recover(racer,'fallen');else if(!racer.isPlayer&&racer.stuck>=GAME.aiObstacleResetDelay)this.bypassAiObstacle(racer);else if(racer.stuck>=3)this.recover(racer,'stuck');
+    const roadHalfWidth=this.track.roadWidthAtDistance(s.distance)/2;
+    if(Math.abs(racer.lateral)>roadHalfWidth+6)this.recover(racer,'off-track');else if(pos.y<s.point.y-12)this.recover(racer,'fallen');else if(!racer.isPlayer&&racer.stuck>=GAME.aiObstacleResetDelay)this.bypassAiObstacle(racer);else if(racer.stuck>=3)this.recover(racer,'stuck');
     racer.checkpoint=Math.max(racer.checkpoint,this.track.checkpointIndexAtProgress(racer.progress));
     if(racer.progress>=.997){racer.finished=true;racer.finishTime=elapsed;racer.speed=0;if(racer.isPlayer)this.onPlayerFinish?.();}
   }
 
   recover(racer,reason,notify=true){const progress=this.track.recoveryProgress(racer.checkpoint);const s=this.track.sample(progress,this.direction);const p=s.point.clone().addScaledVector(s.right,racer.lane*.6);p.y+=COW_GROUND_OFFSET+.1;racer.body.setTranslation(p,true);racer.body.setLinvel({x:0,y:0,z:0},true);racer.progress=progress;racer.lastProgress=progress;racer.heading=Math.atan2(s.tangent.x,s.tangent.z);racer.stuck=0;racer.speed=15;racer.protection=1.5;racer.airborne=false;racer.jumpPhasing=false;racer.movementWindow=0;racer.forwardMovement=0;racer.windowForwardMovement=0;racer.actualForwardSpeed=0;racer.lastPosition.copy(p);setRacerCollisionFilter(racer,0);if(racer.isPlayer&&notify){this.lastRecovery={reason,time:this.clockTime};this.onRecovery?.(reason);}}
 
-  bypassAiObstacle(racer){const currentDistance=racer.progress*this.track.length;const distance=Math.min(this.track.length*.99,Math.max(currentDistance+AI_BYPASS_DISTANCE,(racer.aiObstacleDistance??currentDistance)+AI_BYPASS_DISTANCE));const progress=distance/this.track.length;const lateral=THREE.MathUtils.clamp(racer.aiAvoidLateral??racer.lane,-GAME.trackWidth/2+2.5,GAME.trackWidth/2-2.5);const s=this.track.sample(progress,this.direction);const p=s.point.clone().addScaledVector(s.right,lateral);p.y+=COW_GROUND_OFFSET+.1;racer.body.setTranslation(p,true);racer.body.setLinvel({x:0,y:0,z:0},true);racer.progress=progress;racer.lastProgress=progress;racer.heading=Math.atan2(s.tangent.x,s.tangent.z);racer.lateral=lateral;racer.lane=lateral;racer.stuck=0;racer.speed=GAME.aiBaseSpeed*GAME.turnSpeedMultiplier;racer.turnSpeedFactor=GAME.turnSpeedMultiplier;racer.protection=1.25;racer.movementWindow=0;racer.forwardMovement=0;racer.windowForwardMovement=0;racer.actualForwardSpeed=0;racer.lastPosition.copy(p);setRacerCollisionFilter(racer,0);}
+  bypassAiObstacle(racer){const currentDistance=racer.progress*this.track.length;const distance=Math.min(this.track.length*.99,Math.max(currentDistance+AI_BYPASS_DISTANCE,(racer.aiObstacleDistance??currentDistance)+AI_BYPASS_DISTANCE));const progress=distance/this.track.length;const s=this.track.sample(progress,this.direction);const roadHalfWidth=this.track.roadWidthAtDistance(s.distance)/2;const lateral=THREE.MathUtils.clamp(racer.aiAvoidLateral??racer.lane,-roadHalfWidth+2.5,roadHalfWidth-2.5);const p=s.point.clone().addScaledVector(s.right,lateral);p.y+=COW_GROUND_OFFSET+.1;racer.body.setTranslation(p,true);racer.body.setLinvel({x:0,y:0,z:0},true);racer.progress=progress;racer.lastProgress=progress;racer.heading=Math.atan2(s.tangent.x,s.tangent.z);racer.lateral=lateral;racer.lane=lateral;racer.stuck=0;racer.speed=GAME.aiBaseSpeed*GAME.turnSpeedMultiplier;racer.turnSpeedFactor=GAME.turnSpeedMultiplier;racer.protection=1.25;racer.movementWindow=0;racer.forwardMovement=0;racer.windowForwardMovement=0;racer.actualForwardSpeed=0;racer.lastPosition.copy(p);setRacerCollisionFilter(racer,0);}
 
   updateBusLaneState(elapsed){this.raceElapsed=elapsed;const minutes=(elapsed/GAME.clockDayDuration*1440)%1440;const active=minutes>=GAME.busLaneStartMinutes&&minutes<GAME.busLaneEndMinutes;if(active===this.busLaneActive)return;this.busLaneActive=active;this.busLaneViolationTime=0;this.busLaneGameOverTriggered=false;for(const racer of this.racers)racer.busLaneViolationTime=0;this.setBusLaneVisual(active);}
 
   setBusLaneVisual(active){if(!this.busLaneMeshes)return;this.busLaneMeshes.positive.visible=active&&this.direction===1;this.busLaneMeshes.negative.visible=active&&this.direction===-1;}
 
-  checkBusLaneViolations(dt){for(const racer of this.racers){if(!this.busLaneActive||racer.finished||!this.track.isRaceLeftLane(racer.lateral)){racer.busLaneViolationTime=0;continue;}racer.busLaneViolationTime+=dt;if(racer.busLaneViolationTime+1e-6<GAME.busLaneGraceTime)continue;if(racer.isPlayer){if(!this.busLaneGameOverTriggered){this.busLaneGameOverTriggered=true;this.onBusLaneGameOver?.();}}else this.moveAiOutOfBusLane(racer);}const player=this.racers[0];this.busLaneViolationTime=player?.busLaneViolationTime??0;}
+  checkBusLaneViolations(dt){for(const racer of this.racers){const raceDistance=racer.progress*this.track.length;const trackDistance=this.direction===1?raceDistance:this.track.length-raceDistance;if(!this.busLaneActive||racer.finished||!this.track.isBusLane(racer.lateral,trackDistance)){racer.busLaneViolationTime=0;continue;}racer.busLaneViolationTime+=dt;if(racer.busLaneViolationTime+1e-6<GAME.busLaneGraceTime)continue;if(racer.isPlayer){if(!this.busLaneGameOverTriggered){this.busLaneGameOverTriggered=true;this.onBusLaneGameOver?.();}}else this.moveAiOutOfBusLane(racer);}const player=this.racers[0];this.busLaneViolationTime=player?.busLaneViolationTime??0;}
 
   moveAiOutOfBusLane(racer){const lateral=-2.2-((racer.id-1)%3)*2.2;const s=this.track.sample(racer.progress,this.direction);const p=s.point.clone().addScaledVector(s.right,lateral);p.y+=COW_GROUND_OFFSET+.1;racer.body.setTranslation(p,true);racer.body.setLinvel({x:0,y:0,z:0},true);racer.heading=Math.atan2(s.tangent.x,s.tangent.z);racer.lateral=lateral;racer.aiAvoidLateral=lateral;racer.busLaneViolationTime=0;racer.protection=.75;racer.lastPosition.copy(p);setRacerCollisionFilter(racer,0);}
 
-  getBusLaneStatus(){const simulatedMinutes=(this.raceElapsed/GAME.clockDayDuration*1440)%1440;const player=this.racers[0];return{simulatedMinutes,active:this.busLaneActive,playerInBusLane:Boolean(this.busLaneActive&&player&&this.track.isRaceLeftLane(player.lateral)),violationTime:player?.busLaneViolationTime??0,graceTime:GAME.busLaneGraceTime};}
+  getBusLaneStatus(){const simulatedMinutes=(this.raceElapsed/GAME.clockDayDuration*1440)%1440;const player=this.racers[0];const raceDistance=(player?.progress??0)*this.track.length;const trackDistance=this.direction===1?raceDistance:this.track.length-raceDistance;return{simulatedMinutes,active:this.busLaneActive,playerInBusLane:Boolean(this.busLaneActive&&player&&this.track.isBusLane(player.lateral,trackDistance)),violationTime:player?.busLaneViolationTime??0,graceTime:GAME.busLaneGraceTime};}
 
   takePlayerLife(details){const player=this.racers[0];if(!player||player.protection>0||player.airborne||this.obstacleGameOverTriggered)return;this.playerLives=Math.max(0,this.playerLives-1);if(this.playerLives<=0){this.obstacleGameOverTriggered=true;this.onObstacleGameOver?.(details);return;}this.onPlayerLifeLost?.({...details,remaining:this.playerLives,total:GAME.playerLives});this.activePlayerContacts.clear();this.recover(player,'obstacle',false);}
 
@@ -672,15 +826,15 @@ export class GameWorld {
       this.activePlayerContacts.set(otherHandle, contact);
       const lastAt = this.collisionCooldowns.get(otherHandle) ?? -Infinity;
       const lastTypeAt = this.collisionTypeCooldowns.get(metadata.type) ?? -Infinity;
+      const raceDistance = player.progress * this.track.length;
+      const trackDistance = this.direction === 1 ? raceDistance : this.track.length - raceDistance;
       if (force < CONTACT_FORCE_THRESHOLD || contact.notified || this.clockTime - lastAt < COLLISION_COOLDOWN) return;
-      if (metadata.type === 'rail' && (!isRailContactNearBoundary(player.lateral) || this.clockTime - lastTypeAt < RAIL_FEEDBACK_COOLDOWN)) return;
+      if (metadata.type === 'rail' && (!isRailContactNearBoundary(player.lateral, this.track.roadWidthAtDistance(trackDistance)) || this.clockTime - lastTypeAt < RAIL_FEEDBACK_COOLDOWN)) return;
 
       contact.notified = true;
       this.collisionCooldowns.set(otherHandle, this.clockTime);
       this.collisionTypeCooldowns.set(metadata.type, this.clockTime);
       const position = player.body.translation();
-      const raceDistance = player.progress * this.track.length;
-      const trackDistance = this.direction === 1 ? raceDistance : this.track.length - raceDistance;
       this.lastCollision = {
         type: metadata.type,
         force,
@@ -695,7 +849,7 @@ export class GameWorld {
     });
   }
 
-  getDiagnostics(){const player=this.racers[0];if(!player)return null;const velocity=player.body.linvel();const position=player.body.translation();const bodyForwardSpeed=Math.hypot(velocity.x,velocity.z);const raceDistance=player.progress*this.track.length;const trackDistance=this.direction===1?raceDistance:this.track.length-raceDistance;return{requestedSpeed:player.speed,actualForwardSpeed:player.actualForwardSpeed,bodyForwardSpeed,activeContacts:this.activePlayerContacts.size,forwardMovement:player.windowForwardMovement,stuckTimer:player.stuck,lateral:player.lateral,trackLimit:GAME.trackWidth/2,lives:this.playerLives,raceDistance,trackDistance,trackLength:this.track.length,localPosition:{x:position.x,y:position.y,z:position.z},clockTime:this.clockTime,lastCollision:this.lastCollision,lastRecovery:this.lastRecovery};}
+  getDiagnostics(){const player=this.racers[0];if(!player)return null;const velocity=player.body.linvel();const position=player.body.translation();const bodyForwardSpeed=Math.hypot(velocity.x,velocity.z);const raceDistance=player.progress*this.track.length;const trackDistance=this.direction===1?raceDistance:this.track.length-raceDistance;return{requestedSpeed:player.speed,actualForwardSpeed:player.actualForwardSpeed,bodyForwardSpeed,activeContacts:this.activePlayerContacts.size,forwardMovement:player.windowForwardMovement,stuckTimer:player.stuck,lateral:player.lateral,trackLimit:this.track.roadWidthAtDistance(trackDistance)/2,lives:this.playerLives,raceDistance,trackDistance,trackLength:this.track.length,localPosition:{x:position.x,y:position.y,z:position.z},clockTime:this.clockTime,lastCollision:this.lastCollision,lastRecovery:this.lastRecovery};}
 
   syncRacer(racer){const p=racer.body.translation();racer.visual.position.set(p.x,p.y-COW_GROUND_OFFSET,p.z);racer.visual.rotation.y=racer.heading;animateCow(racer.visual,this.clockTime,racer.speed,racer.steer,racer.airborne,racer.braking);}
 

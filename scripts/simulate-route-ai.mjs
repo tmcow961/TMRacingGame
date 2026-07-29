@@ -29,6 +29,8 @@ function runRace(direction, run) {
     maximumLateral = Math.max(maximumLateral, Math.abs(lateral));
     let desired = lane + Math.sin(elapsed * .7 + run * .61) * .65;
     const raceDistance = progress * track.length;
+    const canonicalDistance = direction === 1 ? raceDistance : track.length - raceDistance;
+    const roadHalfWidth = track.roadWidthAtDistance(canonicalDistance) / 2;
     let nearestObstacle = Infinity;
     for (const obstacle of track.obstacles) {
       const obstacleDistance = direction === 1 ? obstacle.distance : track.length - obstacle.distance;
@@ -36,10 +38,10 @@ function runRace(direction, run) {
       if (delta > 0 && delta < 390 && delta < nearestObstacle) {
         nearestObstacle = delta;
         const safeLane = direction === 1 ? obstacle.avoidLateral : -obstacle.avoidLateral;
-        desired = THREE.MathUtils.clamp(safeLane + ((run % 3) - 1) * 1.1, -GAME.trackWidth / 2 + 2.5, GAME.trackWidth / 2 - 2.5);
+        desired = THREE.MathUtils.clamp(safeLane + ((run % 3) - 1) * 1.1, -roadHalfWidth + 2.5, roadHalfWidth - 2.5);
       }
     }
-    const edgeCorrection = GAME.trackWidth / 2 - 7;
+    const edgeCorrection = roadHalfWidth - 7;
     if (lateral < -edgeCorrection) desired = Math.max(desired, 7);
     else if (lateral > edgeCorrection) desired = Math.min(desired, -7);
     const lateralResponse = Math.abs(lateral) > edgeCorrection ? 11 : 1.3;
@@ -63,7 +65,7 @@ function runRace(direction, run) {
     if (progress <= previousProgress + .00001) noProgressTime += dt;
     else noProgressTime = 0;
     previousProgress = progress;
-    assert.ok(Math.abs(lateral) <= GAME.trackWidth / 2, `AI reached the road rail in direction ${direction}, run ${run}, at ${(progress * 100).toFixed(1)}%: lateral ${lateral.toFixed(1)}, desired ${desired.toFixed(1)}, aim ${avoidLateral.toFixed(1)}, steer ${steer.toFixed(2)}, speed ${speed.toFixed(1)}`);
+    assert.ok(Math.abs(lateral) <= roadHalfWidth, `AI reached the road rail in direction ${direction}, run ${run}, at ${(progress * 100).toFixed(1)}%: lateral ${lateral.toFixed(1)}, desired ${desired.toFixed(1)}, aim ${avoidLateral.toFixed(1)}, steer ${steer.toFixed(2)}, speed ${speed.toFixed(1)}`);
     assert.ok(noProgressTime < 3, `AI stopped progressing in direction ${direction} at ${(progress * 100).toFixed(1)}%`);
   }
   assert.ok(progress >= .997, `AI did not finish direction ${direction} within 150 seconds`);

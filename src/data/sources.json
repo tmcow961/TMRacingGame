@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-27",
+  "updated": "2026-07-29",
   "sources": [
     {
       "id": "openstreetmap-route",
@@ -20,6 +20,26 @@
       "use": "Preliminary elevation character along the route",
       "modified": "Smoothed and vertically compressed; not survey-grade road elevation",
       "attribution": "Elevation data: Copernicus DEM via Open-Meteo"
+    },
+    {
+      "id": "openstreetmap-tuen-mun-road-interchange",
+      "title": "Tuen Mun Road Interchange on OpenStreetMap",
+      "url": "https://www.openstreetmap.org/way/439181307",
+      "author": "OpenStreetMap contributors",
+      "license": "Open Database License 1.0 (ODbL)",
+      "use": "Cow interchange location and surrounding road context",
+      "modified": "Placed on the distance-compressed game route at TM+2301 m",
+      "attribution": "Interchange location: OpenStreetMap contributors"
+    },
+    {
+      "id": "wikimedia-tuen-mun-road-interchange-photo",
+      "title": "Tuen Mun Road Interchange, Tuen Mun direction (2013)",
+      "url": "https://commons.wikimedia.org/wiki/File:Tuen_Mun_Road_Interchange_Tuen_Mun_Direction_201309.jpg",
+      "author": "Wing1990hk / Wpcpey",
+      "license": "Creative Commons Attribution 3.0 Unported",
+      "use": "Visual reference for the green shelters, platforms, lighting and flyover setting",
+      "modified": "Recreated as original low-poly procedural geometry; the photograph is not included",
+      "attribution": "Reference photo by Wing1990hk / Wpcpey, CC BY 3.0"
     }
   ]
 }

@@ -20,6 +20,20 @@ const anchors = [
   { id: 'tsuen-wan', labelEn: 'Tsuen Wan', labelZh: '荃灣', type: 'terminus', lon: 114.10202, lat: 22.37399, side: -1 },
 ];
 
+const cowStops = [
+  {
+    id: 'tuen-mun-road-cow-interchange',
+    labelEn: 'Tuen Mun Road Cow Interchange',
+    labelZh: '\u5c6f\u9580\u516c\u8def\u8f49\u725b\u7ad9',
+    lon: 114.019451,
+    lat: 22.357906,
+    osmElement: 'way/439181307',
+    fourLaneStartOffset: -280,
+    fourLaneEndOffset: 280,
+    laneTransitionDistance: 80,
+  },
+];
+
 const distance2 = (a, b) => {
   const x = (a[0] - b[0]) * 111320 * Math.cos(((a[1] + b[1]) * .5) * Math.PI / 180);
   const y = (a[1] - b[1]) * 110540;
@@ -149,6 +163,17 @@ async function main() {
     const progress = progressForCoordinate([anchor.lon, anchor.lat], sourceCoordinates, sourceDistances);
     return { ...anchor, distance: round(progress * curve.getLength()), progress: round(progress, 6) };
   });
+  const normalizedCowStops = cowStops.map((stop) => {
+    const progress = progressForCoordinate([stop.lon, stop.lat], sourceCoordinates, sourceDistances);
+    const distance = round(progress * curve.getLength());
+    return {
+      ...stop,
+      distance,
+      progress: round(progress, 6),
+      fourLaneStartDistance: round(distance + stop.fourLaneStartOffset),
+      fourLaneEndDistance: round(distance + stop.fourLaneEndOffset),
+    };
+  });
   const anchorDistance = (id) => normalizedAnchors.find((anchor) => anchor.id === id).distance;
   const coveredSections = [
     { id: 'tuen-mun-covered-road', type: 'covered-road', startDistance: 120, endDistance: 260 },
@@ -205,6 +230,10 @@ async function main() {
     routePoints: points.map((point) => [round(point.x), round(point.y), round(point.z)]),
     minimapPoints,
     anchors: normalizedAnchors.map(({ lon, lat, ...anchor }) => anchor),
+    cowStops: normalizedCowStops.map(({ lon, lat, fourLaneStartOffset, fourLaneEndOffset, ...stop }) => ({
+      ...stop,
+      sourceWgs84: [lon, lat],
+    })),
     coveredSections,
     environmentZones,
     startFinish: {
@@ -236,6 +265,26 @@ async function main() {
         use: 'Preliminary elevation character along the route',
         modified: 'Smoothed and vertically compressed; not survey-grade road elevation',
         attribution: 'Elevation data: Copernicus DEM via Open-Meteo',
+      },
+      {
+        id: 'openstreetmap-tuen-mun-road-interchange',
+        title: 'Tuen Mun Road Interchange on OpenStreetMap',
+        url: 'https://www.openstreetmap.org/way/439181307',
+        author: 'OpenStreetMap contributors',
+        license: 'Open Database License 1.0 (ODbL)',
+        use: 'Cow interchange location and surrounding road context',
+        modified: 'Placed on the distance-compressed game route at its source-aligned position',
+        attribution: 'Interchange location: OpenStreetMap contributors',
+      },
+      {
+        id: 'wikimedia-tuen-mun-road-interchange-photo',
+        title: 'Tuen Mun Road Interchange, Tuen Mun direction (2013)',
+        url: 'https://commons.wikimedia.org/wiki/File:Tuen_Mun_Road_Interchange_Tuen_Mun_Direction_201309.jpg',
+        author: 'Wing1990hk / Wpcpey',
+        license: 'Creative Commons Attribution 3.0 Unported',
+        use: 'Visual reference for the green shelters, platforms, lighting and flyover setting',
+        modified: 'Recreated as original low-poly procedural geometry; the photograph is not included',
+        attribution: 'Reference photo by Wing1990hk / Wpcpey, CC BY 3.0',
       },
     ],
   };

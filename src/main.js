@@ -33,6 +33,8 @@ const state = {
   finalPlace: 1, finalTime: 0, notificationUntil: 0, fps: 60, hudAccumulator: 1,
 };
 
+if (import.meta.env.DEV) Object.defineProperty(window, '__TMR_DEBUG__', { value: { world, state } });
+
 const iconSet = { 'arrow-left': ArrowLeft, 'circle-help': CircleHelp, expand: Expand, flag: Flag, home: Home, info: Info, languages: Languages, play: Play, 'rotate-ccw': RotateCcw, settings: Settings };
 const icons = () => document.querySelectorAll('[data-lucide]').forEach((placeholder) => {
   const icon = iconSet[placeholder.dataset.lucide];
@@ -146,6 +148,26 @@ function renderPause() {
   ui.insertAdjacentHTML('beforeend',`<section class="screen modal-screen" id="pause-overlay"><div class="modal"><div class="brand-kicker">${t('pause')}</div><h2>${t('paused')}</h2><div class="menu-stack"><button class="btn primary" data-action="resume"><i data-lucide="play"></i> ${t('resume')}</button><button class="btn" data-action="restart"><i data-lucide="rotate-ccw"></i> ${t('restart')}</button><button class="btn" data-action="controls-pause"><i data-lucide="circle-help"></i> ${t('controls')}</button><button class="btn" data-action="settings"><i data-lucide="settings"></i> ${t('settings')}</button><button class="btn danger" data-action="title"><i data-lucide="home"></i> ${t('quit')}</button></div></div></section>`);bind();
 }
 
+function renderCowInterchange(stop) {
+  if (state.screen !== 'race') return;
+  state.screen = 'interchange';
+  state.running = false;
+  world.setRaceRunning(false);
+  input.enabled = false;
+  audio.pauseMusic();
+  ui.insertAdjacentHTML('beforeend', `<section class="screen modal-screen" id="interchange-overlay"><div class="modal interchange-modal"><div class="brand-kicker">${t('cowInterchangeStop')} · TM+${stop.distance.toFixed(0)} m</div><h2>${stop.labelEn}</h2><p class="interchange-zh">${stop.labelZh}</p><p class="interchange-copy">${t('cowInterchangePrompt')}</p><div class="cow-grid interchange-cow-grid">${COWS.map((cow) => `<button class="cow-choice ${cow.id === state.cow.id ? 'selected' : ''}" data-interchange-cow="${cow.id}" aria-pressed="${cow.id === state.cow.id}"><div class="cow-swatch ${cow.spotted ? 'spotted' : ''}" style="--cow:#${cow.color.toString(16).padStart(6,'0')};--accent:#${cow.secondary.toString(16).padStart(6,'0')}"></div><strong>${t(cow.id)}</strong></button>`).join('')}</div><div class="footer-actions interchange-actions"><span></span><button class="btn primary" data-action="leave-interchange"><i data-lucide="play"></i> ${t('cowInterchangeResume')}</button></div></div></section>`);
+  bind();
+}
+
+function leaveCowInterchange() {
+  document.querySelector('#interchange-overlay')?.remove();
+  state.screen = 'race';
+  state.running = true;
+  world.setRaceRunning(true);
+  input.enabled = true;
+  audio.startMusic();
+}
+
 function resumeRace() { document.querySelector('#pause-overlay')?.remove(); state.screen='race';state.running=state.countdown<=0;world.setRaceRunning(state.running);if(state.running)audio.startMusic();input.enabled=true; }
 
 function finishRace() {
@@ -179,7 +201,7 @@ function renderSettings() {
 
 function renderCredits(){const sources=sourceManifest.sources.map((source)=>`<li><a href="${source.url}" target="_blank" rel="noreferrer">${source.title}</a><span>${source.attribution} · ${source.license}</span></li>`).join('');state.screen='credits';ui.innerHTML=`${topActions()}<section class="screen"><div class="modal credits-modal"><div class="brand-kicker">TMR 2026</div><h2>${t('creditsTitle')}</h2><p class="credits-copy">${t('creditsBody')}</p><ul class="source-list">${sources}</ul><p class="credits-copy">Three.js · Rapier · Howler.js · Lucide · Vite</p><button class="btn primary" data-action="title"><i data-lucide="arrow-left"></i> ${t('back')}</button></div></section>`;bind();}
 
-function drawMinimap(){const canvas=document.querySelector('#minimap');if(!canvas)return;const ctx=canvas.getContext('2d');const w=canvas.width,h=canvas.height;ctx.clearRect(0,0,w,h);const path=world.track.minimapPath(w,h,22);ctx.strokeStyle='#d9e8df';ctx.lineWidth=10;ctx.lineCap='round';ctx.beginPath();path.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.stroke();const pointAt=(progress)=>{const rp=state.direction===1?progress:1-progress;return path[Math.max(0,Math.min(path.length-1,Math.round(rp*(path.length-1))))];};const start=pointAt(0),finish=pointAt(1);ctx.fillStyle='#f2c94c';ctx.fillRect(start.x-7,start.y-7,14,14);ctx.fillStyle='#fff';ctx.fillRect(finish.x-7,finish.y-7,14,14);world.racers.forEach((r)=>{const p=pointAt(r.progress);ctx.beginPath();ctx.arc(p.x,p.y,r.isPlayer?8:5,0,Math.PI*2);ctx.fillStyle=r.isPlayer?'#e75148':'#174e58';ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();});}
+function drawMinimap(){const canvas=document.querySelector('#minimap');if(!canvas)return;const ctx=canvas.getContext('2d');const w=canvas.width,h=canvas.height;ctx.clearRect(0,0,w,h);const path=world.track.minimapPath(w,h,22);ctx.strokeStyle='#d9e8df';ctx.lineWidth=10;ctx.lineCap='round';ctx.beginPath();path.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.stroke();const pointAt=(progress)=>{const rp=state.direction===1?progress:1-progress;return path[Math.max(0,Math.min(path.length-1,Math.round(rp*(path.length-1))))];};const start=pointAt(0),finish=pointAt(1);ctx.fillStyle='#f2c94c';ctx.fillRect(start.x-7,start.y-7,14,14);ctx.fillStyle='#fff';ctx.fillRect(finish.x-7,finish.y-7,14,14);for(const stop of world.track.cowStops){const raceProgress=state.direction===1?stop.progress:1-stop.progress;const p=pointAt(raceProgress);ctx.save();ctx.translate(p.x,p.y);ctx.rotate(Math.PI/4);ctx.fillStyle='#20b878';ctx.fillRect(-7,-7,14,14);ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.strokeRect(-7,-7,14,14);ctx.restore();}world.racers.forEach((r)=>{const p=pointAt(r.progress);ctx.beginPath();ctx.arc(p.x,p.y,r.isPlayer?8:5,0,Math.PI*2);ctx.fillStyle=r.isPlayer?'#e75148':'#174e58';ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();});}
 
 function updateAnalogClock(){const hourHand=document.querySelector('#clock-hour');if(!hourHand)return;const simulatedMinutes=(state.raceTime/GAME.clockDayDuration*1440)%1440;const minuteHand=document.querySelector('#clock-minute');hourHand.style.transform=`translateX(-50%) rotate(${simulatedMinutes*.5}deg)`;minuteHand.style.transform=`translateX(-50%) rotate(${(simulatedMinutes%60)*6}deg)`;const hour24=Math.floor(simulatedMinutes/60);const minute=Math.floor(simulatedMinutes%60);const suffix=hour24<12?'AM':'PM';const hour12=hour24%12||12;document.querySelector('#clock-time').textContent=`${hour12}:${String(minute).padStart(2,'0')} ${suffix}`;const status=world.getBusLaneStatus();const panel=document.querySelector('#race-clock');const statusElement=document.querySelector('#clock-status');panel.classList.toggle('bus-active',status.active);statusElement.classList.toggle('hidden',!status.active);if(status.active)statusElement.textContent=status.playerInBusLane?`${t('busLaneLeave')} ${Math.max(0,status.graceTime-status.violationTime).toFixed(1)}s`:t('busLaneActive');}
 
@@ -190,6 +212,7 @@ function bind(){
   ui.querySelectorAll('[data-action]').forEach((button)=>button.addEventListener('click',()=>handleAction(button.dataset.action)));
   ui.querySelectorAll('[data-direction]').forEach((button)=>button.addEventListener('click',()=>{state.direction=Number(button.dataset.direction);audio.play('ui');renderDirection();}));
   ui.querySelectorAll('[data-cow]').forEach((button)=>button.addEventListener('click',()=>{state.cow=COWS.find((c)=>c.id===button.dataset.cow);audio.play('ui');renderCow();}));
+  ui.querySelectorAll('[data-interchange-cow]').forEach((button)=>button.addEventListener('click',()=>{state.cow=COWS.find((c)=>c.id===button.dataset.interchangeCow);world.changePlayerCow(state.cow);audio.play('ui');ui.querySelectorAll('[data-interchange-cow]').forEach((choice)=>{const selected=choice.dataset.interchangeCow===state.cow.id;choice.classList.toggle('selected',selected);choice.setAttribute('aria-pressed',String(selected));});}));
   ui.querySelectorAll('[data-setting]').forEach((slider)=>slider.addEventListener('input',()=>{settings[slider.dataset.setting]=Number(slider.value);audio.applyVolumes();}));
   ui.querySelectorAll('[data-quality]').forEach((button)=>button.addEventListener('click',()=>{settings.quality=button.dataset.quality;world.applyQuality();document.querySelectorAll('[data-quality]').forEach((b)=>b.classList.toggle('active',b===button));}));
   ui.querySelectorAll('[data-motion]').forEach((button)=>button.addEventListener('click',()=>{settings.reducedMotion=button.dataset.motion==='true';document.querySelectorAll('[data-motion]').forEach((b)=>b.classList.toggle('active',b===button));}));
@@ -199,7 +222,7 @@ function bind(){
 
 function closeSettings(){document.querySelector('#settings-overlay')?.remove();if(state.previousScreen==='title')renderTitle();else if(state.previousScreen==='direction')renderDirection();else if(state.previousScreen==='cow')renderCow();}
 
-function handleAction(action){audio.play('ui');const actions={title:renderTitle,direction:renderDirection,cow:renderCow,credits:renderCredits,settings:renderSettings,'close-settings':closeSettings,prepare:()=>state.controlsSeen?beginRace():renderControls(false),begin:()=>{state.controlsSeen=true;beginRace();},resume:resumeRace,restart:beginRace,'controls-pause':()=>renderControls(true),pause:()=>{renderRaceBase();renderPause();},language:()=>{settings.language=settings.language==='en'?'zh':'en';if(state.screen==='title')renderTitle();else if(state.screen==='direction')renderDirection();else if(state.screen==='cow')renderCow();else renderTitle();},fullscreen:()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen(),reload:()=>location.reload()};actions[action]?.();}
+function handleAction(action){audio.play('ui');const actions={title:renderTitle,direction:renderDirection,cow:renderCow,credits:renderCredits,settings:renderSettings,'close-settings':closeSettings,prepare:()=>state.controlsSeen?beginRace():renderControls(false),begin:()=>{state.controlsSeen=true;beginRace();},resume:resumeRace,restart:beginRace,'leave-interchange':leaveCowInterchange,'controls-pause':()=>renderControls(true),pause:()=>{renderRaceBase();renderPause();},language:()=>{settings.language=settings.language==='en'?'zh':'en';if(state.screen==='title')renderTitle();else if(state.screen==='direction')renderDirection();else if(state.screen==='cow')renderCow();else renderTitle();},fullscreen:()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen(),reload:()=>location.reload()};actions[action]?.();}
 
 function renderRaceBase(){state.screen='race';ui.innerHTML = `<div class="hud"><div class="hud-cluster"><div class="hud-box"><div class="hud-label">${t('position')}</div><div class="hud-value" id="position">1 / 6</div></div><div class="hud-box"><div class="hud-label">${t('progress')}</div><div class="hud-value" id="progress">0%</div></div><div class="hud-box"><div class="hud-label">${t('time')}</div><div class="hud-value" id="race-time">${formatTime(state.raceTime)}</div></div><div class="hud-box lives-box"><div class="hud-label">${t('lives')}</div><div class="hud-value" id="lives">${world.playerLives} / ${GAME.playerLives}</div></div></div>${clockMarkup()}<div class="hud-box hud-route"><div class="hud-label">${t('destination')}</div><div class="hud-value">${state.direction===1?t('outboundShort'):t('inboundShort')}</div></div><div class="hud-box jump-meter"><div class="hud-label" id="jump-label">${t('jumpReady')}</div><div class="jump-bar"><div class="jump-fill" id="jump-fill"></div></div></div><canvas class="minimap" id="minimap" width="420" height="240"></canvas></div><div class="recovery hidden" id="recovery">${t('recovering')}</div>`;mountDiagnostics();updateHud();updateAnalogClock();}
 
@@ -210,6 +233,8 @@ world.onObstacleGameOver=obstacleGameOver;
 world.onPlayerLifeLost=({remaining,total})=>{audio.play('hit');showRaceNotification(`${t('lifeLost')} · ${remaining} / ${total}`,'life');};
 world.onCollision=(details)=>showRaceNotification(t(collisionKey[details.type]??'collisionObstacle'),'collision');
 world.onRecovery=(reason)=>showRaceNotification(t(recoveryKey[reason]??'recovering'),'recovery');
+world.onCowInterchangeApproach=(_stop,{leftmostRequired})=>showRaceNotification(t(leftmostRequired?'cowInterchangeLeftLane':'cowInterchangeApproach'),'interchange');
+world.onCowInterchange=renderCowInterchange;
 window.addEventListener('blur',()=>{if(state.screen==='race'&&state.running)renderPause();});
 window.addEventListener('keydown',(event)=>{if(event.code!=='F3'||event.repeat)return;event.preventDefault();setDiagnostics(!settings.diagnostics);});
 window.addEventListener('keydown',(event)=>{if(input.enabled||!['ArrowDown','ArrowRight','KeyS','KeyD','ArrowUp','ArrowLeft','KeyW','KeyA'].includes(event.code))return;const buttons=[...ui.querySelectorAll('button:not([disabled])')].filter((button)=>button.offsetParent!==null);if(!buttons.length)return;event.preventDefault();const current=buttons.indexOf(document.activeElement);const backwards=['ArrowUp','ArrowLeft','KeyW','KeyA'].includes(event.code);buttons[(current+(backwards?-1:1)+buttons.length)%buttons.length].focus();});

@@ -138,8 +138,27 @@ export function createDoubleDeckerBus() {
 }
 
 export function makeTextSprite(text, color = '#ffffff', background = '#176854') {
-  const canvas = document.createElement('canvas'); canvas.width=512; canvas.height=160;
-  const ctx=canvas.getContext('2d'); ctx.fillStyle=background; ctx.fillRect(0,0,512,160); ctx.strokeStyle='#fff'; ctx.lineWidth=8; ctx.strokeRect(7,7,498,146); ctx.fillStyle=color; ctx.font='bold 38px Segoe UI, Microsoft JhengHei'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(text,256,80);
-  const texture=new THREE.CanvasTexture(canvas); texture.colorSpace=THREE.SRGBColorSpace;
-  const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:texture})); sprite.scale.set(12.8,4,1); return sprite;
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 160;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = background;
+  ctx.fillRect(0, 0, 512, 160);
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 8;
+  ctx.strokeRect(7, 7, 498, 146);
+  ctx.fillStyle = color;
+  let fontSize = 38;
+  do {
+    ctx.font = `bold ${fontSize}px Segoe UI, Microsoft JhengHei`;
+    fontSize -= 2;
+  } while (ctx.measureText(text).width > 472 && fontSize >= 18);
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, 256, 80);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture }));
+  sprite.scale.set(12.8, 4, 1);
+  return sprite;
 }

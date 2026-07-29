@@ -97,6 +97,13 @@ kbd { min-width: 36px; padding: 7px 10px; border-radius: 5px; background: #f7fbf
 .race-notification.collision { color:var(--ink); background:var(--yellow); }
 .race-notification.recovery { color:#fff; background:var(--red); }
 .race-notification.life { color:#fff; background:#b42f37; }
+.race-notification.interchange { color:#fff; background:#08785a; }
+.interchange-modal { width:min(780px,94vw); }
+.interchange-modal h2 { margin-bottom:4px; }
+.interchange-zh { margin:0 0 16px; color:#9de3b2; font-size:24px; font-weight:900; }
+.interchange-copy { margin:0 0 20px; opacity:.86; }
+.interchange-actions { margin-top:20px; }
+.interchange-actions .btn { display:flex; align-items:center; justify-content:center; gap:8px; }
 .lives-box .hud-value { color:#ffb4b4; }
 .diagnostics-panel { position:absolute; right:20px; bottom:154px; z-index:9; width:260px; padding:12px 14px; color:#fff; background:rgba(5,25,31,.9); border:1px solid var(--line); border-radius:6px; pointer-events:none; backdrop-filter:blur(7px); font-variant-numeric:tabular-nums; }
 .diagnostics-title { margin-bottom:8px; color:var(--yellow); font-size:12px; font-weight:900; text-transform:uppercase; }
