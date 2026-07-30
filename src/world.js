@@ -28,9 +28,15 @@ const BUS_SCALE = { x: 2, y: 1.35, z: 1.65 };
 const AI_OBSTACLE_LOOKAHEAD = 390;
 const AI_BYPASS_DISTANCE = 72;
 const AI_STEER_LOOKAHEAD = 72;
+const AI_REVERSE_STEER_LOOKAHEAD = 50;
+const REVERSE_RAIL_EXTRA_OFFSET = .4;
 const COW_INTERCHANGE_APPROACH_DISTANCE = 140;
 const DEFAULT_COW_INTERCHANGE_TRIGGER_HALF_LENGTH = 48;
 const normalizeAngle = (angle) => Math.atan2(Math.sin(angle), Math.cos(angle));
+const randomSeed = () => {
+  if (globalThis.crypto?.getRandomValues) return globalThis.crypto.getRandomValues(new Uint32Array(1))[0];
+  return Math.floor(Math.random() * 0xffffffff) >>> 0;
+};
 
 export function nextRacerSpeed(speed, accelerating, braking, target, acceleration, dt) {
   if (braking) return Math.max(0, speed - GAME.brake * dt);
@@ -138,6 +144,12 @@ export class GameWorld {
     this.lastRecovery = null;
     this.cowInterchangeAnnounced = false;
     this.cowInterchangeVisited = false;
+    this.activeObstacles = [];
+    this.obstacleObjects = [];
+    this.obstacleColliders = [];
+    this.obstacleSeed = null;
+    this.forwardObstacleSeed = Math.floor(Math.random() * 0xffffffff) >>> 0;
+    this.railColliders = [];
     this.resize = this.resize.bind(this);
     window.addEventListener('resize', this.resize);
   }
@@ -240,9 +252,8 @@ export class GameWorld {
     road.name = 'playable-road';
     this.scene.add(shoulder, road);
 
-    const companionOffset = -44;
-    const companionShoulder = new THREE.Mesh(this.track.makeRoadGeometry(31, 650, -.55, companionOffset), shoulderMaterial);
-    const companionRoad = new THREE.Mesh(this.track.makeRoadGeometry(27, 650, -.35, companionOffset), companionMaterial);
+    const companionShoulder = new THREE.Mesh(this.track.makeCarriagewayGeometry(-1, (progress) => this.track.roadWidthAtProgress(progress) + 5, 800, -.18), shoulderMaterial);
+    const companionRoad = new THREE.Mesh(this.track.makeCarriagewayGeometry(-1, (progress) => this.track.roadWidthAtProgress(progress), 800, 0), companionMaterial);
     companionShoulder.receiveShadow = true;
     companionRoad.receiveShadow = true;
     companionRoad.name = 'opposite-carriageway';
@@ -253,7 +264,7 @@ export class GameWorld {
       const start = Math.max(0, anchor.progress - .018);
       const end = Math.min(1, anchor.progress + .024);
       const ramp = new THREE.Mesh(
-        this.track.makeRoadGeometry(8, 70, -.28, (_progress, local) => companionOffset - Math.sin(local * Math.PI) * 48, start, end),
+        this.track.makeCarriagewayGeometry(-1, 8, 70, -.28, (_progress, local) => -Math.sin(local * Math.PI) * 48, start, end),
         companionMaterial,
       );
       ramp.name = `scenery-ramp-${anchorId}`;
@@ -264,7 +275,7 @@ export class GameWorld {
     const laneWidth = GAME.trackWidth / 3;
     const busLaneMaterial = new THREE.MeshStandardMaterial({ color: 0xc9282d, roughness: .88, transparent: true, opacity: .9, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1 });
     this.busLaneMeshes = {
-      negative: new THREE.Mesh(this.track.makeRoadGeometry(laneWidth, 800, .035, (progress) => this.track.busLaneCenterCanonical(progress * this.track.length, -1)), busLaneMaterial),
+      negative: new THREE.Mesh(this.track.makeCarriagewayGeometry(-1, laneWidth, 800, .035, (progress) => this.track.busLaneCenterCanonical(progress * this.track.length, -1)), busLaneMaterial),
       positive: new THREE.Mesh(this.track.makeRoadGeometry(laneWidth, 800, .035, (progress) => this.track.busLaneCenterCanonical(progress * this.track.length, 1)), busLaneMaterial),
     };
     this.busLaneMeshes.negative.visible = false;
@@ -276,68 +287,61 @@ export class GameWorld {
     const dashMaterial = new THREE.MeshStandardMaterial({ color: 0xf7f0d4, roughness: .8 });
     const dashGeo = new THREE.BoxGeometry(.28, .08, 5.5);
     const dashCount = 260;
-    const dashes = new THREE.InstancedMesh(dashGeo, dashMaterial, dashCount * 3);
+    const dashes = new THREE.InstancedMesh(dashGeo, dashMaterial, dashCount * 6);
     const matrix = new THREE.Matrix4();
     let dashIndex = 0;
-    for (let i = 0; i < dashCount; i += 1) {
-      const sample = this.track.sample((i + .5) / dashCount, 1);
-      const distance = sample.distance;
-      const expansion = this.track.fourLaneExpansion(distance);
-      const outerMarking = laneWidth / 2 + expansion * laneWidth / 2;
-      const offsets = [-outerMarking, outerMarking];
-      if (expansion >= .5) offsets.push(0);
-      for (const offset of offsets) {
-        const position = sample.point.clone().addScaledVector(sample.right, offset);
-        position.y += .12;
-        setRouteTransform(matrix, sample, position);
-        dashes.setMatrixAt(dashIndex++, matrix);
+    for (const carriagewayDirection of [1, -1]) {
+      for (let i = 0; i < dashCount; i += 1) {
+        const progress = (i + .5) / dashCount;
+        const sample = this.track.canonicalSample(progress, carriagewayDirection);
+        const expansion = this.track.fourLaneExpansion(sample.distance);
+        const outerMarking = laneWidth / 2 + expansion * laneWidth / 2;
+        const offsets = [-outerMarking, outerMarking];
+        if (expansion >= .5) offsets.push(0);
+        for (const offset of offsets) {
+          const position = sample.point.clone().addScaledVector(sample.right, offset);
+          position.y += .12;
+          setRouteTransform(matrix, sample, position);
+          dashes.setMatrixAt(dashIndex++, matrix);
+        }
       }
     }
     dashes.count = dashIndex;
     dashes.name = 'playable-lane-markings';
     this.scene.add(dashes);
 
-    const companionDashes = new THREE.InstancedMesh(dashGeo, dashMaterial, 360);
-    let companionDashIndex = 0;
-    for (let i = 0; i < 180; i += 1) {
-      const sample = this.track.sample((i + .5) / 180, 1);
-      for (const offset of [-4.5, 4.5]) {
-        const position = sample.point.clone().addScaledVector(sample.right, companionOffset + offset);
-        position.y -= .22;
-        setRouteTransform(matrix, sample, position);
-        companionDashes.setMatrixAt(companionDashIndex++, matrix);
-      }
-    }
-    companionDashes.name = 'opposite-carriageway-markings';
-    this.scene.add(companionDashes);
-
     const railSegments = GAME.railSegments;
     const railOverlap = GAME.railSegmentOverlap;
     const railGeo = new THREE.BoxGeometry(.4, 1.15, 1);
     const railMaterial = new THREE.MeshStandardMaterial({ color: 0xdbe4df, metalness: .25, roughness: .6 });
-    const rails = new THREE.InstancedMesh(railGeo, railMaterial, railSegments * 2);
+    const rails = new THREE.InstancedMesh(railGeo, railMaterial, railSegments * 4);
     let railIndex = 0;
-    for (let i = 0; i < railSegments; i += 1) {
-      for (const side of [-1, 1]) {
-        const segment = this.track.offsetSegment(i, railSegments, (progress) => side * (this.track.roadWidthAtProgress(progress) / 2 + GAME.railShoulderOffset), railOverlap);
-        const position = segment.position.clone();
-        position.y += .6;
-        matrix.compose(position, segment.rotation, new THREE.Vector3(1, 1, segment.length));
-        rails.setMatrixAt(railIndex++, matrix);
+    for (const carriagewayDirection of [1, -1]) {
+      for (let i = 0; i < railSegments; i += 1) {
+        for (const side of [-1, 1]) {
+          const segment = this.track.carriagewaySegment(carriagewayDirection, i, railSegments, (progress) => side * (this.track.roadWidthAtProgress(progress) / 2 + GAME.railShoulderOffset + (carriagewayDirection === -1 ? REVERSE_RAIL_EXTRA_OFFSET : 0)), railOverlap);
+          const position = segment.position.clone();
+          position.y += .6;
+          matrix.compose(position, segment.rotation, new THREE.Vector3(1, 1, segment.length));
+          rails.setMatrixAt(railIndex++, matrix);
+        }
       }
     }
     rails.name = 'road-safety-barriers';
     this.scene.add(rails);
 
-    for (let i = 0; i < railSegments; i += 1) {
-      for (const side of [-1, 1]) {
-        const segment = this.track.offsetSegment(i, railSegments, (progress) => side * (this.track.roadWidthAtProgress(progress) / 2 + GAME.railShoulderOffset), railOverlap);
-        const position = segment.position.clone();
-        position.y += GAME.railColliderHalfHeight;
-        this.createCollider(
-          RAPIER.ColliderDesc.cuboid(GAME.railColliderHalfWidth, GAME.railColliderHalfHeight, segment.length / 2).setTranslation(position.x, position.y, position.z).setRotation(segment.rotation).setRestitution(.55).setCollisionGroups(interactionGroups(COLLISION_GROUP_RAIL, COLLISION_GROUP_RACER)),
-          { type: 'rail', id: `rail-${i}-${side}` },
-        );
+    for (const carriagewayDirection of [1, -1]) {
+      for (let i = 0; i < railSegments; i += 1) {
+        for (const side of [-1, 1]) {
+          const segment = this.track.carriagewaySegment(carriagewayDirection, i, railSegments, (progress) => side * (this.track.roadWidthAtProgress(progress) / 2 + GAME.railShoulderOffset + (carriagewayDirection === -1 ? REVERSE_RAIL_EXTRA_OFFSET : 0)), railOverlap);
+          const position = segment.position.clone();
+          position.y += GAME.railColliderHalfHeight;
+          const railCollider = this.createCollider(
+            RAPIER.ColliderDesc.cuboid(GAME.railColliderHalfWidth, GAME.railColliderHalfHeight, segment.length / 2).setTranslation(position.x, position.y, position.z).setRotation(segment.rotation).setRestitution(.55).setCollisionGroups(interactionGroups(COLLISION_GROUP_RAIL, COLLISION_GROUP_RACER)),
+            { type: 'rail', id: `rail-${carriagewayDirection}-${i}-${side}` },
+          );
+          this.railColliders.push({ direction: carriagewayDirection, collider: railCollider });
+        }
       }
     }
 
@@ -345,17 +349,21 @@ export class GameWorld {
     const lamps = new THREE.InstancedMesh(
       new THREE.CylinderGeometry(.12, .18, 8, 8),
       new THREE.MeshStandardMaterial({ color: 0x87918d, metalness: .4, roughness: .55 }),
-      lampCount,
+      lampCount * 2,
     );
-    for (let i = 0; i < lampCount; i += 1) {
-      const sample = this.track.sample((i + .5) / lampCount, 1);
-      const side = i % 2 ? 1 : -1;
-      const position = sample.point.clone().addScaledVector(sample.right, side * (this.track.roadWidthAtDistance(sample.distance) / 2 + 3.6));
-      position.y += 4;
-      setRouteTransform(matrix, sample, position);
-      lamps.setMatrixAt(i, matrix);
+    let lampIndex = 0;
+    for (const carriagewayDirection of [1, -1]) {
+      for (let i = 0; i < lampCount; i += 1) {
+        const sample = this.track.canonicalSample((i + .5) / lampCount, carriagewayDirection);
+        const side = i % 2 ? 1 : -1;
+        const position = sample.point.clone().addScaledVector(sample.right, side * (this.track.roadWidthAtDistance(sample.distance) / 2 + 3.6));
+        position.y += 4;
+        setRouteTransform(matrix, sample, position);
+        lamps.setMatrixAt(lampIndex++, matrix);
+      }
     }
     lamps.name = 'route-lamp-posts';
+    lamps.userData.hideOnLow = true;
     this.scene.add(lamps);
 
     const wallCount = 110;
@@ -394,7 +402,6 @@ export class GameWorld {
       sign.name = `location-sign-${anchor.id}`;
       this.scene.add(sign);
     }
-    this.buildObstacleScenes();
   }
 
   buildCowInterchange() {
@@ -410,8 +417,8 @@ export class GameWorld {
     const moduleCount = 9;
     const moduleLength = 10;
     const sides = [
-      { lateral: 29, name: 'playable-side' },
-      { lateral: -64, name: 'opposite-side' },
+      { direction: 1, outerSide: 1, name: 'tuen-mun-to-tsuen-wan' },
+      { direction: -1, outerSide: -1, name: 'tsuen-wan-to-tuen-mun' },
     ];
 
     for (const side of sides) {
@@ -422,8 +429,10 @@ export class GameWorld {
       let postIndex = 0;
       for (let i = 0; i < moduleCount; i += 1) {
         const distance = stop.distance + (i - (moduleCount - 1) / 2) * moduleLength;
-        const sample = this.track.sampleDistance(distance, 1);
-        const position = sample.point.clone().addScaledVector(sample.right, side.lateral);
+        const progress = this.track.progressAtDistance(distance);
+        const sample = this.track.canonicalSample(progress, side.direction);
+        const lateral = side.outerSide * (this.track.roadWidthAtDistance(distance) / 2 + 6.5);
+        const position = sample.point.clone().addScaledVector(sample.right, lateral);
         position.y += .18;
         setRouteTransform(matrix, sample, position, new THREE.Vector3(8.2, .35, moduleLength + .35));
         platform.setMatrixAt(i, matrix);
@@ -440,7 +449,7 @@ export class GameWorld {
           posts.setMatrixAt(postIndex++, matrix);
         }
 
-        const screenPosition = position.clone().addScaledVector(sample.right, side.lateral > 0 ? 3.05 : -3.05);
+        const screenPosition = position.clone().addScaledVector(sample.right, side.outerSide * 3.05);
         screenPosition.y += 2.45;
         setRouteTransform(matrix, sample, screenPosition, new THREE.Vector3(.16, 3.7, moduleLength * .72));
         screens.setMatrixAt(i, matrix);
@@ -455,17 +464,21 @@ export class GameWorld {
       this.scene.add(platform, roofs, posts, screens);
     }
 
-    const bridgeSample = this.track.sampleDistance(stop.distance + 52, 1);
-    const bridgePosition = bridgeSample.point.clone().addScaledVector(bridgeSample.right, -20);
+    const bridgeDistance = stop.distance + 52;
+    const bridgeProgress = this.track.progressAtDistance(bridgeDistance);
+    const bridgeSample = this.track.canonicalSample(bridgeProgress, 1);
+    const reverseBridgeSample = this.track.canonicalSample(bridgeProgress, -1);
+    const forwardPillar = bridgeSample.point.clone().addScaledVector(bridgeSample.right, this.track.roadWidthAtDistance(bridgeDistance) / 2 + 6);
+    const reversePillar = reverseBridgeSample.point.clone().addScaledVector(reverseBridgeSample.right, -(this.track.roadWidthAtDistance(bridgeDistance) / 2 + 6));
+    const bridgePosition = forwardPillar.clone().add(reversePillar).multiplyScalar(.5);
     bridgePosition.y += 10.5;
     const footbridge = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), concrete);
-    setRouteTransform(footbridge.matrix, bridgeSample, bridgePosition, new THREE.Vector3(94, 2.2, 5.2));
+    setRouteTransform(footbridge.matrix, bridgeSample, bridgePosition, new THREE.Vector3(forwardPillar.distanceTo(reversePillar) + 8, 2.2, 5.2));
     footbridge.matrixAutoUpdate = false;
     footbridge.castShadow = true;
     footbridge.name = 'cow-interchange-footbridge';
     this.scene.add(footbridge);
-    for (const lateral of [28, -64]) {
-      const base = bridgeSample.point.clone().addScaledVector(bridgeSample.right, lateral);
+    for (const base of [forwardPillar, reversePillar]) {
       const pillar = new THREE.Mesh(new THREE.BoxGeometry(2.2, 10.5, 2.2), concrete);
       pillar.position.copy(base);
       pillar.position.y += 5.25;
@@ -569,48 +582,65 @@ export class GameWorld {
     for (const section of this.track.coveredSections) {
       const sectionLength = section.endDistance - section.startDistance;
       const count = Math.max(4, Math.ceil(sectionLength / 13));
-      const roof = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), interior, count);
-      const walls = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), concrete, count * 2);
-      const lights = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), lightMaterial, count * 2);
       const matrix = new THREE.Matrix4();
-      let wallIndex = 0;
-      let lightIndex = 0;
-      for (let i = 0; i < count; i += 1) {
-        const distance = THREE.MathUtils.lerp(section.startDistance, section.endDistance, (i + .5) / count);
-        const sample = this.track.sampleDistance(distance, 1);
-        const segmentLength = sectionLength / count + 1.5;
-        const roofPosition = sample.point.clone();
-        roofPosition.y += 9.3;
-        setRouteTransform(matrix, sample, roofPosition, new THREE.Vector3(GAME.trackWidth + 5, 1.2, segmentLength));
-        roof.setMatrixAt(i, matrix);
-        for (const side of [-1, 1]) {
-          const wallPosition = sample.point.clone().addScaledVector(sample.right, side * (GAME.trackWidth / 2 + 1.6));
-          wallPosition.y += 4.4;
-          setRouteTransform(matrix, sample, wallPosition, new THREE.Vector3(1.5, 8.8, segmentLength));
-          walls.setMatrixAt(wallIndex++, matrix);
-          const lightPosition = sample.point.clone().addScaledVector(sample.right, side * 7);
-          lightPosition.y += 8.45;
-          setRouteTransform(matrix, sample, lightPosition, new THREE.Vector3(.3, .18, segmentLength * .55));
-          lights.setMatrixAt(lightIndex++, matrix);
+      for (const carriagewayDirection of [1, -1]) {
+        const roof = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), interior, count);
+        const walls = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), concrete, count * 2);
+        const lights = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), lightMaterial, count * 2);
+        let wallIndex = 0;
+        let lightIndex = 0;
+        for (let i = 0; i < count; i += 1) {
+          const distance = THREE.MathUtils.lerp(section.startDistance, section.endDistance, (i + .5) / count);
+          const sample = this.track.canonicalSample(this.track.progressAtDistance(distance), carriagewayDirection);
+          const segmentLength = sectionLength / count + 1.5;
+          const roofPosition = sample.point.clone();
+          roofPosition.y += 9.3;
+          setRouteTransform(matrix, sample, roofPosition, new THREE.Vector3(GAME.trackWidth + 5, 1.2, segmentLength));
+          roof.setMatrixAt(i, matrix);
+          for (const side of [-1, 1]) {
+            const wallPosition = sample.point.clone().addScaledVector(sample.right, side * (GAME.trackWidth / 2 + 1.6));
+            wallPosition.y += 4.4;
+            setRouteTransform(matrix, sample, wallPosition, new THREE.Vector3(1.5, 8.8, segmentLength));
+            walls.setMatrixAt(wallIndex++, matrix);
+            const lightPosition = sample.point.clone().addScaledVector(sample.right, side * 7);
+            lightPosition.y += 8.45;
+            setRouteTransform(matrix, sample, lightPosition, new THREE.Vector3(.3, .18, segmentLength * .55));
+            lights.setMatrixAt(lightIndex++, matrix);
+          }
         }
+        roof.name = `${section.id}-${carriagewayDirection === -1 ? 'reverse' : 'forward'}-roof`;
+        walls.name = `${section.id}-${carriagewayDirection === -1 ? 'reverse' : 'forward'}-walls`;
+        lights.name = `${section.id}-${carriagewayDirection === -1 ? 'reverse' : 'forward'}-lights`;
+        roof.userData.hideOnLow = carriagewayDirection === -1;
+        walls.userData.hideOnLow = carriagewayDirection === -1;
+        lights.userData.hideOnLow = carriagewayDirection === -1;
+        roof.renderOrder = 2;
+        walls.renderOrder = 2;
+        this.scene.add(roof, walls, lights);
       }
-      roof.name = `${section.id}-roof`;
-      walls.name = `${section.id}-walls`;
-      lights.name = `${section.id}-lights`;
-      roof.renderOrder = 2;
-      walls.renderOrder = 2;
-      this.scene.add(roof, walls, lights);
     }
   }
 
-  buildObstacleScenes() {
+  clearObstacleScenes() {
+    for (const object of this.obstacleObjects) this.scene.remove(object);
+    for (const collider of this.obstacleColliders) {
+      this.colliderMetadata.delete(collider.handle);
+      this.physics.removeCollider(collider, true);
+    }
+    this.obstacleObjects = [];
+    this.obstacleColliders = [];
+    this.activeObstacles = [];
+  }
+
+  buildObstacleScenes(direction, seed) {
+    this.clearObstacleScenes();
+    this.activeObstacles = this.track.createRaceObstacles(direction, seed);
     const colors = [0xd84e48, 0xe0a832, 0x4388a8, 0xede7db, 0x59636c];
-    this.track.obstacles.forEach((obstacle, sceneIndex) => {
-      const sceneSample = this.track.sample(obstacle.progress, 1);
+    this.activeObstacles.forEach((obstacle, sceneIndex) => {
+      const sceneSample = this.track.sampleDistance(obstacle.raceDistance, direction);
       const baseYaw = Math.atan2(sceneSample.tangent.x, sceneSample.tangent.z);
       obstacle.cars.forEach((item, itemIndex) => {
-        const vehicleRoll = Math.random();
-        const vehicleType = vehicleRoll < .18 ? 'bus' : vehicleRoll < .48 ? 'taxi' : 'car';
+        const vehicleType = item.vehicleType;
         const object = vehicleType === 'bus'
           ? createDoubleDeckerBus()
           : vehicleType === 'taxi'
@@ -624,12 +654,13 @@ export class GameWorld {
         else object.scale.set(CAR_SCALE.x, CAR_SCALE.y, CAR_SCALE.z);
         object.userData.vehicleType = vehicleType;
         this.scene.add(object);
+        this.obstacleObjects.push(object);
 
         const rotation = new THREE.Quaternion().setFromAxisAngle(up, object.rotation.y);
         const colliderSize = vehicleType === 'bus'
           ? { x: 3.9, y: 2.85, z: 7.43, centerY: 2.85 }
           : { x: 2.89, y: 1.68, z: 4.76, centerY: 1.68 };
-        this.createCollider(
+        const collider = this.createCollider(
           RAPIER.ColliderDesc.cuboid(colliderSize.x, colliderSize.y, colliderSize.z)
             .setTranslation(object.position.x, object.position.y + colliderSize.centerY, object.position.z)
             .setRotation(rotation)
@@ -637,6 +668,7 @@ export class GameWorld {
             .setCollisionGroups(interactionGroups(COLLISION_GROUP_OBSTACLE, COLLISION_GROUP_RACER)),
           { type: 'obstacle', id: `${obstacle.type}-${sceneIndex}-${itemIndex}`, obstacleType: obstacle.type, vehicleType },
         );
+        this.obstacleColliders.push(collider);
       });
     });
   }
@@ -665,12 +697,19 @@ export class GameWorld {
   startRace(direction, appearance) {
     this.clearRace(); this.direction=direction; this.mode='race'; if(this.previewCow)this.previewCow.visible=false;
     this.busLaneActive=false;this.busLaneViolationTime=0;this.busLaneGameOverTriggered=false;this.obstacleGameOverTriggered=false;this.playerLives=GAME.playerLives;this.raceElapsed=0;this.cowInterchangeAnnounced=false;this.cowInterchangeVisited=false;this.setBusLaneVisual(false);
+    this.obstacleSeed=direction===-1?randomSeed():this.forwardObstacleSeed;this.setActiveCarriagewayCollision(direction);this.buildObstacleScenes(direction,this.obstacleSeed);
     const choices=[appearance,...COWS.filter((c)=>c.id!==appearance.id)];
     const laneOffset=GAME.trackWidth/3;const lanes=[-laneOffset,0,laneOffset,-laneOffset,0,laneOffset];
     for(let i=0;i<6;i+=1){const progress=i<3?.004:0;const s=this.track.sample(progress,direction);const pos=s.point.clone().addScaledVector(s.right,lanes[i]);pos.y+=COW_GROUND_OFFSET;const body=this.physics.createRigidBody(RAPIER.RigidBodyDesc.dynamic().setTranslation(pos.x,pos.y,pos.z).setLinearDamping(.25).lockRotations().setCcdEnabled(true));const events=RAPIER.ActiveEvents.COLLISION_EVENTS|RAPIER.ActiveEvents.CONTACT_FORCE_EVENTS;const collider=this.createCollider(RAPIER.ColliderDesc.cuboid(COW_COLLIDER_HALF_WIDTH,.85*COW_SCALE,1.42*COW_SCALE).setRestitution(.72).setFriction(.25).setActiveEvents(events).setContactForceEventThreshold(0).setCollisionGroups(interactionGroups(COLLISION_GROUP_RACER,COLLISION_FILTER_NORMAL)),{type:'racer',id:i},body);const visual=createCow(choices[i%choices.length],i===0);visual.scale.setScalar(COW_SCALE);visual.position.set(pos.x,pos.y-COW_GROUND_OFFSET,pos.z);this.scene.add(visual);this.racers.push({id:i,body,collider,visual,isPlayer:i===0,progress,checkpoint:0,speed:0,heading:Math.atan2(s.tangent.x,s.tangent.z),turnSpeedFactor:1,lateral:lanes[i],grounded:true,jumpCooldown:0,airborne:false,jumpPhasing:false,finished:false,finishTime:null,stuck:0,lastProgress:0,protection:0,steer:0,accelerating:i!==0,braking:false,lane:lanes[i],aiAvoidLateral:lanes[i],aiObstacleDistance:null,busLaneViolationTime:0,mistake:Math.random()*6,lastPosition:pos.clone(),movementWindow:0,forwardMovement:0,windowForwardMovement:0,actualForwardSpeed:0});}
   }
 
   setRaceRunning(running){this.raceRunning=running;}
+
+  setActiveCarriagewayCollision(direction) {
+    for (const entry of this.railColliders) {
+      entry.collider.setCollisionGroups(interactionGroups(COLLISION_GROUP_RAIL, entry.direction === direction ? COLLISION_GROUP_RACER : 0));
+    }
+  }
 
   update(dt, elapsed, input) {
     this.clockTime+=dt;
@@ -742,13 +781,13 @@ export class GameWorld {
       const canonicalDistance = this.direction === 1 ? racerDistance : this.track.length - racerDistance;
       const roadHalfWidth = this.track.roadWidthAtDistance(canonicalDistance) / 2;
       racer.aiObstacleDistance=null;
-      for(const obstacle of this.track.obstacles){const obstacleDistance=this.direction===1?obstacle.distance:this.track.length-obstacle.distance;const delta=obstacleDistance-racerDistance;if(delta>0&&delta<AI_OBSTACLE_LOOKAHEAD&&delta<nearestDistance){nearestDistance=delta;racer.aiObstacleDistance=obstacleDistance;const safeLane=this.direction===1?obstacle.avoidLateral:-obstacle.avoidLateral;const laneSpread=((racer.id-1)%3-1)*1.1;desired=THREE.MathUtils.clamp(safeLane+laneSpread,-roadHalfWidth+2.5,roadHalfWidth-2.5);}}
+      for(const obstacle of this.activeObstacles){const obstacleDistance=obstacle.raceDistance;const delta=obstacleDistance-racerDistance;if(delta>0&&delta<AI_OBSTACLE_LOOKAHEAD&&delta<nearestDistance){nearestDistance=delta;racer.aiObstacleDistance=obstacleDistance;const laneSpread=((racer.id-1)%3-1)*1.1;desired=THREE.MathUtils.clamp(obstacle.avoidLateral+laneSpread,-roadHalfWidth+2.5,roadHalfWidth-2.5);}}
       if(this.busLaneActive)desired=Math.min(desired,-1.1-((racer.id-1)%3)*2.2);
       const edgeCorrection=roadHalfWidth-7;
       if(racer.lateral<-edgeCorrection)desired=Math.max(desired,7);else if(racer.lateral>edgeCorrection)desired=Math.min(desired,-7);
       const lateralResponse=Math.abs(racer.lateral)>edgeCorrection?11:1.3;
       racer.aiAvoidLateral=THREE.MathUtils.lerp(racer.aiAvoidLateral,desired,Math.min(1,dt*lateralResponse));
-      const aim=this.track.sampleDistance(Math.min(this.track.length-18,racerDistance+AI_STEER_LOOKAHEAD),this.direction);
+       const aim=this.track.sampleDistance(Math.min(this.track.length-18,racerDistance+(this.direction===-1?AI_REVERSE_STEER_LOOKAHEAD:AI_STEER_LOOKAHEAD)),this.direction);
       const aimPoint=aim.point.clone().addScaledVector(aim.right,racer.aiAvoidLateral);
       const desiredHeading=Math.atan2(aimPoint.x-pos.x,aimPoint.z-pos.z);
       const headingError=normalizeAngle(desiredHeading-racer.heading);
@@ -853,14 +892,14 @@ export class GameWorld {
     });
   }
 
-  getDiagnostics(){const player=this.racers[0];if(!player)return null;const velocity=player.body.linvel();const position=player.body.translation();const bodyForwardSpeed=Math.hypot(velocity.x,velocity.z);const raceDistance=player.progress*this.track.length;const trackDistance=this.direction===1?raceDistance:this.track.length-raceDistance;return{requestedSpeed:player.speed,actualForwardSpeed:player.actualForwardSpeed,bodyForwardSpeed,activeContacts:this.activePlayerContacts.size,forwardMovement:player.windowForwardMovement,stuckTimer:player.stuck,lateral:player.lateral,trackLimit:this.track.roadWidthAtDistance(trackDistance)/2,lives:this.playerLives,raceDistance,trackDistance,trackLength:this.track.length,localPosition:{x:position.x,y:position.y,z:position.z},clockTime:this.clockTime,lastCollision:this.lastCollision,lastRecovery:this.lastRecovery};}
+  getDiagnostics(){const player=this.racers[0];if(!player)return null;const velocity=player.body.linvel();const position=player.body.translation();const bodyForwardSpeed=Math.hypot(velocity.x,velocity.z);const raceDistance=player.progress*this.track.length;const trackDistance=this.direction===1?raceDistance:this.track.length-raceDistance;return{requestedSpeed:player.speed,actualForwardSpeed:player.actualForwardSpeed,bodyForwardSpeed,activeContacts:this.activePlayerContacts.size,forwardMovement:player.windowForwardMovement,stuckTimer:player.stuck,lateral:player.lateral,trackLimit:this.track.roadWidthAtDistance(trackDistance)/2,lives:this.playerLives,raceDistance,trackDistance,trackLength:this.track.length,carriageway:this.direction===1?'TM -> TW':'TW -> TM (left)',obstacleSeed:this.obstacleSeed,localPosition:{x:position.x,y:position.y,z:position.z},clockTime:this.clockTime,lastCollision:this.lastCollision,lastRecovery:this.lastRecovery};}
 
   syncRacer(racer){const p=racer.body.translation();racer.visual.position.set(p.x,p.y-COW_GROUND_OFFSET,p.z);racer.visual.rotation.y=racer.heading;animateCow(racer.visual,this.clockTime,racer.speed,racer.steer,racer.airborne,racer.braking);}
 
   updateMenuCamera(){if(this.previewCow){this.previewCow.visible=true;animateCow(this.previewCow,this.clockTime,5,Math.sin(this.clockTime)*.2,false,false);}const s=this.track.sample(.025,1);const desired=s.point.clone().addScaledVector(s.right,10+Math.sin(this.clockTime*.25)*.35).addScaledVector(s.tangent,-11).add(new THREE.Vector3(0,6.5,0));this.camera.position.lerp(desired,.035);this.camera.lookAt(s.point.clone().addScaledVector(s.right,7).add(new THREE.Vector3(0,2.4,0)));}
   updateRaceCamera(dt){const player=this.racers[0];if(!player)return;const p=player.body.translation();const heading=new THREE.Vector3(Math.sin(player.heading),0,Math.cos(player.heading));const desired=new THREE.Vector3(p.x,p.y,p.z).addScaledVector(heading,-15).add(new THREE.Vector3(0,8.2,0));const alpha=this.settings.reducedMotion?Math.min(1,dt*5):Math.min(1,dt*3.4);this.camera.position.lerp(desired,alpha);this.camera.lookAt(new THREE.Vector3(p.x,p.y+1.2,p.z).addScaledVector(heading,18));const fov=this.settings.reducedMotion?58:58+player.speed/18;this.camera.fov=THREE.MathUtils.lerp(this.camera.fov,fov,dt*2);this.camera.updateProjectionMatrix();this.sun.position.set(p.x-180,p.y+300,p.z-120);this.sun.target.position.set(p.x,p.y,p.z);}
   getStandings(){return [...this.racers].sort((a,b)=>{if(a.finished&&b.finished)return a.finishTime-b.finishTime;if(a.finished!==b.finished)return a.finished?-1:1;return b.progress-a.progress;});}
-  applyQuality(){const q=this.settings.quality;const ratio=q==='low'?1:q==='medium'?Math.min(devicePixelRatio,1.4):Math.min(devicePixelRatio,2);this.renderer.setPixelRatio(ratio);this.renderer.shadowMap.enabled=q!=='low';this.scene.fog.far=q==='low'?850:q==='medium'?1200:1500;this.resize();}
+  applyQuality(){const q=this.settings.quality;const ratio=q==='low'?Math.min(devicePixelRatio,.75):q==='medium'?Math.min(devicePixelRatio,1.4):Math.min(devicePixelRatio,2);this.renderer.setPixelRatio(ratio);this.renderer.shadowMap.enabled=q!=='low';this.scene.fog.far=q==='low'?850:q==='medium'?1200:1500;this.scene.traverse((object)=>{if(object.userData.hideOnLow)object.visible=q!=='low';});this.resize();}
   resize(){this.camera.aspect=innerWidth/innerHeight;this.camera.updateProjectionMatrix();this.renderer.setSize(innerWidth,innerHeight,false);}
   render(){this.renderer.render(this.scene,this.camera);}
 }

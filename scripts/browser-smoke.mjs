@@ -79,7 +79,7 @@ async function runViewport(name, viewport, direction, quality = 'high') {
     const value = document.querySelector('#diag-race-distance')?.textContent;
     return value && value !== '--';
   });
-  for (const id of ['#diag-race-distance', '#diag-track-location', '#diag-local-position']) {
+  for (const id of ['#diag-carriageway', '#diag-obstacle-seed', '#diag-race-distance', '#diag-track-location', '#diag-local-position']) {
     const value = await page.locator(id).textContent();
     assert.ok(value && value !== '--', `${name} location diagnostic ${id} was not populated`);
   }

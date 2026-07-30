@@ -49,17 +49,44 @@ const ACCIDENT_LAYOUTS = [
   },
 ];
 
+const REVERSE_ACCIDENT_COUNT = 27;
+const ACCIDENT_END_CLEARANCE = 240;
+const ACCIDENT_MIN_SPACING = 150;
+const INTERCHANGE_ACCIDENT_CLEARANCE = 150;
+
+function seededRandom(seed) {
+  let value = seed >>> 0;
+  return () => {
+    value += 0x6d2b79f5;
+    let mixed = value;
+    mixed = Math.imul(mixed ^ mixed >>> 15, mixed | 1);
+    mixed ^= mixed + Math.imul(mixed ^ mixed >>> 7, mixed | 61);
+    return ((mixed ^ mixed >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+function vehicleTypeForRoll(roll) {
+  return roll < .18 ? 'bus' : roll < .48 ? 'taxi' : 'car';
+}
+
 export class Track {
   constructor() {
     this.data = trackData;
+    this.reverseRoutePoints = trackData.reverseRoutePoints;
     this.curve = new THREE.CatmullRomCurve3(
       trackData.routePoints.map((point) => new THREE.Vector3(...point)),
+      false,
+      'centripetal',
+    );
+    this.reverseCurve = new THREE.CatmullRomCurve3(
+      trackData.reverseRoutePoints.map((point) => new THREE.Vector3(...point)),
       false,
       'centripetal',
     );
     this.length = this.curve.getLength();
     this.sampleCount = 1600;
     this.samples = Array.from({ length: this.sampleCount + 1 }, (_, i) => this.curve.getPointAt(i / this.sampleCount));
+    this.reverseSamples = Array.from({ length: this.sampleCount + 1 }, (_, i) => this.reverseCurve.getPointAt(i / this.sampleCount));
     this.minimapSamples = trackData.minimapPoints.map(([east, north]) => ({ x: east, y: -north }));
     this.minimapCache = new Map();
     this.anchors = trackData.anchors.map((anchor) => ({
@@ -162,11 +189,25 @@ export class Track {
     return direction === 1 ? this.raceLeftLaneCenter(distance) : -this.raceLeftLaneCenter(distance);
   }
 
+  curveForDirection(direction = 1) {
+    return direction === -1 ? this.reverseCurve : this.curve;
+  }
+
+  canonicalSample(routeProgress, carriagewayDirection = 1) {
+    const progress = THREE.MathUtils.clamp(routeProgress, 0, 1);
+    const curve = this.curveForDirection(carriagewayDirection);
+    const point = curve.getPointAt(progress);
+    const tangent = curve.getTangentAt(progress).normalize();
+    const right = new THREE.Vector3(tangent.z, 0, -tangent.x).normalize();
+    return { point, tangent, right, routeProgress: progress, distance: progress * this.length };
+  }
+
   sample(progress, direction = 1) {
     const raceProgress = THREE.MathUtils.clamp(progress, 0, 1);
     const routeProgress = direction === 1 ? raceProgress : 1 - raceProgress;
-    const point = this.curve.getPointAt(routeProgress);
-    const tangent = this.curve.getTangentAt(routeProgress).normalize().multiplyScalar(direction);
+    const curve = this.curveForDirection(direction);
+    const point = curve.getPointAt(routeProgress);
+    const tangent = curve.getTangentAt(routeProgress).normalize().multiplyScalar(direction);
     const right = new THREE.Vector3(tangent.z, 0, -tangent.x).normalize();
     return { point, tangent, right, routeProgress, distance: routeProgress * this.length };
   }
@@ -179,10 +220,11 @@ export class Track {
     const routeHint = direction === 1 ? hint : 1 - hint;
     const center = Math.round(routeHint * this.sampleCount);
     const radius = hint <= 0.01 ? this.sampleCount : 65;
+    const samples = direction === -1 ? this.reverseSamples : this.samples;
     let best = center;
     let bestDistance = Infinity;
     for (let i = Math.max(0, center - radius); i <= Math.min(this.sampleCount, center + radius); i += 1) {
-      const distance = this.samples[i].distanceToSquared(position);
+      const distance = samples[i].distanceToSquared(position);
       if (distance < bestDistance) { bestDistance = distance; best = i; }
     }
     const routeProgress = best / this.sampleCount;
@@ -195,6 +237,49 @@ export class Track {
 
   raceObstacleProgress(obstacle, direction) {
     return direction === 1 ? obstacle.progress : 1 - obstacle.progress;
+  }
+
+  createRaceObstacles(direction, seed) {
+    const random = seededRandom(seed);
+    if (direction === 1) {
+      return this.obstacles.map((obstacle) => ({
+        ...obstacle,
+        raceDistance: obstacle.distance,
+        cars: obstacle.cars.map((car) => ({ ...car, vehicleType: vehicleTypeForRoll(random()) })),
+      }));
+    }
+
+    const stopRaceDistance = this.length - (this.cowStops[0]?.distance ?? this.length / 2);
+    const intervals = [
+      [ACCIDENT_END_CLEARANCE, stopRaceDistance - INTERCHANGE_ACCIDENT_CLEARANCE],
+      [stopRaceDistance + INTERCHANGE_ACCIDENT_CLEARANCE, this.length - ACCIDENT_END_CLEARANCE],
+    ];
+    const totalAvailable = intervals.reduce((sum, [start, end]) => sum + Math.max(0, end - start), 0);
+    const firstCount = Math.round(REVERSE_ACCIDENT_COUNT * Math.max(0, intervals[0][1] - intervals[0][0]) / totalAvailable);
+    const counts = [firstCount, REVERSE_ACCIDENT_COUNT - firstCount];
+    const distances = [];
+    intervals.forEach(([start, end], intervalIndex) => {
+      const count = counts[intervalIndex];
+      const spacing = (end - start) / count;
+      const jitter = Math.max(0, (spacing - ACCIDENT_MIN_SPACING) / 2);
+      for (let index = 0; index < count; index += 1) {
+        distances.push(start + spacing * (index + .5) + (random() * 2 - 1) * jitter);
+      }
+    });
+    return distances.sort((a, b) => a - b).map((raceDistance, index) => {
+      const layoutIndex = Math.floor(random() * ACCIDENT_LAYOUTS.length);
+      const layout = ACCIDENT_LAYOUTS[layoutIndex];
+      return {
+        id: `reverse-accident-${String(index + 1).padStart(2, '0')}`,
+        type: 'accident',
+        raceDistance,
+        distance: this.length - raceDistance,
+        progress: this.progressAtDistance(this.length - raceDistance),
+        layout: layoutIndex,
+        avoidLateral: layout.avoidLateral,
+        cars: layout.cars.map((car) => ({ ...car, vehicleType: vehicleTypeForRoll(random()) })),
+      };
+    });
   }
 
   offsetSegment(index, segments, lateral = 0, overlap = 0) {
@@ -221,15 +306,38 @@ export class Track {
     };
   }
 
+  carriagewaySegment(direction, index, segments, lateral = 0, overlap = 0) {
+    const startProgress = index / segments;
+    const endProgress = (index + 1) / segments;
+    const startSample = this.canonicalSample(startProgress, direction);
+    const endSample = this.canonicalSample(endProgress, direction);
+    const startLateral = typeof lateral === 'function' ? lateral(startProgress) : lateral;
+    const endLateral = typeof lateral === 'function' ? lateral(endProgress) : lateral;
+    const start = startSample.point.clone().addScaledVector(startSample.right, startLateral);
+    const end = endSample.point.clone().addScaledVector(endSample.right, endLateral);
+    const tangent = end.clone().sub(start);
+    const length = tangent.length() + overlap;
+    tangent.normalize();
+    const right = new THREE.Vector3(tangent.z, 0, -tangent.x).normalize();
+    const normal = tangent.clone().cross(right).normalize();
+    const rotation = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(right, normal, tangent));
+    return { position: start.add(end).multiplyScalar(.5), rotation, length, right, tangent };
+  }
+
   makeRoadGeometry(width = GAME.trackWidth, segments = 600, offset = 0, lateral = 0, start = 0, end = 1) {
+    return this.makeCarriagewayGeometry(1, width, segments, offset, lateral, start, end);
+  }
+
+  makeCarriagewayGeometry(direction, width = GAME.trackWidth, segments = 600, offset = 0, lateral = 0, start = 0, end = 1) {
     const positions = [];
     const uvs = [];
     const indices = [];
     for (let i = 0; i <= segments; i += 1) {
       const localProgress = i / segments;
       const progress = THREE.MathUtils.lerp(start, end, localProgress);
-      const center = this.curve.getPointAt(progress);
-      const tangent = this.curve.getTangentAt(progress);
+      const curve = this.curveForDirection(direction);
+      const center = curve.getPointAt(progress);
+      const tangent = curve.getTangentAt(progress);
       const right = new THREE.Vector3(tangent.z, 0, -tangent.x).normalize();
       const roadWidth = typeof width === 'function' ? width(progress, localProgress) : width;
       const lateralOffset = typeof lateral === 'function' ? lateral(progress, localProgress) : lateral;

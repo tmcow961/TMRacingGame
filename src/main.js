@@ -33,7 +33,7 @@ const state = {
   finalPlace: 1, finalTime: 0, notificationUntil: 0, fps: 60, hudAccumulator: 1,
 };
 
-if (import.meta.env.DEV) Object.defineProperty(window, '__TMR_DEBUG__', { value: { world, state } });
+if (import.meta.env.DEV || new URLSearchParams(location.search).has('debug')) Object.defineProperty(window, '__TMR_DEBUG__', { value: { world, state } });
 
 const iconSet = { 'arrow-left': ArrowLeft, 'circle-help': CircleHelp, expand: Expand, flag: Flag, home: Home, info: Info, languages: Languages, play: Play, 'rotate-ccw': RotateCcw, settings: Settings };
 const icons = () => document.querySelectorAll('[data-lucide]').forEach((placeholder) => {
@@ -58,7 +58,7 @@ function showRaceNotification(message, kind) {
 
 function mountDiagnostics() {
   if (document.querySelector('#diagnostics-panel')) return;
-  ui.insertAdjacentHTML('beforeend', `<aside class="diagnostics-panel hidden" id="diagnostics-panel" aria-label="${t('diagnostics')}"><div class="diagnostics-title">${t('diagnostics')}</div><dl><div><dt>${t('diagRequested')}</dt><dd id="diag-requested">--</dd></div><div><dt>${t('diagActual')}</dt><dd id="diag-actual">--</dd></div><div><dt>${t('diagVelocity')}</dt><dd id="diag-velocity">--</dd></div><div><dt>${t('diagContacts')}</dt><dd id="diag-contacts">--</dd></div><div><dt>${t('diagFps')}</dt><dd id="diag-fps">--</dd></div><div><dt>${t('diagMovement')}</dt><dd id="diag-movement">--</dd></div><div><dt>${t('diagStuck')}</dt><dd id="diag-stuck">--</dd></div><div><dt>${t('diagLateral')}</dt><dd id="diag-lateral">--</dd></div><div><dt>${t('diagRaceDistance')}</dt><dd id="diag-race-distance">--</dd></div><div><dt>${t('diagTrackLocation')}</dt><dd id="diag-track-location">--</dd></div><div><dt>${t('diagLocalPosition')}</dt><dd id="diag-local-position">--</dd></div><div><dt>${t('diagCollision')}</dt><dd id="diag-collision">${t('diagNone')}</dd></div><div><dt>${t('diagCollisionLocation')}</dt><dd id="diag-collision-location">${t('diagNone')}</dd></div><div><dt>${t('diagCollisionAge')}</dt><dd id="diag-collision-age">${t('diagNone')}</dd></div><div><dt>${t('diagRecovery')}</dt><dd id="diag-recovery">${t('diagNone')}</dd></div></dl></aside>`);
+  ui.insertAdjacentHTML('beforeend', `<aside class="diagnostics-panel hidden" id="diagnostics-panel" aria-label="${t('diagnostics')}"><div class="diagnostics-title">${t('diagnostics')}</div><dl><div><dt>${t('diagCarriageway')}</dt><dd id="diag-carriageway">--</dd></div><div><dt>${t('diagObstacleSeed')}</dt><dd id="diag-obstacle-seed">--</dd></div><div><dt>${t('diagRequested')}</dt><dd id="diag-requested">--</dd></div><div><dt>${t('diagActual')}</dt><dd id="diag-actual">--</dd></div><div><dt>${t('diagVelocity')}</dt><dd id="diag-velocity">--</dd></div><div><dt>${t('diagContacts')}</dt><dd id="diag-contacts">--</dd></div><div><dt>${t('diagFps')}</dt><dd id="diag-fps">--</dd></div><div><dt>${t('diagMovement')}</dt><dd id="diag-movement">--</dd></div><div><dt>${t('diagStuck')}</dt><dd id="diag-stuck">--</dd></div><div><dt>${t('diagLateral')}</dt><dd id="diag-lateral">--</dd></div><div><dt>${t('diagRaceDistance')}</dt><dd id="diag-race-distance">--</dd></div><div><dt>${t('diagTrackLocation')}</dt><dd id="diag-track-location">--</dd></div><div><dt>${t('diagLocalPosition')}</dt><dd id="diag-local-position">--</dd></div><div><dt>${t('diagCollision')}</dt><dd id="diag-collision">${t('diagNone')}</dd></div><div><dt>${t('diagCollisionLocation')}</dt><dd id="diag-collision-location">${t('diagNone')}</dd></div><div><dt>${t('diagCollisionAge')}</dt><dd id="diag-collision-age">${t('diagNone')}</dd></div><div><dt>${t('diagRecovery')}</dt><dd id="diag-recovery">${t('diagNone')}</dd></div></dl></aside>`);
   document.querySelector('#diagnostics-panel').classList.toggle('hidden', !settings.diagnostics);
 }
 
@@ -74,6 +74,8 @@ function updateDiagnostics() {
   const data = world.getDiagnostics();
   if (!data) return;
   const set = (id, value) => { const element = document.querySelector(id); if (element) element.textContent = value; };
+  set('#diag-carriageway', data.carriageway);
+  set('#diag-obstacle-seed', String(data.obstacleSeed));
   set('#diag-requested', data.requestedSpeed.toFixed(1));
   set('#diag-actual', data.actualForwardSpeed.toFixed(1));
   set('#diag-velocity', data.bodyForwardSpeed.toFixed(1));

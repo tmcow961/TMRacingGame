@@ -1,4 +1,4 @@
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as THREE from 'three';
@@ -7,6 +7,8 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DATA_DIR = path.join(ROOT, 'src', 'data');
 const TARGET_LENGTH = 6000;
 const OSRM_URL = 'https://router.project-osrm.org/route/v1/driving/113.9782,22.3895;114.1110,22.3742?overview=full&geometries=geojson&steps=true';
+const REVERSE_CARRIAGEWAY_OFFSET = 44;
+const REVERSE_CARRIAGEWAY_SAMPLE_SPACING = 60;
 
 const anchors = [
   { id: 'tuen-mun', labelEn: 'Tuen Mun', labelZh: '屯門', type: 'terminus', lon: 113.97822, lat: 22.38951, side: -1 },
@@ -119,6 +121,41 @@ function round(value, places = 3) {
   return Math.round(value * scale) / scale;
 }
 
+function fourLaneExpansion(distance, stop) {
+  if (!stop || distance <= stop.fourLaneStartDistance || distance >= stop.fourLaneEndDistance) return 0;
+  const entering = THREE.MathUtils.clamp((distance - stop.fourLaneStartDistance) / stop.laneTransitionDistance, 0, 1);
+  const leaving = THREE.MathUtils.clamp((stop.fourLaneEndDistance - distance) / stop.laneTransitionDistance, 0, 1);
+  const blend = Math.min(entering, leaving);
+  return blend * blend * (3 - 2 * blend);
+}
+
+function makeReverseRoutePoints(curve, stop) {
+  const result = [];
+  for (let distance = 0; distance < curve.getLength() - REVERSE_CARRIAGEWAY_SAMPLE_SPACING * .5; distance += REVERSE_CARRIAGEWAY_SAMPLE_SPACING) {
+    const progress = distance / curve.getLength();
+    const point = curve.getPointAt(progress);
+    const tangent = curve.getTangentAt(progress).normalize();
+    const right = new THREE.Vector3(tangent.z, 0, -tangent.x).normalize();
+    const separation = REVERSE_CARRIAGEWAY_OFFSET + 11 * fourLaneExpansion(distance, stop);
+    result.push(point.addScaledVector(right, -separation));
+  }
+  const point = curve.getPointAt(1);
+  const tangent = curve.getTangentAt(1).normalize();
+  const right = new THREE.Vector3(tangent.z, 0, -tangent.x).normalize();
+  result.push(point.addScaledVector(right, -REVERSE_CARRIAGEWAY_OFFSET));
+  return result.map((entry) => [round(entry.x), round(entry.y), round(entry.z)]);
+}
+
+async function updateExistingReverseRoute() {
+  const trackPath = path.join(DATA_DIR, 'tuen-mun-road.track.json');
+  const trackData = JSON.parse(await readFile(trackPath, 'utf8'));
+  const curve = new THREE.CatmullRomCurve3(trackData.routePoints.map((point) => new THREE.Vector3(...point)), false, 'centripetal');
+  trackData.reverseRoutePoints = makeReverseRoutePoints(curve, trackData.cowStops?.[0]);
+  trackData.reverseGeneratedLength = round(new THREE.CatmullRomCurve3(trackData.reverseRoutePoints.map((point) => new THREE.Vector3(...point)), false, 'centripetal').getLength());
+  await writeFile(trackPath, `${JSON.stringify(trackData, null, 2)}\n`);
+  console.log(`Added ${trackData.reverseRoutePoints.length} reverse-carriageway points to the existing track data.`);
+}
+
 async function main() {
   const routeResponse = await fetch(OSRM_URL, { headers: { 'User-Agent': 'TuenMunCowRacing/1.0 local-development' } });
   if (!routeResponse.ok) throw new Error(`OSRM returned ${routeResponse.status}`);
@@ -229,6 +266,7 @@ async function main() {
     projection: 'Local tangent plane, rotated to canonical route direction',
     elevation: 'Copernicus DEM-derived terrain profile, smoothed and vertically compressed for gameplay',
     routePoints: points.map((point) => [round(point.x), round(point.y), round(point.z)]),
+    reverseRoutePoints: makeReverseRoutePoints(curve, normalizedCowStops[0]),
     minimapPoints,
     anchors: normalizedAnchors.map(({ lon, lat, ...anchor }) => anchor),
     cowStops: normalizedCowStops.map(({ lon, lat, fourLaneStartOffset, fourLaneEndOffset, ...stop }) => ({
@@ -244,6 +282,7 @@ async function main() {
     checkpoints,
     obstacles,
   };
+  trackData.reverseGeneratedLength = round(new THREE.CatmullRomCurve3(trackData.reverseRoutePoints.map((point) => new THREE.Vector3(...point)), false, 'centripetal').getLength());
   const sources = {
     updated: new Date().toISOString().slice(0, 10),
     sources: [
@@ -297,4 +336,5 @@ async function main() {
   console.log(`Generated ${points.length} route points, ${curve.getLength().toFixed(1)} game units, from ${sourceCoordinates.length} OSM route points.`);
 }
 
-await main();
+if (process.argv.includes('--reverse-only')) await updateExistingReverseRoute();
+else await main();

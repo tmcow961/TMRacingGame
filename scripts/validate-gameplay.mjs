@@ -1,12 +1,22 @@
 import assert from 'node:assert/strict';
 import { GAME } from '../src/config.js';
 import { GameWorld, isRailContactNearBoundary, nextRacerSpeed, shouldFollowGround } from '../src/world.js';
+import { Track } from '../src/track.js';
 
 assert.equal(nextRacerSpeed(0, false, false, GAME.targetSpeed, GAME.acceleration, 1), 0, 'The player must remain stopped without acceleration input');
 assert.equal(nextRacerSpeed(0, true, false, GAME.targetSpeed, GAME.acceleration, 1), GAME.acceleration, 'Acceleration input must increase speed');
 assert.equal(nextRacerSpeed(20, false, false, GAME.targetSpeed, GAME.acceleration, 1), 2, 'Releasing acceleration must coast toward zero');
 assert.equal(nextRacerSpeed(20, true, true, GAME.targetSpeed, GAME.acceleration, 1), 0, 'Brake input must override acceleration');
 assert.equal(GAME.aiObstacleResetDelay, 2, 'AI racers must wait two seconds before bypassing an obstacle');
+const track = new Track();
+const reverseObstaclesA = track.createRaceObstacles(-1, 12345);
+const reverseObstaclesB = track.createRaceObstacles(-1, 67890);
+assert.equal(reverseObstaclesA.length, 27, 'Reverse races must contain 27 generated accidents');
+assert.ok(reverseObstaclesA.some((obstacle, index) => obstacle.raceDistance !== reverseObstaclesB[index].raceDistance), 'Reverse accident positions must change with the race seed');
+assert.ok(reverseObstaclesA.every((obstacle) => obstacle.cars.length >= 3 && obstacle.cars.length <= 5), 'Reverse accidents must contain 3-5 vehicles');
+assert.ok(reverseObstaclesA.every((obstacle, index) => index === 0 || obstacle.raceDistance - reverseObstaclesA[index - 1].raceDistance >= 150), 'Reverse accidents must remain at least 150 m apart');
+const reverseInterchangeDistance = track.length - track.cowStops[0].distance;
+assert.ok(reverseObstaclesA.every((obstacle) => Math.abs(obstacle.raceDistance - reverseInterchangeDistance) >= 150), 'Reverse accidents must leave the interchange clear');
 assert.equal(isRailContactNearBoundary(2.2), false, 'A centre-road player position cannot produce barrier feedback');
 assert.equal(isRailContactNearBoundary(GAME.trackWidth / 2 - .2), true, 'A player beside the road edge can produce barrier feedback');
 assert.equal(shouldFollowGround(false, .1, -.4), true, 'A grounded cow must follow a small downhill road step');

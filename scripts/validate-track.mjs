@@ -27,6 +27,29 @@ assert.ok(track.obstacles.every((obstacle) => obstacle.distance > 0 && obstacle.
 assert.ok(track.obstacles.every((obstacle) => obstacle.type === 'accident'), 'Only vehicle accident scenes may be gameplay obstacles');
 assert.ok(track.obstacles.every((obstacle) => obstacle.cars.length >= 3 && obstacle.cars.length <= 5), 'Every accident must contain 3-5 vehicles');
 
+assert.ok(track.reverseRoutePoints.length >= 90, 'Reverse carriageway must contain a detailed route centreline');
+assert.ok(Math.abs(track.reverseCurve.getLength() - 6000) <= 300, `Reverse route length ${track.reverseCurve.getLength().toFixed(1)} is outside the 6000 +/- 5% target`);
+let minimumCarriagewayGap = Infinity;
+let reverseMinimumRadius = Infinity;
+let reversePrevious = null;
+let reversePreviousHeading = null;
+for (let i = 0; i <= track.sampleCount; i += 1) {
+  const progress = i / track.sampleCount;
+  const forward = track.canonicalSample(progress, 1);
+  const reverse = track.canonicalSample(progress, -1);
+  minimumCarriagewayGap = Math.min(minimumCarriagewayGap, forward.point.distanceTo(reverse.point) - track.roadWidthAtProgress(progress));
+  if (reversePrevious) {
+    const step = reverse.point.clone().sub(reversePrevious);
+    const heading = Math.atan2(step.x, step.z);
+    const turn = reversePreviousHeading === null ? 0 : Math.abs(Math.atan2(Math.sin(heading - reversePreviousHeading), Math.cos(heading - reversePreviousHeading)));
+    if (turn > .0001) reverseMinimumRadius = Math.min(reverseMinimumRadius, Math.hypot(step.x, step.z) / turn);
+  }
+  reversePrevious = reverse.point;
+  reversePreviousHeading = Math.atan2(reverse.tangent.x, reverse.tangent.z);
+}
+assert.ok(minimumCarriagewayGap >= 7, `Carriageways are too close: paved gap ${minimumCarriagewayGap.toFixed(1)} units`);
+assert.ok(reverseMinimumRadius >= 24, `Reverse minimum curve radius ${reverseMinimumRadius.toFixed(1)} is too tight`);
+
 let maximumRailIntrusion = -Infinity;
 for (let i = 0; i < GAME.railSegments; i += 1) {
   for (const side of [-1, 1]) {
@@ -45,6 +68,24 @@ for (let i = 0; i < GAME.railSegments; i += 1) {
   }
 }
 assert.ok(maximumRailIntrusion <= 0, `Rail collider intrudes ${maximumRailIntrusion.toFixed(2)} units into the playable road`);
+
+let maximumReverseRailIntrusion = -Infinity;
+for (let i = 0; i < GAME.railSegments; i += 1) {
+  for (const side of [-1, 1]) {
+    const segment = track.carriagewaySegment(-1, i, GAME.railSegments, (progress) => side * (track.roadWidthAtProgress(progress) / 2 + GAME.railShoulderOffset + .4), GAME.railSegmentOverlap);
+    for (const x of [-GAME.railColliderHalfWidth, GAME.railColliderHalfWidth]) {
+      for (const z of [-segment.length / 2, segment.length / 2]) {
+        const corner = segment.position.clone().addScaledVector(segment.right, x).addScaledVector(segment.tangent, z);
+        const road = track.canonicalSample((i + .5) / GAME.railSegments, -1);
+        const lateral = corner.clone().sub(road.point).dot(road.right);
+        const roadHalfWidth = track.roadWidthAtDistance(road.distance) / 2;
+        const intrusion = side === 1 ? roadHalfWidth - lateral : lateral + roadHalfWidth;
+        maximumReverseRailIntrusion = Math.max(maximumReverseRailIntrusion, intrusion);
+      }
+    }
+  }
+}
+assert.ok(maximumReverseRailIntrusion <= 0, `Reverse rail collider intrudes ${maximumReverseRailIntrusion.toFixed(2)} units into the playable road`);
 
 let minimumRadius = Infinity;
 let maximumGrade = 0;
@@ -76,11 +117,11 @@ for (let i = 0; i < track.samples.length; i += 4) {
 assert.ok(minimumNonlocalDistance > GAME.trackWidth * 4 / 3 + 30, `Route self-approach ${minimumNonlocalDistance.toFixed(1)} may overlap the widened road environment`);
 
 for (const progress of [.05, .25, .5, .75, .95]) {
-  const forward = track.sample(progress, 1);
   const reverse = track.sample(1 - progress, -1);
-  assert.ok(forward.point.distanceTo(reverse.point) < .001, 'Reverse route must share the same physical alignment');
-  assert.ok(forward.tangent.dot(reverse.tangent) < -.999, 'Reverse tangent must face the opposite direction');
-  assert.ok(forward.right.dot(reverse.right) < -.999, 'Reverse left/right orientation must be derived from the shared route');
+  const canonical = track.canonicalSample(progress, -1);
+  assert.ok(reverse.point.distanceTo(canonical.point) < .001, 'Reverse route must use its dedicated physical alignment');
+  assert.ok(reverse.tangent.dot(canonical.tangent) < -.999, 'Reverse tangent must face the opposite direction');
+  assert.ok(reverse.right.dot(canonical.right) < -.999, 'Reverse left/right orientation must be derived from the reverse route');
 }
 
 console.log(JSON.stringify({
@@ -92,4 +133,7 @@ console.log(JSON.stringify({
   maximumGradePercent: Number((maximumGrade * 100).toFixed(1)),
   minimumNonlocalDistance: Number(minimumNonlocalDistance.toFixed(1)),
   maximumRailIntrusion: Number(maximumRailIntrusion.toFixed(2)),
+  minimumCarriagewayGap: Number(minimumCarriagewayGap.toFixed(2)),
+  reverseMinimumRadius: Number(reverseMinimumRadius.toFixed(1)),
+  maximumReverseRailIntrusion: Number(maximumReverseRailIntrusion.toFixed(2)),
 }, null, 2));

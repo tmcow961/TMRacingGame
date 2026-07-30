@@ -32,12 +32,12 @@ function runRace(direction, run) {
     const canonicalDistance = direction === 1 ? raceDistance : track.length - raceDistance;
     const roadHalfWidth = track.roadWidthAtDistance(canonicalDistance) / 2;
     let nearestObstacle = Infinity;
-    for (const obstacle of track.obstacles) {
-      const obstacleDistance = direction === 1 ? obstacle.distance : track.length - obstacle.distance;
+    for (const obstacle of track.createRaceObstacles(direction, 12345)) {
+      const obstacleDistance = obstacle.raceDistance;
       const delta = obstacleDistance - raceDistance;
       if (delta > 0 && delta < 390 && delta < nearestObstacle) {
         nearestObstacle = delta;
-        const safeLane = direction === 1 ? obstacle.avoidLateral : -obstacle.avoidLateral;
+        const safeLane = obstacle.avoidLateral;
         desired = THREE.MathUtils.clamp(safeLane + ((run % 3) - 1) * 1.1, -roadHalfWidth + 2.5, roadHalfWidth - 2.5);
       }
     }
@@ -46,7 +46,7 @@ function runRace(direction, run) {
     else if (lateral > edgeCorrection) desired = Math.min(desired, -7);
     const lateralResponse = Math.abs(lateral) > edgeCorrection ? 11 : 1.3;
     avoidLateral = THREE.MathUtils.lerp(avoidLateral, desired, Math.min(1, dt * lateralResponse));
-    const aim = track.sampleDistance(Math.min(track.length - 18, raceDistance + 72), direction);
+    const aim = track.sampleDistance(Math.min(track.length - 18, raceDistance + (direction === -1 ? 50 : 72)), direction);
     const aimPoint = aim.point.clone().addScaledVector(aim.right, avoidLateral);
     const desiredHeading = Math.atan2(aimPoint.x - position.x, aimPoint.z - position.z);
     steer = THREE.MathUtils.lerp(steer, THREE.MathUtils.clamp(normalizeAngle(desiredHeading - heading) / .35, -1, 1), Math.min(1, dt * 7));
