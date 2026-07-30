@@ -655,7 +655,10 @@ export class GameWorld {
   }
 
   clearRace() {
+    this.raceRunning = false;
+    this.events?.clear();
     this.racers.forEach((r)=>{this.scene.remove(r.visual);this.colliderMetadata.delete(r.collider.handle);this.physics.removeRigidBody(r.body);}); this.racers=[];
+    this.events?.clear();
     this.activePlayerContacts.clear();this.collisionCooldowns.clear();this.collisionTypeCooldowns.clear();this.lastCollision=null;this.lastRecovery=null;
   }
 

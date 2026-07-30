@@ -24,5 +24,6 @@ export class InputManager {
     this.pressed.delete('Space');
     return active;
   }
+  reset() { this.down.clear(); this.pressed.clear(); }
   endFrame() { this.pressed.clear(); }
 }

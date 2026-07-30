@@ -46,6 +46,7 @@ const formatTime = (seconds) => `${String(Math.floor(seconds / 60)).padStart(2, 
 const clockMarkup = () => `<div class="race-clock" id="race-clock"><div class="clock-face" aria-hidden="true"><span class="clock-number n12">12</span><span class="clock-number n3">3</span><span class="clock-number n6">6</span><span class="clock-number n9">9</span><span class="clock-hand hour" id="clock-hour"></span><span class="clock-hand minute" id="clock-minute"></span><span class="clock-pin"></span></div><div class="clock-readout"><strong id="clock-time">12:00 AM</strong><span class="clock-status hidden" id="clock-status"></span></div></div>`;
 const collisionKey = { obstacle: 'collisionObstacle', racer: 'collisionRacer', rail: 'collisionRail' };
 const recoveryKey = { 'off-track': 'recoveryOffTrack', fallen: 'recoveryFallen', stuck: 'recoveryStuck' };
+let raceStartLocked = false;
 
 function showRaceNotification(message, kind) {
   const notice = document.querySelector('#recovery');
@@ -137,10 +138,24 @@ function controlsMarkup(fromPause = false) {
 function renderControls(fromPause = false) { state.screen = fromPause ? 'controlsPause' : 'controls'; ui.innerHTML = controlsMarkup(fromPause); bind(); }
 
 function beginRace() {
-  state.screen='race'; state.raceTime=0; state.countdown=4; state.running=false; state.notificationUntil=0;
-  world.startRace(state.direction,state.cow); world.setRaceRunning(false); input.enabled=true;
-  ui.innerHTML = `<div class="hud"><div class="hud-cluster"><div class="hud-box"><div class="hud-label">${t('position')}</div><div class="hud-value" id="position">1 / 6</div></div><div class="hud-box"><div class="hud-label">${t('progress')}</div><div class="hud-value" id="progress">0%</div></div><div class="hud-box"><div class="hud-label">${t('time')}</div><div class="hud-value" id="race-time">00:00.0</div></div><div class="hud-box lives-box"><div class="hud-label">${t('lives')}</div><div class="hud-value" id="lives">${GAME.playerLives} / ${GAME.playerLives}</div></div></div>${clockMarkup()}<div class="hud-box hud-route"><div class="hud-label">${t('destination')}</div><div class="hud-value">${state.direction === 1 ? t('outboundShort') : t('inboundShort')}</div></div><div class="hud-box jump-meter"><div class="hud-label" id="jump-label">${t('jumpReady')}</div><div class="jump-bar"><div class="jump-fill" id="jump-fill"></div></div></div><canvas class="minimap" id="minimap" width="420" height="240"></canvas></div><div class="countdown" id="countdown">3</div><div class="recovery hidden" id="recovery">${t('recovering')}</div>`;
-  mountDiagnostics();drawMinimap();
+  if (raceStartLocked || state.screen === 'race') return;
+  const previousScreen = state.screen;
+  raceStartLocked = true;
+  input.enabled = false;
+  input.reset();
+  world.setRaceRunning(false);
+  try {
+    world.startRace(state.direction,state.cow);
+    world.setRaceRunning(false);
+    state.screen='race'; state.raceTime=0; state.countdown=4; state.running=false; state.notificationUntil=0;
+    ui.innerHTML = `<div class="hud"><div class="hud-cluster"><div class="hud-box"><div class="hud-label">${t('position')}</div><div class="hud-value" id="position">1 / 6</div></div><div class="hud-box"><div class="hud-label">${t('progress')}</div><div class="hud-value" id="progress">0%</div></div><div class="hud-box"><div class="hud-label">${t('time')}</div><div class="hud-value" id="race-time">00:00.0</div></div><div class="hud-box lives-box"><div class="hud-label">${t('lives')}</div><div class="hud-value" id="lives">${GAME.playerLives} / ${GAME.playerLives}</div></div></div>${clockMarkup()}<div class="hud-box hud-route"><div class="hud-label">${t('destination')}</div><div class="hud-value">${state.direction === 1 ? t('outboundShort') : t('inboundShort')}</div></div><div class="hud-box jump-meter"><div class="hud-label" id="jump-label">${t('jumpReady')}</div><div class="jump-bar"><div class="jump-fill" id="jump-fill"></div></div></div><canvas class="minimap" id="minimap" width="420" height="240"></canvas></div><div class="countdown" id="countdown">3</div><div class="recovery hidden" id="recovery">${t('recovering')}</div>`;
+    mountDiagnostics();drawMinimap();input.enabled=true;
+  } catch (error) {
+    state.screen=previousScreen;state.running=false;world.setRaceRunning(false);input.enabled=false;
+    console.error('Race restart failed',error);
+  } finally {
+    queueMicrotask(() => { raceStartLocked = false; });
+  }
 }
 
 function renderPause() {
@@ -174,19 +189,19 @@ function finishRace() {
   if(state.screen!=='race')return;
   state.running=false;world.setRaceRunning(false);audio.stopMusic();audio.play('finish');
   const standings=world.getStandings();state.finalPlace=Math.max(1,standings.findIndex((r)=>r.isPlayer)+1);state.finalTime=state.raceTime;state.screen='results';input.enabled=false;
-  ui.innerHTML=`<section class="screen modal-screen"><div class="modal"><div class="brand-kicker">${t('finished')}</div><p class="result-place">${t(['first','second','third','fourth','fifth','sixth'][state.finalPlace-1])}</p><div class="result-stats"><div class="result-stat"><div class="hud-label">${t('time')}</div><div class="hud-value">${formatTime(state.finalTime)}</div></div><div class="result-stat"><div class="hud-label">${t('route')}</div><strong>${state.direction===1?t('outbound'):t('inbound')}</strong></div><div class="result-stat"><div class="hud-label">${t('cow')}</div><strong>${t(state.cow.id)}</strong></div><div class="result-stat"><div class="hud-label">${t('progress')}</div><strong>100%</strong></div></div><div class="footer-actions"><button class="btn" data-action="title"><i data-lucide="home"></i> ${t('returnTitle')}</button><button class="btn primary" data-action="begin"><i data-lucide="rotate-ccw"></i> ${t('retry')}</button></div></div></section>`;bind();
+  ui.innerHTML=`<section class="screen modal-screen"><div class="modal"><div class="brand-kicker">${t('finished')}</div><p class="result-place">${t(['first','second','third','fourth','fifth','sixth'][state.finalPlace-1])}</p><div class="result-stats"><div class="result-stat"><div class="hud-label">${t('time')}</div><div class="hud-value">${formatTime(state.finalTime)}</div></div><div class="result-stat"><div class="hud-label">${t('route')}</div><strong>${state.direction===1?t('outbound'):t('inbound')}</strong></div><div class="result-stat"><div class="hud-label">${t('cow')}</div><strong>${t(state.cow.id)}</strong></div><div class="result-stat"><div class="hud-label">${t('progress')}</div><strong>100%</strong></div></div><div class="footer-actions"><button class="btn" data-action="title"><i data-lucide="home"></i> ${t('returnTitle')}</button><button class="btn primary" data-action="retry"><i data-lucide="rotate-ccw"></i> ${t('retry')}</button></div></div></section>`;bind();
 }
 
 function busLaneGameOver() {
   if(state.screen!=='race')return;
   state.running=false;world.setRaceRunning(false);audio.stopMusic();audio.play('hit');state.screen='gameover';input.enabled=false;
-  ui.innerHTML=`<section class="screen modal-screen"><div class="modal"><div class="brand-kicker danger-kicker">${t('gameOver')}</div><h2>${t('busLaneViolation')}</h2><div class="result-stats"><div class="result-stat"><div class="hud-label">${t('time')}</div><div class="hud-value">${formatTime(state.raceTime)}</div></div><div class="result-stat"><div class="hud-label">${t('progress')}</div><strong>${Math.min(100,Math.floor((world.racers[0]?.progress??0)*100))}%</strong></div></div><div class="footer-actions"><button class="btn" data-action="title"><i data-lucide="home"></i> ${t('returnTitle')}</button><button class="btn primary" data-action="begin"><i data-lucide="rotate-ccw"></i> ${t('retry')}</button></div></div></section>`;bind();
+  ui.innerHTML=`<section class="screen modal-screen"><div class="modal"><div class="brand-kicker danger-kicker">${t('gameOver')}</div><h2>${t('busLaneViolation')}</h2><div class="result-stats"><div class="result-stat"><div class="hud-label">${t('time')}</div><div class="hud-value">${formatTime(state.raceTime)}</div></div><div class="result-stat"><div class="hud-label">${t('progress')}</div><strong>${Math.min(100,Math.floor((world.racers[0]?.progress??0)*100))}%</strong></div></div><div class="footer-actions"><button class="btn" data-action="title"><i data-lucide="home"></i> ${t('returnTitle')}</button><button class="btn primary" data-action="retry"><i data-lucide="rotate-ccw"></i> ${t('retry')}</button></div></div></section>`;bind();
 }
 
 function obstacleGameOver() {
   if(state.screen!=='race')return;
   state.running=false;world.setRaceRunning(false);audio.stopMusic();audio.play('hit');state.screen='gameover';input.enabled=false;
-  ui.innerHTML=`<section class="screen modal-screen"><div class="modal"><div class="brand-kicker danger-kicker">${t('gameOver')}</div><h2>${t('obstacleGameOver')}</h2><div class="result-stats"><div class="result-stat"><div class="hud-label">${t('time')}</div><div class="hud-value">${formatTime(state.raceTime)}</div></div><div class="result-stat"><div class="hud-label">${t('progress')}</div><strong>${Math.min(100,Math.floor((world.racers[0]?.progress??0)*100))}%</strong></div></div><div class="footer-actions"><button class="btn" data-action="title"><i data-lucide="home"></i> ${t('returnTitle')}</button><button class="btn primary" data-action="begin"><i data-lucide="rotate-ccw"></i> ${t('retry')}</button></div></div></section>`;bind();
+  ui.innerHTML=`<section class="screen modal-screen"><div class="modal"><div class="brand-kicker danger-kicker">${t('gameOver')}</div><h2>${t('obstacleGameOver')}</h2><div class="result-stats"><div class="result-stat"><div class="hud-label">${t('time')}</div><div class="hud-value">${formatTime(state.raceTime)}</div></div><div class="result-stat"><div class="hud-label">${t('progress')}</div><strong>${Math.min(100,Math.floor((world.racers[0]?.progress??0)*100))}%</strong></div></div><div class="footer-actions"><button class="btn" data-action="title"><i data-lucide="home"></i> ${t('returnTitle')}</button><button class="btn primary" data-action="retry"><i data-lucide="rotate-ccw"></i> ${t('retry')}</button></div></div></section>`;bind();
 }
 
 function renderSettings() {
@@ -209,7 +224,6 @@ function updateHud(){const player=world.racers[0];if(!player)return;const standi
 
 function bind(){
   icons();
-  ui.querySelectorAll('[data-action]').forEach((button)=>button.addEventListener('click',()=>handleAction(button.dataset.action)));
   ui.querySelectorAll('[data-direction]').forEach((button)=>button.addEventListener('click',()=>{state.direction=Number(button.dataset.direction);audio.play('ui');renderDirection();}));
   ui.querySelectorAll('[data-cow]').forEach((button)=>button.addEventListener('click',()=>{state.cow=COWS.find((c)=>c.id===button.dataset.cow);audio.play('ui');renderCow();}));
   ui.querySelectorAll('[data-interchange-cow]').forEach((button)=>button.addEventListener('click',()=>{state.cow=COWS.find((c)=>c.id===button.dataset.interchangeCow);world.changePlayerCow(state.cow);audio.play('ui');ui.querySelectorAll('[data-interchange-cow]').forEach((choice)=>{const selected=choice.dataset.interchangeCow===state.cow.id;choice.classList.toggle('selected',selected);choice.setAttribute('aria-pressed',String(selected));});}));
@@ -222,7 +236,9 @@ function bind(){
 
 function closeSettings(){document.querySelector('#settings-overlay')?.remove();if(state.previousScreen==='title')renderTitle();else if(state.previousScreen==='direction')renderDirection();else if(state.previousScreen==='cow')renderCow();}
 
-function handleAction(action){audio.play('ui');const actions={title:renderTitle,direction:renderDirection,cow:renderCow,credits:renderCredits,settings:renderSettings,'close-settings':closeSettings,prepare:()=>state.controlsSeen?beginRace():renderControls(false),begin:()=>{state.controlsSeen=true;beginRace();},resume:resumeRace,restart:beginRace,'leave-interchange':leaveCowInterchange,'controls-pause':()=>renderControls(true),pause:()=>{renderRaceBase();renderPause();},language:()=>{settings.language=settings.language==='en'?'zh':'en';if(state.screen==='title')renderTitle();else if(state.screen==='direction')renderDirection();else if(state.screen==='cow')renderCow();else renderTitle();},fullscreen:()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen(),reload:()=>location.reload()};actions[action]?.();}
+function handleAction(action){const actions={title:renderTitle,direction:renderDirection,cow:renderCow,credits:renderCredits,settings:renderSettings,'close-settings':closeSettings,prepare:()=>state.controlsSeen?beginRace():renderControls(false),begin:()=>{state.controlsSeen=true;beginRace();},retry:beginRace,resume:resumeRace,restart:beginRace,'leave-interchange':leaveCowInterchange,'controls-pause':()=>renderControls(true),pause:()=>{renderRaceBase();renderPause();},language:()=>{settings.language=settings.language==='en'?'zh':'en';if(state.screen==='title')renderTitle();else if(state.screen==='direction')renderDirection();else if(state.screen==='cow')renderCow();else renderTitle();},fullscreen:()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen(),reload:()=>location.reload()};const handler=actions[action];if(!handler)return;audio.play('ui');handler();}
+
+ui.addEventListener('click',(event)=>{const target=event.target instanceof Element?event.target.closest('[data-action]'):null;if(!target||!ui.contains(target)||target.disabled)return;handleAction(target.dataset.action);});
 
 function renderRaceBase(){state.screen='race';ui.innerHTML = `<div class="hud"><div class="hud-cluster"><div class="hud-box"><div class="hud-label">${t('position')}</div><div class="hud-value" id="position">1 / 6</div></div><div class="hud-box"><div class="hud-label">${t('progress')}</div><div class="hud-value" id="progress">0%</div></div><div class="hud-box"><div class="hud-label">${t('time')}</div><div class="hud-value" id="race-time">${formatTime(state.raceTime)}</div></div><div class="hud-box lives-box"><div class="hud-label">${t('lives')}</div><div class="hud-value" id="lives">${world.playerLives} / ${GAME.playerLives}</div></div></div>${clockMarkup()}<div class="hud-box hud-route"><div class="hud-label">${t('destination')}</div><div class="hud-value">${state.direction===1?t('outboundShort'):t('inboundShort')}</div></div><div class="hud-box jump-meter"><div class="hud-label" id="jump-label">${t('jumpReady')}</div><div class="jump-bar"><div class="jump-fill" id="jump-fill"></div></div></div><canvas class="minimap" id="minimap" width="420" height="240"></canvas></div><div class="recovery hidden" id="recovery">${t('recovering')}</div>`;mountDiagnostics();updateHud();updateAnalogClock();}
 
