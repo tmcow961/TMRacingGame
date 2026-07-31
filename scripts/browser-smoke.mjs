@@ -35,7 +35,15 @@ async function canvasPixels(page) {
 }
 
 async function runViewport(name, viewport, direction, quality = 'high') {
-  const context = await browser.newContext({ viewport });
+  const mobile = name.startsWith('mobile');
+  const context = await browser.newContext({
+    viewport,
+    ...(mobile ? {
+      isMobile: true,
+      hasTouch: true,
+      userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1',
+    } : {}),
+  });
   const page = await context.newPage();
   const errors = [];
   page.on('pageerror', (error) => errors.push(error.message));
@@ -69,6 +77,35 @@ async function runViewport(name, viewport, direction, quality = 'high') {
   await page.locator('[data-action="prepare"]').click();
   await page.locator('[data-action="begin"]').click();
   await page.waitForTimeout(5200);
+  if (mobile) {
+    assert.equal(await page.locator('[data-mobile-control]').count(), 3, `${name} did not render all three mobile controls`);
+    const automaticMotion = await page.evaluate(() => {
+      const { input, world } = window.__TMR_DEBUG__;
+      return { mobile: input.mobile, accelerating: input.accelerating, braking: input.braking, speed: world.racers[0]?.speed ?? 0 };
+    });
+    assert.equal(automaticMotion.mobile, true, `${name} was not detected as a mobile device`);
+    assert.equal(automaticMotion.accelerating, true, `${name} did not enable automatic acceleration`);
+    assert.equal(automaticMotion.braking, false, `${name} unexpectedly enabled braking`);
+    assert.ok(automaticMotion.speed > 0, `${name} player did not accelerate without keyboard input`);
+
+    const left = page.locator('[data-mobile-control="left"]');
+    await left.dispatchEvent('pointerdown', { pointerId: 41, pointerType: 'touch', isPrimary: true });
+    assert.equal(await page.evaluate(() => window.__TMR_DEBUG__.input.steer), 1, `${name} left control did not steer`);
+    await left.dispatchEvent('pointerup', { pointerId: 41, pointerType: 'touch', isPrimary: true });
+    assert.equal(await page.evaluate(() => window.__TMR_DEBUG__.input.steer), 0, `${name} left control remained held after release`);
+
+    const right = page.locator('[data-mobile-control="right"]');
+    await right.dispatchEvent('pointerdown', { pointerId: 42, pointerType: 'touch', isPrimary: true });
+    assert.equal(await page.evaluate(() => window.__TMR_DEBUG__.input.steer), -1, `${name} right control did not steer`);
+    await right.dispatchEvent('pointerup', { pointerId: 42, pointerType: 'touch', isPrimary: true });
+
+    const jump = page.locator('[data-mobile-control="jump"]');
+    await jump.dispatchEvent('pointerdown', { pointerId: 43, pointerType: 'touch', isPrimary: true });
+    await page.waitForFunction(() => window.__TMR_DEBUG__.world.racers[0]?.airborne === true);
+    await jump.dispatchEvent('pointerup', { pointerId: 43, pointerType: 'touch', isPrimary: true });
+  } else {
+    assert.equal(await page.locator('[data-mobile-control]').count(), 0, `${name} displayed touch controls on desktop`);
+  }
   if (direction === 1) {
     const bridgeLateral = await page.evaluate(() => {
       const { world } = window.__TMR_DEBUG__;

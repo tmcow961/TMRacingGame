@@ -24,6 +24,7 @@ const ui = document.querySelector('#ui');
 const settings = { ...DEFAULT_SETTINGS };
 const t = createTranslator(() => settings.language);
 const input = new InputManager();
+app.classList.toggle('mobile-device', input.mobile);
 const audio = new AudioManager(settings);
 const world = new GameWorld(app, settings, audio);
 
@@ -33,7 +34,7 @@ const state = {
   finalPlace: 1, finalTime: 0, notificationUntil: 0, fps: 60, hudAccumulator: 1,
 };
 
-if (import.meta.env.DEV || new URLSearchParams(location.search).has('debug')) Object.defineProperty(window, '__TMR_DEBUG__', { value: { world, state } });
+if (import.meta.env.DEV || new URLSearchParams(location.search).has('debug')) Object.defineProperty(window, '__TMR_DEBUG__', { value: { world, state, input } });
 
 const iconSet = { 'arrow-left': ArrowLeft, 'circle-help': CircleHelp, expand: Expand, flag: Flag, home: Home, info: Info, languages: Languages, play: Play, 'rotate-ccw': RotateCcw, settings: Settings };
 const icons = () => document.querySelectorAll('[data-lucide]').forEach((placeholder) => {
@@ -44,6 +45,13 @@ const icons = () => document.querySelectorAll('[data-lucide]').forEach((placehol
 });
 const formatTime = (seconds) => `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(Math.floor(seconds % 60)).padStart(2, '0')}.${String(Math.floor((seconds % 1) * 10))}`;
 const clockMarkup = () => `<div class="race-clock" id="race-clock"><div class="clock-face" aria-hidden="true"><span class="clock-number n12">12</span><span class="clock-number n3">3</span><span class="clock-number n6">6</span><span class="clock-number n9">9</span><span class="clock-hand hour" id="clock-hour"></span><span class="clock-hand minute" id="clock-minute"></span><span class="clock-pin"></span></div><div class="clock-readout"><strong id="clock-time">12:00 AM</strong><span class="clock-status hidden" id="clock-status"></span></div></div>`;
+const mobileControlsMarkup = () => input.mobile ? `<div class="mobile-controls" aria-label="${t('mobileControls')}">
+  <button class="mobile-control mobile-jump" type="button" data-mobile-control="jump" aria-label="${t('jump')}">${t('jump')}</button>
+  <div class="mobile-steering">
+    <button class="mobile-control" type="button" data-mobile-control="left" aria-label="${t('steerLeft')}"><span aria-hidden="true">&#8592;</span></button>
+    <button class="mobile-control" type="button" data-mobile-control="right" aria-label="${t('steerRight')}"><span aria-hidden="true">&#8594;</span></button>
+  </div>
+</div>` : '';
 const collisionKey = { obstacle: 'collisionObstacle', racer: 'collisionRacer', rail: 'collisionRail' };
 const recoveryKey = { 'off-track': 'recoveryOffTrack', fallen: 'recoveryFallen', stuck: 'recoveryStuck' };
 let raceStartLocked = false;
@@ -129,6 +137,11 @@ function renderCow() {
 }
 
 function controlsMarkup(fromPause = false) {
+  if (input.mobile) return `<section class="screen modal-screen"><div class="modal"><h2>${t('controls')}</h2><p>${t('mobileControlsHint')}</p><div class="control-list">
+    <div class="control-row"><span>${t('accelerate')}</span><strong>${t('automatic')}</strong></div>
+    <div class="control-row"><span>${t('steer')}</span><span><kbd>&#8592;</kbd> <kbd>&#8594;</kbd></span></div>
+    <div class="control-row"><span>${t('jump')}</span><kbd>${t('jump')}</kbd></div>
+  </div><button class="btn primary" data-action="${fromPause ? 'pause' : 'begin'}">${fromPause ? t('back') : t('gotIt')}</button></div></section>`;
   return `<section class="screen modal-screen"><div class="modal"><h2>${t('controls')}</h2><p>${t('controlsHint')}</p><div class="control-list">
     <div class="control-row"><span>${t('accelerate')}</span><span><kbd>W</kbd> / <kbd>↑</kbd></span></div>
     <div class="control-row"><span>${t('steer')}</span><span><kbd>A</kbd> <kbd>D</kbd> / <kbd>←</kbd> <kbd>→</kbd></span></div>
@@ -150,7 +163,7 @@ function beginRace() {
     world.startRace(state.direction,state.cow);
     world.setRaceRunning(false);
     state.screen='race'; state.raceTime=0; state.countdown=4; state.running=false; state.notificationUntil=0;
-    ui.innerHTML = `<div class="hud"><div class="hud-cluster"><div class="hud-box"><div class="hud-label">${t('position')}</div><div class="hud-value" id="position">1 / 6</div></div><div class="hud-box"><div class="hud-label">${t('progress')}</div><div class="hud-value" id="progress">0%</div></div><div class="hud-box"><div class="hud-label">${t('time')}</div><div class="hud-value" id="race-time">00:00.0</div></div><div class="hud-box lives-box"><div class="hud-label">${t('lives')}</div><div class="hud-value" id="lives">${GAME.playerLives} / ${GAME.playerLives}</div></div></div>${clockMarkup()}<div class="hud-box hud-route"><div class="hud-label">${t('destination')}</div><div class="hud-value">${state.direction === 1 ? t('outboundShort') : t('inboundShort')}</div></div><div class="hud-box jump-meter"><div class="hud-label" id="jump-label">${t('jumpReady')}</div><div class="jump-bar"><div class="jump-fill" id="jump-fill"></div></div></div><canvas class="minimap" id="minimap" width="420" height="240"></canvas></div><div class="countdown" id="countdown">3</div><div class="recovery hidden" id="recovery">${t('recovering')}</div>`;
+    ui.innerHTML = `<div class="hud"><div class="hud-cluster"><div class="hud-box"><div class="hud-label">${t('position')}</div><div class="hud-value" id="position">1 / 6</div></div><div class="hud-box"><div class="hud-label">${t('progress')}</div><div class="hud-value" id="progress">0%</div></div><div class="hud-box"><div class="hud-label">${t('time')}</div><div class="hud-value" id="race-time">00:00.0</div></div><div class="hud-box lives-box"><div class="hud-label">${t('lives')}</div><div class="hud-value" id="lives">${GAME.playerLives} / ${GAME.playerLives}</div></div></div>${clockMarkup()}<div class="hud-box hud-route"><div class="hud-label">${t('destination')}</div><div class="hud-value">${state.direction === 1 ? t('outboundShort') : t('inboundShort')}</div></div><div class="hud-box jump-meter"><div class="hud-label" id="jump-label">${t('jumpReady')}</div><div class="jump-bar"><div class="jump-fill" id="jump-fill"></div></div></div><canvas class="minimap" id="minimap" width="420" height="240"></canvas></div><div class="countdown" id="countdown">3</div><div class="recovery hidden" id="recovery">${t('recovering')}</div>${mobileControlsMarkup()}`;
     mountDiagnostics();drawMinimap();input.enabled=true;
   } catch (error) {
     state.screen=previousScreen;state.running=false;world.setRaceRunning(false);input.enabled=false;
@@ -242,7 +255,25 @@ function handleAction(action){const actions={title:renderTitle,direction:renderD
 
 ui.addEventListener('click',(event)=>{const target=event.target instanceof Element?event.target.closest('[data-action]'):null;if(!target||!ui.contains(target)||target.disabled)return;handleAction(target.dataset.action);});
 
-function renderRaceBase(){state.screen='race';ui.innerHTML = `<div class="hud"><div class="hud-cluster"><div class="hud-box"><div class="hud-label">${t('position')}</div><div class="hud-value" id="position">1 / 6</div></div><div class="hud-box"><div class="hud-label">${t('progress')}</div><div class="hud-value" id="progress">0%</div></div><div class="hud-box"><div class="hud-label">${t('time')}</div><div class="hud-value" id="race-time">${formatTime(state.raceTime)}</div></div><div class="hud-box lives-box"><div class="hud-label">${t('lives')}</div><div class="hud-value" id="lives">${world.playerLives} / ${GAME.playerLives}</div></div></div>${clockMarkup()}<div class="hud-box hud-route"><div class="hud-label">${t('destination')}</div><div class="hud-value">${state.direction===1?t('outboundShort'):t('inboundShort')}</div></div><div class="hud-box jump-meter"><div class="hud-label" id="jump-label">${t('jumpReady')}</div><div class="jump-bar"><div class="jump-fill" id="jump-fill"></div></div></div><canvas class="minimap" id="minimap" width="420" height="240"></canvas></div><div class="recovery hidden" id="recovery">${t('recovering')}</div>`;mountDiagnostics();updateHud();updateAnalogClock();}
+ui.addEventListener('pointerdown', (event) => {
+  const control = event.target instanceof Element ? event.target.closest('[data-mobile-control]') : null;
+  if (!control || !ui.contains(control)) return;
+  event.preventDefault();
+  input.pressTouch(control.dataset.mobileControl, event.pointerId);
+  control.classList.add('pressed');
+  try { control.setPointerCapture?.(event.pointerId); } catch { /* Synthetic events and older mobile browsers may not support capture. */ }
+});
+
+const releaseMobileControl = (event) => {
+  const control = event.target instanceof Element ? event.target.closest('[data-mobile-control]') : null;
+  input.releaseTouch(event.pointerId);
+  control?.classList.remove('pressed');
+};
+ui.addEventListener('pointerup', releaseMobileControl);
+ui.addEventListener('pointercancel', releaseMobileControl);
+ui.addEventListener('lostpointercapture', releaseMobileControl);
+
+function renderRaceBase(){state.screen='race';ui.innerHTML = `<div class="hud"><div class="hud-cluster"><div class="hud-box"><div class="hud-label">${t('position')}</div><div class="hud-value" id="position">1 / 6</div></div><div class="hud-box"><div class="hud-label">${t('progress')}</div><div class="hud-value" id="progress">0%</div></div><div class="hud-box"><div class="hud-label">${t('time')}</div><div class="hud-value" id="race-time">${formatTime(state.raceTime)}</div></div><div class="hud-box lives-box"><div class="hud-label">${t('lives')}</div><div class="hud-value" id="lives">${world.playerLives} / ${GAME.playerLives}</div></div></div>${clockMarkup()}<div class="hud-box hud-route"><div class="hud-label">${t('destination')}</div><div class="hud-value">${state.direction===1?t('outboundShort'):t('inboundShort')}</div></div><div class="hud-box jump-meter"><div class="hud-label" id="jump-label">${t('jumpReady')}</div><div class="jump-bar"><div class="jump-fill" id="jump-fill"></div></div></div><canvas class="minimap" id="minimap" width="420" height="240"></canvas></div><div class="recovery hidden" id="recovery">${t('recovering')}</div>${mobileControlsMarkup()}`;mountDiagnostics();updateHud();updateAnalogClock();}
 
 input.onPause=()=>{if(state.screen==='race')renderPause();else if(state.screen==='pause')resumeRace();};
 world.onPlayerFinish=finishRace;

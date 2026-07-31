@@ -12,6 +12,7 @@
 }
 * { box-sizing: border-box; }
 html, body, #app { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+html, body { overscroll-behavior: none; }
 button, input, select { font: inherit; }
 button { border: 0; cursor: pointer; }
 button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
@@ -91,6 +92,11 @@ kbd { min-width: 36px; padding: 7px 10px; border-radius: 5px; background: #f7fbf
 .jump-meter { grid-row:3; grid-column:1; align-self:end; width:160px; }
 .jump-bar { height:7px; margin-top:8px; border-radius:4px; background:rgba(255,255,255,.18); overflow:hidden; }
 .jump-fill { height:100%; width:100%; background:var(--yellow); transform-origin:left; }
+.mobile-controls { position:absolute; inset:0; z-index:9; pointer-events:none; user-select:none; -webkit-user-select:none; }
+.mobile-control { width:76px; height:76px; display:grid; place-items:center; padding:0; color:#fff; background:rgba(5,25,31,.56); border:2px solid rgba(255,255,255,.58); border-radius:50%; box-shadow:0 7px 22px rgba(0,0,0,.28); backdrop-filter:blur(5px); -webkit-backdrop-filter:blur(5px); font-size:34px; font-weight:950; line-height:1; pointer-events:auto; touch-action:none; -webkit-tap-highlight-color:transparent; transition:transform .08s, background .08s, border-color .08s; }
+.mobile-control.pressed { transform:scale(.93); color:var(--ink); background:rgba(242,201,76,.86); border-color:#fff3b9; }
+.mobile-jump { position:absolute; left:max(18px,env(safe-area-inset-left)); bottom:max(18px,env(safe-area-inset-bottom)); width:82px; height:82px; color:var(--ink); background:rgba(242,201,76,.7); border-color:rgba(255,255,255,.72); font-size:14px; letter-spacing:.04em; text-transform:uppercase; }
+.mobile-steering { position:absolute; right:max(18px,env(safe-area-inset-right)); bottom:max(18px,env(safe-area-inset-bottom)); display:flex; gap:14px; }
 .countdown { position:absolute; inset:0; z-index:9; display:grid; place-items:center; pointer-events:none; font-size:clamp(90px,18vw,230px); font-weight:950; text-shadow:0 10px 0 rgba(0,0,0,.25); color:var(--yellow); }
 .recovery { position:absolute; top:18%; left:50%; transform:translateX(-50%); z-index:9; background:var(--red); padding:10px 18px; border-radius:5px; font-weight:900; }
 .race-notification { width:max-content; max-width:min(440px,88vw); text-align:center; box-shadow:0 8px 30px rgba(0,0,0,.28); }
@@ -137,4 +143,13 @@ kbd { min-width: 36px; padding: 7px 10px; border-radius: 5px; background: #f7fbf
   .minimap { position:absolute; right:10px; bottom:10px; width:155px; height:88px; }
   .jump-meter { position:absolute; left:10px; bottom:10px; }
   .diagnostics-panel { top:170px; right:10px; bottom:auto; width:min(250px,calc(100vw - 20px)); max-height:calc(100vh - 280px); overflow:hidden; }
+  .mobile-device .minimap { bottom:calc(108px + env(safe-area-inset-bottom)); }
+  .mobile-device .jump-meter { bottom:calc(112px + env(safe-area-inset-bottom)); }
+  .mobile-device .diagnostics-panel { max-height:calc(100vh - 370px - env(safe-area-inset-bottom)); }
+}
+@media (max-height: 480px) {
+  .mobile-control { width:64px; height:64px; font-size:29px; }
+  .mobile-jump { width:68px; height:68px; font-size:12px; }
+  .mobile-device .minimap { bottom:calc(88px + env(safe-area-inset-bottom)); width:130px; height:74px; }
+  .mobile-device .jump-meter { bottom:calc(92px + env(safe-area-inset-bottom)); width:135px; }
 }
