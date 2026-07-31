@@ -24,6 +24,26 @@ assert.equal(shouldFollowGround(false, .3, 0), true, 'A grounded cow must remain
 assert.equal(shouldFollowGround(false, .4, 0), false, 'A meaningful drop must still make the cow airborne');
 assert.equal(shouldFollowGround(true, .1, -1), false, 'An airborne cow must not be snapped down before landing');
 
+const reverseBusWorld = {
+  direction: -1,
+  raceElapsed: 0,
+  busLaneActive: true,
+  busLaneViolationTime: 1.5,
+  busLaneGameOverTriggered: false,
+  racers: [{ progress: .5, lateral: 11, busLaneViolationTime: 1.5 }],
+  track: { length: 6000, isBusLane: () => true },
+  busLaneMeshes: { positive: { visible: true } },
+  hasBusLane: GameWorld.prototype.hasBusLane,
+  setBusLaneVisual: GameWorld.prototype.setBusLaneVisual,
+};
+GameWorld.prototype.updateBusLaneState.call(reverseBusWorld, 45);
+GameWorld.prototype.checkBusLaneViolations.call(reverseBusWorld, GAME.fixedStep);
+const reverseBusStatus = GameWorld.prototype.getBusLaneStatus.call(reverseBusWorld);
+assert.equal(reverseBusStatus.enabled, false, 'Tsuen Wan to Tuen Mun must not have a bus lane');
+assert.equal(reverseBusStatus.active, false, 'The reverse bus lane must remain inactive during restricted hours');
+assert.equal(reverseBusWorld.busLaneMeshes.positive.visible, false, 'The forward bus-lane surface must remain hidden in a reverse race');
+assert.equal(reverseBusWorld.racers[0].busLaneViolationTime, 0, 'Reverse racers must never accumulate a bus-lane violation');
+
 const diagnosticWorld = {
   racers: [{
     progress: .1,
@@ -157,4 +177,5 @@ console.log(JSON.stringify({
   airborneTime: Number(airborneTime.toFixed(1)),
   halfSpeedDistance: Number(halfSpeedDistance.toFixed(1)),
   cowInterchangeStops: interchangeStops,
+  reverseBusLaneEnabled: reverseBusStatus.enabled,
 }, null, 2));

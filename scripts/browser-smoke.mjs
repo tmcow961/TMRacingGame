@@ -42,7 +42,7 @@ async function runViewport(name, viewport, direction, quality = 'high') {
   page.on('console', (message) => { if (message.type() === 'error' && !message.text().startsWith('Failed to load resource:')) errors.push(message.text()); });
   page.on('response', (response) => { if (response.status() >= 400) errors.push(`${response.status()} ${response.url()}`); });
   const navigationStarted = Date.now();
-  await page.goto('http://127.0.0.1:4173', { waitUntil: 'networkidle' });
+  await page.goto('http://127.0.0.1:4173?debug=1', { waitUntil: 'networkidle' });
   await page.locator('[data-action="direction"]').waitFor({ state: 'visible', timeout: 30000 });
   const interactiveLoadMs = Date.now() - navigationStarted;
   if (quality === 'low') {
@@ -69,6 +69,43 @@ async function runViewport(name, viewport, direction, quality = 'high') {
   await page.locator('[data-action="prepare"]').click();
   await page.locator('[data-action="begin"]').click();
   await page.waitForTimeout(5200);
+  if (direction === -1) {
+    const reverseChecks = await page.evaluate(() => {
+      const { world, state } = window.__TMR_DEBUG__;
+      state.raceTime = 45;
+      world.updateBusLaneState(state.raceTime);
+      const buildings = world.scene.children.filter((child) => child.name.endsWith('-residential-cluster'));
+      let minimumBuildingClearance = Infinity;
+      for (const building of buildings) {
+        const values = building.instanceMatrix.array;
+        for (let index = 0; index < building.count; index += 1) {
+          const offset = index * 16;
+          const center = { x: values[offset + 12], y: values[offset + 13], z: values[offset + 14] };
+          const width = Math.hypot(values[offset], values[offset + 1], values[offset + 2]);
+          const depth = Math.hypot(values[offset + 8], values[offset + 9], values[offset + 10]);
+          const progress = world.track.nearestProgress(center, 0, -1);
+          const sample = world.track.sample(progress, -1);
+          const centerDistance = Math.hypot(center.x - sample.point.x, center.z - sample.point.z);
+          const footprintRadius = Math.hypot(width / 2, depth / 2);
+          const clearance = centerDistance - world.track.roadWidthAtDistance(sample.distance) / 2 - footprintRadius;
+          minimumBuildingClearance = Math.min(minimumBuildingClearance, clearance);
+        }
+      }
+      return {
+        status: world.getBusLaneStatus(),
+        hasReverseBusLaneMesh: Boolean(world.busLaneMeshes.negative),
+        forwardBusLaneVisible: world.busLaneMeshes.positive.visible,
+        minimumBuildingClearance,
+      };
+    });
+    await page.waitForTimeout(100);
+    assert.equal(reverseChecks.status.enabled, false, `${name} reverse bus-lane feature is enabled`);
+    assert.equal(reverseChecks.status.active, false, `${name} reverse bus lane became active during restricted hours`);
+    assert.equal(reverseChecks.hasReverseBusLaneMesh, false, `${name} still contains reverse bus-lane geometry`);
+    assert.equal(reverseChecks.forwardBusLaneVisible, false, `${name} displays the forward bus lane during a reverse race`);
+    assert.ok(reverseChecks.minimumBuildingClearance > 0, `${name} has a building footprint on the reverse road: ${reverseChecks.minimumBuildingClearance}`);
+    assert.ok(await page.locator('#clock-status').evaluate((element) => element.classList.contains('hidden')), `${name} displays reverse bus-lane HUD status`);
+  }
   const racePixels = await canvasPixels(page);
   assert.ok(racePixels.available && racePixels.opaque > 60 && racePixels.unique > 5, `${name} race canvas is blank or flat: ${JSON.stringify(racePixels)}`);
   assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `${name} race HUD overflows horizontally`);

@@ -275,14 +275,11 @@ export class GameWorld {
     const laneWidth = GAME.trackWidth / 3;
     const busLaneMaterial = new THREE.MeshStandardMaterial({ color: 0xc9282d, roughness: .88, transparent: true, opacity: .9, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1 });
     this.busLaneMeshes = {
-      negative: new THREE.Mesh(this.track.makeCarriagewayGeometry(-1, laneWidth, 800, .035, (progress) => this.track.busLaneCenterCanonical(progress * this.track.length, -1)), busLaneMaterial),
       positive: new THREE.Mesh(this.track.makeRoadGeometry(laneWidth, 800, .035, (progress) => this.track.busLaneCenterCanonical(progress * this.track.length, 1)), busLaneMaterial),
     };
-    this.busLaneMeshes.negative.visible = false;
     this.busLaneMeshes.positive.visible = false;
-    this.busLaneMeshes.negative.receiveShadow = true;
     this.busLaneMeshes.positive.receiveShadow = true;
-    this.scene.add(this.busLaneMeshes.negative, this.busLaneMeshes.positive);
+    this.scene.add(this.busLaneMeshes.positive);
 
     const dashMaterial = new THREE.MeshStandardMaterial({ color: 0xf7f0d4, roughness: .8 });
     const dashGeo = new THREE.BoxGeometry(.28, .08, 5.5);
@@ -515,11 +512,12 @@ export class GameWorld {
     const matrix = new THREE.Matrix4();
     for (let i = 0; i < count; i += 1) {
       const progress = THREE.MathUtils.clamp(anchor.progress + (i - count / 2) * .0018, 0, 1);
-      const sample = this.track.sample(progress, 1);
+      const sample = side < 0 ? this.track.canonicalSample(progress, -1) : this.track.canonicalSample(progress, 1);
       const width = 9 + (i % 4) * 2.5;
       const depth = 10 + (i % 3) * 3;
       const height = 22 + (i % 7) * 7;
-      const lateral = side * (52 + (i % 4) * 19);
+      const roadHalfWidth = this.track.roadWidthAtDistance(sample.distance) / 2;
+      const lateral = side * (roadHalfWidth + 10 + width / 2 + (i % 4) * 19);
       const position = sample.point.clone().addScaledVector(sample.right, lateral);
       position.y += height / 2 - 2;
       setRouteTransform(matrix, sample, position, new THREE.Vector3(width, height, depth));
@@ -782,7 +780,7 @@ export class GameWorld {
       const roadHalfWidth = this.track.roadWidthAtDistance(canonicalDistance) / 2;
       racer.aiObstacleDistance=null;
       for(const obstacle of this.activeObstacles){const obstacleDistance=obstacle.raceDistance;const delta=obstacleDistance-racerDistance;if(delta>0&&delta<AI_OBSTACLE_LOOKAHEAD&&delta<nearestDistance){nearestDistance=delta;racer.aiObstacleDistance=obstacleDistance;const laneSpread=((racer.id-1)%3-1)*1.1;desired=THREE.MathUtils.clamp(obstacle.avoidLateral+laneSpread,-roadHalfWidth+2.5,roadHalfWidth-2.5);}}
-      if(this.busLaneActive)desired=Math.min(desired,-1.1-((racer.id-1)%3)*2.2);
+      if(this.direction===1&&this.busLaneActive)desired=Math.min(desired,-1.1-((racer.id-1)%3)*2.2);
       const edgeCorrection=roadHalfWidth-7;
       if(racer.lateral<-edgeCorrection)desired=Math.max(desired,7);else if(racer.lateral>edgeCorrection)desired=Math.min(desired,-7);
       const lateralResponse=Math.abs(racer.lateral)>edgeCorrection?11:1.3;
@@ -832,15 +830,17 @@ export class GameWorld {
 
   bypassAiObstacle(racer){const currentDistance=racer.progress*this.track.length;const distance=Math.min(this.track.length*.99,Math.max(currentDistance+AI_BYPASS_DISTANCE,(racer.aiObstacleDistance??currentDistance)+AI_BYPASS_DISTANCE));const progress=distance/this.track.length;const s=this.track.sample(progress,this.direction);const roadHalfWidth=this.track.roadWidthAtDistance(s.distance)/2;const lateral=THREE.MathUtils.clamp(racer.aiAvoidLateral??racer.lane,-roadHalfWidth+2.5,roadHalfWidth-2.5);const p=s.point.clone().addScaledVector(s.right,lateral);p.y+=COW_GROUND_OFFSET+.1;racer.body.setTranslation(p,true);racer.body.setLinvel({x:0,y:0,z:0},true);racer.progress=progress;racer.lastProgress=progress;racer.heading=Math.atan2(s.tangent.x,s.tangent.z);racer.lateral=lateral;racer.lane=lateral;racer.stuck=0;racer.speed=GAME.aiBaseSpeed*GAME.turnSpeedMultiplier;racer.turnSpeedFactor=GAME.turnSpeedMultiplier;racer.protection=1.25;racer.movementWindow=0;racer.forwardMovement=0;racer.windowForwardMovement=0;racer.actualForwardSpeed=0;racer.lastPosition.copy(p);setRacerCollisionFilter(racer,0);}
 
-  updateBusLaneState(elapsed){this.raceElapsed=elapsed;const minutes=(elapsed/GAME.clockDayDuration*1440)%1440;const active=minutes>=GAME.busLaneStartMinutes&&minutes<GAME.busLaneEndMinutes;if(active===this.busLaneActive)return;this.busLaneActive=active;this.busLaneViolationTime=0;this.busLaneGameOverTriggered=false;for(const racer of this.racers)racer.busLaneViolationTime=0;this.setBusLaneVisual(active);}
+  hasBusLane(){return this.direction===1;}
 
-  setBusLaneVisual(active){if(!this.busLaneMeshes)return;this.busLaneMeshes.positive.visible=active&&this.direction===1;this.busLaneMeshes.negative.visible=active&&this.direction===-1;}
+  updateBusLaneState(elapsed){this.raceElapsed=elapsed;const minutes=(elapsed/GAME.clockDayDuration*1440)%1440;const active=this.hasBusLane()&&minutes>=GAME.busLaneStartMinutes&&minutes<GAME.busLaneEndMinutes;if(active===this.busLaneActive)return;this.busLaneActive=active;this.busLaneViolationTime=0;this.busLaneGameOverTriggered=false;for(const racer of this.racers)racer.busLaneViolationTime=0;this.setBusLaneVisual(active);}
 
-  checkBusLaneViolations(dt){for(const racer of this.racers){const raceDistance=racer.progress*this.track.length;const trackDistance=this.direction===1?raceDistance:this.track.length-raceDistance;if(!this.busLaneActive||racer.finished||!this.track.isBusLane(racer.lateral,trackDistance)){racer.busLaneViolationTime=0;continue;}racer.busLaneViolationTime+=dt;if(racer.busLaneViolationTime+1e-6<GAME.busLaneGraceTime)continue;if(racer.isPlayer){if(!this.busLaneGameOverTriggered){this.busLaneGameOverTriggered=true;this.onBusLaneGameOver?.();}}else this.moveAiOutOfBusLane(racer);}const player=this.racers[0];this.busLaneViolationTime=player?.busLaneViolationTime??0;}
+  setBusLaneVisual(active){if(!this.busLaneMeshes)return;this.busLaneMeshes.positive.visible=active&&this.hasBusLane();}
+
+  checkBusLaneViolations(dt){if(!this.hasBusLane()){this.busLaneActive=false;this.busLaneViolationTime=0;for(const racer of this.racers)racer.busLaneViolationTime=0;return;}for(const racer of this.racers){const raceDistance=racer.progress*this.track.length;const trackDistance=this.direction===1?raceDistance:this.track.length-raceDistance;if(!this.busLaneActive||racer.finished||!this.track.isBusLane(racer.lateral,trackDistance)){racer.busLaneViolationTime=0;continue;}racer.busLaneViolationTime+=dt;if(racer.busLaneViolationTime+1e-6<GAME.busLaneGraceTime)continue;if(racer.isPlayer){if(!this.busLaneGameOverTriggered){this.busLaneGameOverTriggered=true;this.onBusLaneGameOver?.();}}else this.moveAiOutOfBusLane(racer);}const player=this.racers[0];this.busLaneViolationTime=player?.busLaneViolationTime??0;}
 
   moveAiOutOfBusLane(racer){const lateral=-2.2-((racer.id-1)%3)*2.2;const s=this.track.sample(racer.progress,this.direction);const p=s.point.clone().addScaledVector(s.right,lateral);p.y+=COW_GROUND_OFFSET+.1;racer.body.setTranslation(p,true);racer.body.setLinvel({x:0,y:0,z:0},true);racer.heading=Math.atan2(s.tangent.x,s.tangent.z);racer.lateral=lateral;racer.aiAvoidLateral=lateral;racer.busLaneViolationTime=0;racer.protection=.75;racer.lastPosition.copy(p);setRacerCollisionFilter(racer,0);}
 
-  getBusLaneStatus(){const simulatedMinutes=(this.raceElapsed/GAME.clockDayDuration*1440)%1440;const player=this.racers[0];const raceDistance=(player?.progress??0)*this.track.length;const trackDistance=this.direction===1?raceDistance:this.track.length-raceDistance;return{simulatedMinutes,active:this.busLaneActive,playerInBusLane:Boolean(this.busLaneActive&&player&&this.track.isBusLane(player.lateral,trackDistance)),violationTime:player?.busLaneViolationTime??0,graceTime:GAME.busLaneGraceTime};}
+  getBusLaneStatus(){const simulatedMinutes=(this.raceElapsed/GAME.clockDayDuration*1440)%1440;const player=this.racers[0];const raceDistance=(player?.progress??0)*this.track.length;const trackDistance=this.direction===1?raceDistance:this.track.length-raceDistance;const enabled=this.hasBusLane();return{simulatedMinutes,enabled,active:Boolean(enabled&&this.busLaneActive),playerInBusLane:Boolean(enabled&&this.busLaneActive&&player&&this.track.isBusLane(player.lateral,trackDistance)),violationTime:enabled?(player?.busLaneViolationTime??0):0,graceTime:GAME.busLaneGraceTime};}
 
   takePlayerLife(details){const player=this.racers[0];if(!player||player.protection>0||player.airborne||this.obstacleGameOverTriggered)return;this.playerLives=Math.max(0,this.playerLives-1);if(this.playerLives<=0){this.obstacleGameOverTriggered=true;this.onObstacleGameOver?.(details);return;}this.onPlayerLifeLost?.({...details,remaining:this.playerLives,total:GAME.playerLives});this.activePlayerContacts.clear();this.recover(player,'obstacle',false);}
 
