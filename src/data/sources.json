@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-29",
+  "updated": "2026-07-31",
   "sources": [
     {
       "id": "openstreetmap-route",
@@ -40,6 +40,56 @@
       "use": "Visual reference for the green shelters, platforms, lighting and flyover setting",
       "modified": "Recreated as original low-poly procedural geometry; the photograph is not included",
       "attribution": "Reference photo by Wing1990hk / Wpcpey, CC BY 3.0"
+    },
+    {
+      "id": "csdi-dtm-5m",
+      "title": "Digital Terrain Model (DTM)",
+      "url": "https://portal.csdi.gov.hk/geoportal/?datasetId=landsd_rcd_1638158088368_93806",
+      "author": "Hong Kong Lands Department",
+      "license": "Hong Kong Government CSDI Terms of Use and Disclaimer",
+      "use": "Five-metre terrain and road-elevation samples along the Tuen Mun Road corridor",
+      "modified": "Point-sampled through the official WMS, smoothed, distance-compressed, and converted to local game heights",
+      "attribution": "Terrain data provided by the Hong Kong Lands Department"
+    },
+    {
+      "id": "csdi-building",
+      "title": "Building",
+      "url": "https://portal.csdi.gov.hk/geoportal/?datasetId=landsd_rcd_1637211194312_35158",
+      "author": "Hong Kong Lands Department",
+      "license": "Hong Kong Government CSDI Terms of Use and Disclaimer",
+      "use": "Building footprints, names, base heights, top heights, and storeys near the route",
+      "modified": "Cropped to the route corridor, simplified, distance-compressed, and rendered as original low-poly geometry",
+      "attribution": "Building data provided by the Hong Kong Lands Department"
+    },
+    {
+      "id": "csdi-3d-nontextured",
+      "title": "3D Visualisation Map (Non-textured models)",
+      "url": "https://portal.csdi.gov.hk/geoportal/?datasetId=landsd_rcd_1742809441342_98380",
+      "author": "Hong Kong Lands Department",
+      "license": "Hong Kong Government CSDI Terms of Use and Disclaimer",
+      "use": "Reference for infrastructure, bridges, elevated roads, and terrain relationships",
+      "modified": "Used as geographic reference; no government 3D model is distributed with the game",
+      "attribution": "3D geographic reference provided by the Hong Kong Lands Department"
+    },
+    {
+      "id": "csdi-3d-individualised",
+      "title": "3D Visualisation Map (Individualised models)",
+      "url": "https://portal.csdi.gov.hk/geoportal/?datasetId=landsd_rcd_1671676915450_88604",
+      "author": "Hong Kong Lands Department",
+      "license": "Hong Kong Government CSDI Terms of Use and Disclaimer",
+      "use": "Reference for coastline, water bodies, vegetation, buildings, and infrastructure",
+      "modified": "Used as geographic reference; no government texture or model is distributed with the game",
+      "attribution": "3D geographic reference provided by the Hong Kong Lands Department"
+    },
+    {
+      "id": "open3dhk-streetscape",
+      "title": "Open3Dhk Streetscape 360",
+      "url": "https://3d.map.gov.hk/?l=en-US",
+      "author": "Hong Kong Lands Department",
+      "license": "Viewing reference under the Open3Dhk platform terms",
+      "use": "Georeferenced visual reference for road structures and landmark order",
+      "modified": "Reference only; no street-level imagery is included or redistributed",
+      "attribution": "Visual reference: Open3Dhk, Hong Kong Lands Department"
     }
   ]
 }

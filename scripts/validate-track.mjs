@@ -26,6 +26,31 @@ assert.ok(track.environmentZones.every((zone) => zone.seaSide === -1), 'The sea 
 assert.ok(track.obstacles.every((obstacle) => obstacle.distance > 0 && obstacle.distance < track.length), 'Obstacles must lie within the route');
 assert.ok(track.obstacles.every((obstacle) => obstacle.type === 'accident'), 'Only vehicle accident scenes may be gameplay obstacles');
 assert.ok(track.obstacles.every((obstacle) => obstacle.cars.length >= 3 && obstacle.cars.length <= 5), 'Every accident must contain 3-5 vehicles');
+assert.ok(track.roadElevationSamples.length >= 75, 'The route must include official road-elevation samples at roughly 80-unit spacing');
+assert.ok(track.terrainProfiles.profiles.length >= 75, 'The route must include cross-route terrain profiles');
+assert.equal(track.environmentData.roadElevationSourceId, 'csdi-dtm-5m', 'Road elevations must retain their CSDI provenance');
+assert.equal(track.terrainProfiles.sourceId, 'csdi-dtm-5m', 'Terrain profiles must retain their CSDI provenance');
+assert.equal(track.environmentData.buildingSourceId, 'csdi-building', 'Buildings must retain their CSDI provenance');
+assert.ok(track.environmentData.sources.includes('csdi-3d-individualised'), 'Coastline references must be listed in the environment sources');
+assert.ok(track.terrainProfiles.offsets[0] <= -500 && track.terrainProfiles.offsets.at(-1) >= 400, 'Terrain profiles must cover the coast and hillside background');
+assert.ok(Math.max(...track.roadElevationSamples.map((sample) => sample.height)) - Math.min(...track.roadElevationSamples.map((sample) => sample.height)) >= 25, 'The official road profile must preserve recognizable uphill and downhill sections');
+assert.ok(track.buildings.length >= 300, 'The route must include the official CSDI-derived building corridor');
+assert.ok(track.structures.some((structure) => structure.type === 'viaduct'), 'The environment must include elevated-road structure zones');
+assert.ok(track.structures.some((structure) => structure.type === 'cut-slope'), 'The environment must include a cut-slope zone');
+
+let minimumBuildingClearance = Infinity;
+for (const building of track.buildings) {
+  const sample = track.canonicalSample(track.progressAtDistance(building.distance), 1);
+  const position = sample.point.clone().addScaledVector(sample.right, building.lateral);
+  const radius = Math.hypot(building.width / 2, building.depth / 2);
+  for (const direction of [1, -1]) {
+    const nearestProgress = track.nearestProgress(position, direction === 1 ? building.distance / track.length : 1 - building.distance / track.length, direction);
+    const road = track.sample(nearestProgress, direction);
+    const centreDistance = Math.hypot(position.x - road.point.x, position.z - road.point.z);
+    minimumBuildingClearance = Math.min(minimumBuildingClearance, centreDistance - track.roadWidthAtDistance(road.distance) / 2 - radius);
+  }
+}
+assert.ok(minimumBuildingClearance > 0, `A CSDI building overlaps a carriageway by ${(-minimumBuildingClearance).toFixed(2)} units`);
 
 assert.ok(track.reverseRoutePoints.length >= 90, 'Reverse carriageway must contain a detailed route centreline');
 assert.ok(Math.abs(track.reverseCurve.getLength() - 6000) <= 300, `Reverse route length ${track.reverseCurve.getLength().toFixed(1)} is outside the 6000 +/- 5% target`);
@@ -136,4 +161,9 @@ console.log(JSON.stringify({
   minimumCarriagewayGap: Number(minimumCarriagewayGap.toFixed(2)),
   reverseMinimumRadius: Number(reverseMinimumRadius.toFixed(1)),
   maximumReverseRailIntrusion: Number(maximumReverseRailIntrusion.toFixed(2)),
+  roadElevationSamples: track.roadElevationSamples.length,
+  roadElevationRange: Number((Math.max(...track.roadElevationSamples.map((sample) => sample.height)) - Math.min(...track.roadElevationSamples.map((sample) => sample.height))).toFixed(1)),
+  terrainProfiles: track.terrainProfiles.profiles.length,
+  buildings: track.buildings.length,
+  minimumBuildingClearance: Number(minimumBuildingClearance.toFixed(2)),
 }, null, 2));

@@ -329,6 +329,14 @@ async function main() {
     ],
   };
 
+  try {
+    const existing = JSON.parse(await readFile(path.join(DATA_DIR, 'sources.json'), 'utf8'));
+    const generatedIds = new Set(sources.sources.map((source) => source.id));
+    sources.sources.push(...existing.sources.filter((source) => !generatedIds.has(source.id)));
+  } catch {
+    // A first-time generation has no existing supplemental source manifest.
+  }
+
   await mkdir(DATA_DIR, { recursive: true });
   await writeFile(path.join(DATA_DIR, 'tuen-mun-road.source.geojson'), `${JSON.stringify(geojson, null, 2)}\n`);
   await writeFile(path.join(DATA_DIR, 'tuen-mun-road.track.json'), `${JSON.stringify(trackData, null, 2)}\n`);

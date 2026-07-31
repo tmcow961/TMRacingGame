@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { GAME } from './config.js';
 import trackData from './data/tuen-mun-road.track.json' with { type: 'json' };
+import environmentData from './data/tuen-mun-road.environment.json' with { type: 'json' };
 
 const ACCIDENT_LAYOUTS = [
   {
@@ -69,17 +70,55 @@ function vehicleTypeForRoll(roll) {
   return roll < .18 ? 'bus' : roll < .48 ? 'taxi' : 'car';
 }
 
+function interpolateByDistance(samples, distance, field) {
+  if (!samples.length) return 0;
+  const target = THREE.MathUtils.clamp(distance, samples[0].distance, samples.at(-1).distance);
+  let low = 1;
+  let high = samples.length - 1;
+  while (low < high) {
+    const middle = Math.floor((low + high) / 2);
+    if (samples[middle].distance < target) low = middle + 1;
+    else high = middle;
+  }
+  const end = samples[low];
+  const start = samples[Math.max(0, low - 1)];
+  const mix = (target - start.distance) / Math.max(.001, end.distance - start.distance);
+  return THREE.MathUtils.lerp(start[field], end[field], mix);
+}
+
+function applyElevationProfile(sourcePoints, samples, targetLength) {
+  const points = sourcePoints.map((point) => new THREE.Vector3(...point));
+  const distances = [0];
+  for (let index = 1; index < points.length; index += 1) {
+    distances.push(distances[index - 1] + Math.hypot(points[index].x - points[index - 1].x, points[index].z - points[index - 1].z));
+  }
+  const planarLength = distances.at(-1) || 1;
+  points.forEach((point, index) => {
+    point.y = interpolateByDistance(samples, distances[index] / planarLength * targetLength, 'height');
+  });
+  return points;
+}
+
 export class Track {
   constructor() {
     this.data = trackData;
-    this.reverseRoutePoints = trackData.reverseRoutePoints;
+    this.environmentData = environmentData;
+    this.roadElevationSamples = environmentData.roadElevationSamples;
+    this.terrainProfiles = environmentData.terrainProfiles;
+    this.buildings = environmentData.buildings;
+    this.structures = environmentData.structures;
+    this.coastlineSegments = environmentData.coastlineSegments;
+    this.seaLevel = environmentData.seaLevel;
+    const routePoints = applyElevationProfile(trackData.routePoints, this.roadElevationSamples, trackData.targetLength);
+    const reversePoints = applyElevationProfile(trackData.reverseRoutePoints, this.roadElevationSamples, trackData.targetLength);
+    this.reverseRoutePoints = reversePoints.map((point) => point.toArray());
     this.curve = new THREE.CatmullRomCurve3(
-      trackData.routePoints.map((point) => new THREE.Vector3(...point)),
+      routePoints,
       false,
       'centripetal',
     );
     this.reverseCurve = new THREE.CatmullRomCurve3(
-      trackData.reverseRoutePoints.map((point) => new THREE.Vector3(...point)),
+      reversePoints,
       false,
       'centripetal',
     );
@@ -128,6 +167,48 @@ export class Track {
 
   distanceAtProgress(progress) {
     return THREE.MathUtils.clamp(progress, 0, 1) * this.length;
+  }
+
+  roadHeightAtDistance(distance) {
+    return interpolateByDistance(this.roadElevationSamples, distance, 'height');
+  }
+
+  terrainElevationsAtDistance(distance) {
+    const profiles = this.terrainProfiles.profiles;
+    const target = THREE.MathUtils.clamp(distance, profiles[0].distance, profiles.at(-1).distance);
+    let low = 1;
+    let high = profiles.length - 1;
+    while (low < high) {
+      const middle = Math.floor((low + high) / 2);
+      if (profiles[middle].distance < target) low = middle + 1;
+      else high = middle;
+    }
+    const end = profiles[low];
+    const start = profiles[Math.max(0, low - 1)];
+    const mix = (target - start.distance) / Math.max(.001, end.distance - start.distance);
+    return start.elevations.map((value, index) => {
+      const endValue = end.elevations[index];
+      if (value === null && endValue === null) return null;
+      if (value === null) return endValue;
+      if (endValue === null) return value;
+      return THREE.MathUtils.lerp(value, endValue, mix);
+    });
+  }
+
+  terrainHeightAt(distance, lateral) {
+    const offsets = this.terrainProfiles.offsets;
+    const elevations = this.terrainElevationsAtDistance(distance);
+    const target = THREE.MathUtils.clamp(lateral, offsets[0], offsets.at(-1));
+    let index = 1;
+    while (index < offsets.length - 1 && offsets[index] < target) index += 1;
+    const startOffset = offsets[index - 1];
+    const endOffset = offsets[index];
+    const startHeight = elevations[index - 1];
+    const endHeight = elevations[index];
+    if (startHeight === null && endHeight === null) return this.seaLevel;
+    if (startHeight === null) return endHeight;
+    if (endHeight === null) return startHeight;
+    return THREE.MathUtils.lerp(startHeight, endHeight, (target - startOffset) / Math.max(.001, endOffset - startOffset));
   }
 
   getAnchor(id) {

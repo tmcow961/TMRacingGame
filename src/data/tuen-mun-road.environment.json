@@ -1,0 +1,6000 @@
+{
+  "version": 1,
+  "generatedAt": "2026-07-31",
+  "coordinateSystem": "Source data EPSG:4326; normalized placements use canonical route distance and lateral game units",
+  "compressionScale": 0.378169,
+  "sources": [
+    "csdi-dtm-5m",
+    "csdi-building",
+    "csdi-3d-nontextured",
+    "csdi-3d-individualised",
+    "openstreetmap-route"
+  ],
+  "seaLevel": 3.368,
+  "roadElevationSourceId": "csdi-dtm-5m",
+  "roadElevationSamples": [
+    {
+      "distance": 0,
+      "height": 6.015
+    },
+    {
+      "distance": 80,
+      "height": 6
+    },
+    {
+      "distance": 160,
+      "height": 6.65
+    },
+    {
+      "distance": 240,
+      "height": 8.628
+    },
+    {
+      "distance": 320,
+      "height": 11.688
+    },
+    {
+      "distance": 400,
+      "height": 13.647
+    },
+    {
+      "distance": 480,
+      "height": 14.524
+    },
+    {
+      "distance": 560,
+      "height": 15.167
+    },
+    {
+      "distance": 640,
+      "height": 15.696
+    },
+    {
+      "distance": 720,
+      "height": 15.95
+    },
+    {
+      "distance": 800,
+      "height": 15.651
+    },
+    {
+      "distance": 880,
+      "height": 14.388
+    },
+    {
+      "distance": 960,
+      "height": 12.338
+    },
+    {
+      "distance": 1040,
+      "height": 10.235
+    },
+    {
+      "distance": 1120,
+      "height": 9.131
+    },
+    {
+      "distance": 1200,
+      "height": 9.736
+    },
+    {
+      "distance": 1280,
+      "height": 11.733
+    },
+    {
+      "distance": 1360,
+      "height": 14.063
+    },
+    {
+      "distance": 1440,
+      "height": 15.878
+    },
+    {
+      "distance": 1520,
+      "height": 16.634
+    },
+    {
+      "distance": 1600,
+      "height": 15.817
+    },
+    {
+      "distance": 1680,
+      "height": 13.684
+    },
+    {
+      "distance": 1760,
+      "height": 11.552
+    },
+    {
+      "distance": 1840,
+      "height": 10.205
+    },
+    {
+      "distance": 1920,
+      "height": 9.071
+    },
+    {
+      "distance": 2000,
+      "height": 7.664
+    },
+    {
+      "distance": 2080,
+      "height": 6.575
+    },
+    {
+      "distance": 2160,
+      "height": 6.59
+    },
+    {
+      "distance": 2240,
+      "height": 7.74
+    },
+    {
+      "distance": 2320,
+      "height": 9.116
+    },
+    {
+      "distance": 2400,
+      "height": 9.812
+    },
+    {
+      "distance": 2480,
+      "height": 10.19
+    },
+    {
+      "distance": 2560,
+      "height": 11.204
+    },
+    {
+      "distance": 2640,
+      "height": 13.926
+    },
+    {
+      "distance": 2720,
+      "height": 18.192
+    },
+    {
+      "distance": 2800,
+      "height": 22.992
+    },
+    {
+      "distance": 2880,
+      "height": 27.783
+    },
+    {
+      "distance": 2960,
+      "height": 31.852
+    },
+    {
+      "distance": 3040,
+      "height": 33.863
+    },
+    {
+      "distance": 3120,
+      "height": 33.213
+    },
+    {
+      "distance": 3200,
+      "height": 31.852
+    },
+    {
+      "distance": 3280,
+      "height": 30.899
+    },
+    {
+      "distance": 3360,
+      "height": 29.885
+    },
+    {
+      "distance": 3440,
+      "height": 27.616
+    },
+    {
+      "distance": 3520,
+      "height": 26.194
+    },
+    {
+      "distance": 3600,
+      "height": 28.614
+    },
+    {
+      "distance": 3680,
+      "height": 29.295
+    },
+    {
+      "distance": 3760,
+      "height": 25.71
+    },
+    {
+      "distance": 3840,
+      "height": 20.91
+    },
+    {
+      "distance": 3920,
+      "height": 16.11
+    },
+    {
+      "distance": 4000,
+      "height": 11.31
+    },
+    {
+      "distance": 4080,
+      "height": 10.79
+    },
+    {
+      "distance": 4160,
+      "height": 15.247
+    },
+    {
+      "distance": 4240,
+      "height": 19.604
+    },
+    {
+      "distance": 4320,
+      "height": 22.846
+    },
+    {
+      "distance": 4400,
+      "height": 25.483
+    },
+    {
+      "distance": 4480,
+      "height": 28.055
+    },
+    {
+      "distance": 4560,
+      "height": 30.566
+    },
+    {
+      "distance": 4640,
+      "height": 32.956
+    },
+    {
+      "distance": 4720,
+      "height": 34.665
+    },
+    {
+      "distance": 4800,
+      "height": 35.89
+    },
+    {
+      "distance": 4880,
+      "height": 37.025
+    },
+    {
+      "distance": 4960,
+      "height": 38.265
+    },
+    {
+      "distance": 5040,
+      "height": 40.05
+    },
+    {
+      "distance": 5120,
+      "height": 42.274
+    },
+    {
+      "distance": 5200,
+      "height": 43.129
+    },
+    {
+      "distance": 5280,
+      "height": 42.047
+    },
+    {
+      "distance": 5360,
+      "height": 40.557
+    },
+    {
+      "distance": 5440,
+      "height": 38.628
+    },
+    {
+      "distance": 5520,
+      "height": 35.838
+    },
+    {
+      "distance": 5600,
+      "height": 33.243
+    },
+    {
+      "distance": 5680,
+      "height": 30.641
+    },
+    {
+      "distance": 5760,
+      "height": 27.767
+    },
+    {
+      "distance": 5840,
+      "height": 25.65
+    },
+    {
+      "distance": 5920,
+      "height": 24.364
+    },
+    {
+      "distance": 6000,
+      "height": 23.789
+    }
+  ],
+  "terrainProfiles": {
+    "sourceId": "csdi-dtm-5m",
+    "offsets": [
+      -520,
+      -250,
+      -90,
+      0,
+      90,
+      220,
+      420
+    ],
+    "profiles": [
+      {
+        "distance": 0,
+        "elevations": [
+          111.146,
+          59.337,
+          6.771,
+          6.015,
+          6.015,
+          5.259,
+          5.637
+        ]
+      },
+      {
+        "distance": 80,
+        "elevations": [
+          164.468,
+          65.766,
+          9.797,
+          6,
+          6.015,
+          5.259,
+          7.528
+        ]
+      },
+      {
+        "distance": 160,
+        "elevations": [
+          159.552,
+          72.951,
+          6.393,
+          6.65,
+          5.637,
+          5.259,
+          5.637
+        ]
+      },
+      {
+        "distance": 240,
+        "elevations": [
+          155.77,
+          82.405,
+          9.419,
+          8.628,
+          null,
+          5.637,
+          4.124
+        ]
+      },
+      {
+        "distance": 320,
+        "elevations": [
+          155.014,
+          100.935,
+          23.411,
+          11.688,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 400,
+        "elevations": [
+          150.476,
+          120.978,
+          40.05,
+          13.647,
+          11.688,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 480,
+        "elevations": [
+          null,
+          null,
+          55.177,
+          14.524,
+          8.662,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 560,
+        "elevations": [
+          179.595,
+          92.238,
+          50.639,
+          15.167,
+          9.419,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 640,
+        "elevations": [
+          119.466,
+          null,
+          null,
+          15.696,
+          6.393,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 720,
+        "elevations": [
+          126.273,
+          52.908,
+          21.898,
+          15.95,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 800,
+        "elevations": [
+          147.072,
+          61.228,
+          24.545,
+          15.651,
+          7.528,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 880,
+        "elevations": [
+          139.131,
+          60.471,
+          24.545,
+          14.388,
+          6.771,
+          6.015,
+          9.419
+        ]
+      },
+      {
+        "distance": 960,
+        "elevations": [
+          183.376,
+          94.128,
+          31.731,
+          12.338,
+          6.393,
+          5.637,
+          10.931
+        ]
+      },
+      {
+        "distance": 1040,
+        "elevations": [
+          99.423,
+          45.723,
+          null,
+          10.235,
+          6.015,
+          6.015,
+          4.124
+        ]
+      },
+      {
+        "distance": 1120,
+        "elevations": [
+          38.538,
+          7.15,
+          8.284,
+          9.131,
+          null,
+          6.015,
+          null
+        ]
+      },
+      {
+        "distance": 1200,
+        "elevations": [
+          11.309,
+          6.393,
+          7.15,
+          9.736,
+          11.688,
+          5.637,
+          5.637
+        ]
+      },
+      {
+        "distance": 1280,
+        "elevations": [
+          8.284,
+          12.444,
+          11.309,
+          11.733,
+          18.873,
+          6.015,
+          6.393
+        ]
+      },
+      {
+        "distance": 1360,
+        "elevations": [
+          null,
+          null,
+          13.957,
+          14.063,
+          7.906,
+          8.662,
+          null
+        ]
+      },
+      {
+        "distance": 1440,
+        "elevations": [
+          8.284,
+          23.789,
+          null,
+          15.878,
+          10.553,
+          6.771,
+          null
+        ]
+      },
+      {
+        "distance": 1520,
+        "elevations": [
+          null,
+          12.444,
+          23.789,
+          16.634,
+          12.444,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 1600,
+        "elevations": [
+          39.672,
+          16.604,
+          31.352,
+          15.817,
+          9.419,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 1680,
+        "elevations": [
+          9.04,
+          42.697,
+          24.924,
+          13.684,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 1760,
+        "elevations": [
+          16.604,
+          40.05,
+          18.117,
+          11.552,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 1840,
+        "elevations": [
+          31.352,
+          null,
+          6.393,
+          10.205,
+          4.881,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 1920,
+        "elevations": [
+          5.637,
+          54.799,
+          25.302,
+          9.071,
+          16.226,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 2000,
+        "elevations": [
+          23.789,
+          25.302,
+          21.52,
+          7.664,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 2080,
+        "elevations": [
+          32.109,
+          4.881,
+          5.637,
+          6.575,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 2160,
+        "elevations": [
+          49.883,
+          5.259,
+          5.259,
+          6.59,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 2240,
+        "elevations": [
+          49.505,
+          6.393,
+          5.259,
+          7.74,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 2320,
+        "elevations": [
+          45.345,
+          5.637,
+          16.226,
+          9.116,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 2400,
+        "elevations": [
+          44.588,
+          12.822,
+          27.949,
+          9.812,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 2480,
+        "elevations": [
+          43.832,
+          21.52,
+          48.748,
+          10.19,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 2560,
+        "elevations": [
+          45.723,
+          null,
+          60.471,
+          11.204,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 2640,
+        "elevations": [
+          43.454,
+          43.076,
+          56.312,
+          13.926,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 2720,
+        "elevations": [
+          null,
+          54.043,
+          60.093,
+          18.192,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 2800,
+        "elevations": [
+          4.881,
+          47.992,
+          null,
+          22.992,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 2880,
+        "elevations": [
+          41.941,
+          46.479,
+          65.766,
+          27.783,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 2960,
+        "elevations": [
+          30.596,
+          91.103,
+          76.733,
+          31.852,
+          9.797,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 3040,
+        "elevations": [
+          34.378,
+          94.128,
+          77.867,
+          33.863,
+          23.033,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 3120,
+        "elevations": [
+          null,
+          94.885,
+          55.933,
+          33.213,
+          21.142,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 3200,
+        "elevations": [
+          87.7,
+          110.012,
+          null,
+          31.852,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 3280,
+        "elevations": [
+          null,
+          null,
+          69.169,
+          30.899,
+          14.335,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 3360,
+        "elevations": [
+          null,
+          84.296,
+          72.951,
+          29.885,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 3440,
+        "elevations": [
+          null,
+          null,
+          null,
+          27.616,
+          9.04,
+          6.393,
+          null
+        ]
+      },
+      {
+        "distance": 3520,
+        "elevations": [
+          86.943,
+          89.212,
+          58.581,
+          26.194,
+          15.848,
+          6.393,
+          null
+        ]
+      },
+      {
+        "distance": 3600,
+        "elevations": [
+          94.885,
+          68.035,
+          34,
+          28.614,
+          30.974,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 3680,
+        "elevations": [
+          null,
+          74.086,
+          null,
+          29.295,
+          19.251,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 3760,
+        "elevations": [
+          92.238,
+          null,
+          50.261,
+          25.71,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 3840,
+        "elevations": [
+          97.91,
+          44.967,
+          39.294,
+          20.91,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 3920,
+        "elevations": [
+          null,
+          53.286,
+          17.36,
+          16.11,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 4000,
+        "elevations": [
+          null,
+          55.177,
+          null,
+          11.31,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 4080,
+        "elevations": [
+          null,
+          null,
+          47.992,
+          10.79,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 4160,
+        "elevations": [
+          null,
+          null,
+          null,
+          15.247,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 4240,
+        "elevations": [
+          null,
+          null,
+          44.588,
+          19.604,
+          5.637,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 4320,
+        "elevations": [
+          null,
+          55.177,
+          null,
+          22.846,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 4400,
+        "elevations": [
+          36.269,
+          59.337,
+          null,
+          25.483,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 4480,
+        "elevations": [
+          61.606,
+          60.093,
+          53.286,
+          28.055,
+          15.469,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 4560,
+        "elevations": [
+          80.514,
+          50.261,
+          52.908,
+          30.566,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 4640,
+        "elevations": [
+          85.809,
+          45.723,
+          65.388,
+          32.956,
+          9.419,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 4720,
+        "elevations": [
+          86.187,
+          55.177,
+          null,
+          34.665,
+          38.916,
+          13.957,
+          null
+        ]
+      },
+      {
+        "distance": 4800,
+        "elevations": [
+          null,
+          null,
+          null,
+          35.89,
+          35.134,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 4880,
+        "elevations": [
+          120.978,
+          106.986,
+          null,
+          37.025,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 4960,
+        "elevations": [
+          null,
+          null,
+          null,
+          38.265,
+          null,
+          null,
+          28.705
+        ]
+      },
+      {
+        "distance": 5040,
+        "elevations": [
+          null,
+          142.912,
+          80.136,
+          40.05,
+          6.771,
+          32.865,
+          null
+        ]
+      },
+      {
+        "distance": 5120,
+        "elevations": [
+          162.577,
+          null,
+          null,
+          42.274,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 5200,
+        "elevations": [
+          null,
+          114.55,
+          71.438,
+          43.129,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 5280,
+        "elevations": [
+          147.072,
+          105.095,
+          71.438,
+          42.047,
+          null,
+          null,
+          14.713
+        ]
+      },
+      {
+        "distance": 5360,
+        "elevations": [
+          153.879,
+          102.07,
+          64.253,
+          40.557,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 5440,
+        "elevations": [
+          113.037,
+          107.364,
+          66.144,
+          38.628,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 5520,
+        "elevations": [
+          137.618,
+          119.466,
+          null,
+          35.838,
+          16.982,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 5600,
+        "elevations": [
+          71.438,
+          null,
+          42.697,
+          33.243,
+          13.957,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 5680,
+        "elevations": [
+          null,
+          90.347,
+          null,
+          30.641,
+          null,
+          null,
+          24.924
+        ]
+      },
+      {
+        "distance": 5760,
+        "elevations": [
+          119.088,
+          63.119,
+          41.941,
+          27.767,
+          9.04,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 5840,
+        "elevations": [
+          150.097,
+          104.339,
+          62.74,
+          25.65,
+          8.662,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 5920,
+        "elevations": [
+          105.852,
+          113.037,
+          60.85,
+          24.364,
+          10.175,
+          null,
+          null
+        ]
+      },
+      {
+        "distance": 6000,
+        "elevations": [
+          79.002,
+          96.776,
+          58.959,
+          23.789,
+          8.284,
+          null,
+          null
+        ]
+      }
+    ]
+  },
+  "coastlineSegments": [
+    {
+      "id": "western-coast-coastline",
+      "startDistance": 274.325,
+      "endDistance": 3449.267,
+      "side": -1,
+      "sourceId": "csdi-3d-individualised"
+    },
+    {
+      "id": "sham-tseng-coastline",
+      "startDistance": 3449.267,
+      "endDistance": 4977.082,
+      "side": -1,
+      "sourceId": "csdi-3d-individualised"
+    },
+    {
+      "id": "ting-kau-coastline",
+      "startDistance": 4817.082,
+      "endDistance": 5741.907,
+      "side": -1,
+      "sourceId": "csdi-3d-individualised"
+    }
+  ],
+  "structures": [
+    {
+      "id": "tuen-mun-approach-flyover",
+      "type": "viaduct",
+      "startDistance": 80,
+      "endDistance": 360,
+      "sourceId": "csdi-3d-nontextured"
+    },
+    {
+      "id": "tai-lam-chung-bridge-deck",
+      "type": "viaduct",
+      "startDistance": 2003.245,
+      "endDistance": 2263.245,
+      "sourceId": "csdi-3d-nontextured"
+    },
+    {
+      "id": "sham-tseng-cut-slope",
+      "type": "cut-slope",
+      "startDistance": 3529.267,
+      "endDistance": 4167.154,
+      "side": 1,
+      "sourceId": "csdi-dtm-5m"
+    },
+    {
+      "id": "ting-kau-bridge-view",
+      "type": "bridge-view",
+      "startDistance": 4797.082,
+      "endDistance": 5187.082,
+      "side": -1,
+      "sourceId": "csdi-3d-nontextured"
+    },
+    {
+      "id": "yau-kom-tau-elevated-road",
+      "type": "viaduct",
+      "startDistance": 5451.907,
+      "endDistance": 5851.907,
+      "sourceId": "csdi-3d-nontextured"
+    },
+    {
+      "id": "tsuen-wan-retaining-wall",
+      "type": "retaining-wall",
+      "startDistance": 5831.907,
+      "endDistance": 5880,
+      "side": 1,
+      "sourceId": "csdi-dtm-5m"
+    }
+  ],
+  "buildingSourceId": "csdi-building",
+  "buildings": [
+    {
+      "id": "csdi-building-194062",
+      "sourceId": "csdi-building",
+      "distance": 0,
+      "lateral": -96.833,
+      "width": 10.207,
+      "depth": 9.086,
+      "height": 38.271,
+      "baseHeight": 5.183,
+      "category": "tower",
+      "name": "Tuen Mun Town Plaza Block 7",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-315813",
+      "sourceId": "csdi-building",
+      "distance": 47.592,
+      "lateral": -104.52,
+      "width": 13.393,
+      "depth": 25.767,
+      "height": 39.556,
+      "baseHeight": 11.839,
+      "category": "tower",
+      "name": "Hin Fat House",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-94252",
+      "sourceId": "csdi-building",
+      "distance": 53.272,
+      "lateral": -95.298,
+      "width": 7.746,
+      "depth": 7.229,
+      "height": 31.955,
+      "baseHeight": 8.511,
+      "category": "tower",
+      "name": "Lee Bo Building",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-192915",
+      "sourceId": "csdi-building",
+      "distance": 146.727,
+      "lateral": 192.307,
+      "width": 11.556,
+      "depth": 15.072,
+      "height": 36.796,
+      "baseHeight": 5.145,
+      "category": "tower",
+      "name": "Tsui Ning Garden Block 6",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-192922",
+      "sourceId": "csdi-building",
+      "distance": 160.987,
+      "lateral": 188.708,
+      "width": 12.116,
+      "depth": 14.853,
+      "height": 36.834,
+      "baseHeight": 5.145,
+      "category": "tower",
+      "name": "Tsui Ning Garden Block 5",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-336689",
+      "sourceId": "csdi-building",
+      "distance": 164.564,
+      "lateral": 97.231,
+      "width": 16.21,
+      "depth": 12.777,
+      "height": 36.304,
+      "baseHeight": 5.334,
+      "category": "tower",
+      "name": "Ngan Lun House",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-336686",
+      "sourceId": "csdi-building",
+      "distance": 168.207,
+      "lateral": 82.174,
+      "width": 15.917,
+      "depth": 12.683,
+      "height": 36.682,
+      "baseHeight": 5.334,
+      "category": "tower",
+      "name": "Po Lun House",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-336688",
+      "sourceId": "csdi-building",
+      "distance": 170.289,
+      "lateral": 128.522,
+      "width": 16.245,
+      "depth": 12.799,
+      "height": 36.985,
+      "baseHeight": 5.334,
+      "category": "tower",
+      "name": "Wah Lun House",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-336687",
+      "sourceId": "csdi-building",
+      "distance": 170.289,
+      "lateral": 143.53,
+      "width": 16.14,
+      "depth": 12.809,
+      "height": 37.061,
+      "baseHeight": 5.334,
+      "category": "tower",
+      "name": "Fai Lun House",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-192946",
+      "sourceId": "csdi-building",
+      "distance": 177.508,
+      "lateral": 86.573,
+      "width": 16.143,
+      "depth": 12.379,
+      "height": 36.796,
+      "baseHeight": 5.297,
+      "category": "tower",
+      "name": "Tsui Lun House",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-186544",
+      "sourceId": "csdi-building",
+      "distance": 178.363,
+      "lateral": 149.848,
+      "width": 16.153,
+      "depth": 12.83,
+      "height": 36.493,
+      "baseHeight": 5.864,
+      "category": "tower",
+      "name": "Yuk Lun House",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-187015",
+      "sourceId": "csdi-building",
+      "distance": 195.726,
+      "lateral": 91.717,
+      "width": 16.067,
+      "depth": 12.717,
+      "height": 36.569,
+      "baseHeight": 5.334,
+      "category": "tower",
+      "name": "Yiu Lun House",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-186951",
+      "sourceId": "csdi-building",
+      "distance": 202.813,
+      "lateral": 161.236,
+      "width": 15.973,
+      "depth": 12.549,
+      "height": 37.061,
+      "baseHeight": 5.297,
+      "category": "tower",
+      "name": "Wing Lun House",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-336838",
+      "sourceId": "csdi-building",
+      "distance": 205.333,
+      "lateral": 96.723,
+      "width": 16.165,
+      "depth": 12.797,
+      "height": 36.682,
+      "baseHeight": 5.334,
+      "category": "tower",
+      "name": "Sui Lun House",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-336837",
+      "sourceId": "csdi-building",
+      "distance": 205.333,
+      "lateral": 111.479,
+      "width": 16.129,
+      "depth": 12.823,
+      "height": 36.531,
+      "baseHeight": 5.334,
+      "category": "tower",
+      "name": "Ka Lun House",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-336690",
+      "sourceId": "csdi-building",
+      "distance": 205.333,
+      "lateral": 129.961,
+      "width": 16.026,
+      "depth": 12.672,
+      "height": 36.909,
+      "baseHeight": 5.372,
+      "category": "tower",
+      "name": "Fu Lun House",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-336691",
+      "sourceId": "csdi-building",
+      "distance": 205.333,
+      "lateral": 144.383,
+      "width": 16.179,
+      "depth": 12.698,
+      "height": 36.758,
+      "baseHeight": 5.372,
+      "category": "tower",
+      "name": "Kwai Lun House",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-194527",
+      "sourceId": "csdi-building",
+      "distance": 251.662,
+      "lateral": 102.597,
+      "width": 11.494,
+      "depth": 11.051,
+      "height": 35.283,
+      "baseHeight": 5.108,
+      "category": "tower",
+      "name": "Hanford Garden Block 2",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-194534",
+      "sourceId": "csdi-building",
+      "distance": 301.186,
+      "lateral": -97.77,
+      "width": 10.239,
+      "depth": 11.69,
+      "height": 20.421,
+      "baseHeight": 6.582,
+      "category": "midrise",
+      "name": "Kam Fai Garden Block 3",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-275924",
+      "sourceId": "csdi-building",
+      "distance": 395.313,
+      "lateral": 84.884,
+      "width": 6.211,
+      "depth": 15.336,
+      "height": 24.619,
+      "baseHeight": 9.154,
+      "category": "midrise",
+      "name": "The Wave Tower 1",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-275925",
+      "sourceId": "csdi-building",
+      "distance": 411.415,
+      "lateral": 84.805,
+      "width": 6.362,
+      "depth": 15.331,
+      "height": 24.619,
+      "baseHeight": 9.154,
+      "category": "midrise",
+      "name": "The Wave Tower 2",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-60592",
+      "sourceId": "csdi-building",
+      "distance": 443.91,
+      "lateral": 41.426,
+      "width": 8.197,
+      "depth": 9.898,
+      "height": 31.123,
+      "baseHeight": 24.129,
+      "category": "tower",
+      "name": "Tsing Yung Terrace Block 1",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-262431",
+      "sourceId": "csdi-building",
+      "distance": 452.225,
+      "lateral": 42.157,
+      "width": 6.754,
+      "depth": 9.184,
+      "height": 31.955,
+      "baseHeight": 24.129,
+      "category": "tower",
+      "name": "Tsing Yung Terrace Block 2",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-261435",
+      "sourceId": "csdi-building",
+      "distance": 463.247,
+      "lateral": 44.339,
+      "width": 5.171,
+      "depth": 9.635,
+      "height": 31.917,
+      "baseHeight": 24.129,
+      "category": "tower",
+      "name": "Tsing Yung Terrace Block 3",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-212798",
+      "sourceId": "csdi-building",
+      "distance": 473.216,
+      "lateral": 41.99,
+      "width": 6.345,
+      "depth": 10.993,
+      "height": 30.632,
+      "baseHeight": 24.129,
+      "category": "tower",
+      "name": "Tsing Yung Terrace Block 4",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-12987",
+      "sourceId": "csdi-building",
+      "distance": 484.194,
+      "lateral": 55.695,
+      "width": 4.81,
+      "depth": 12.27,
+      "height": 31.804,
+      "baseHeight": 21.444,
+      "category": "tower",
+      "name": "CROWN BY THE SEA",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-177018",
+      "sourceId": "csdi-building",
+      "distance": 505.702,
+      "lateral": 53.797,
+      "width": 8.538,
+      "depth": 8.307,
+      "height": 31.615,
+      "baseHeight": 15.734,
+      "category": "tower",
+      "name": "Seaview Garden Block 1",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-201681",
+      "sourceId": "csdi-building",
+      "distance": 514.413,
+      "lateral": 45.272,
+      "width": 8.082,
+      "depth": 8.467,
+      "height": 31.501,
+      "baseHeight": 15.734,
+      "category": "tower",
+      "name": "Seaview Garden Block 2",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-205197",
+      "sourceId": "csdi-building",
+      "distance": 524.715,
+      "lateral": 41.628,
+      "width": 6.375,
+      "depth": 11.622,
+      "height": 27.531,
+      "baseHeight": 20.688,
+      "category": "midrise",
+      "name": "Elegant Villa",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-234189",
+      "sourceId": "csdi-building",
+      "distance": 526.163,
+      "lateral": 42.516,
+      "width": 6.745,
+      "depth": 9.053,
+      "height": 31.085,
+      "baseHeight": 16.037,
+      "category": "tower",
+      "name": "Seaview Garden Block 3",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-107789",
+      "sourceId": "csdi-building",
+      "distance": 538.484,
+      "lateral": 45.96,
+      "width": 8.119,
+      "depth": 8.616,
+      "height": 31.01,
+      "baseHeight": 16.037,
+      "category": "tower",
+      "name": "Seaview Garden Block 4",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-270868",
+      "sourceId": "csdi-building",
+      "distance": 546.661,
+      "lateral": 63.002,
+      "width": 8.473,
+      "depth": 8.193,
+      "height": 30.291,
+      "baseHeight": 16.037,
+      "category": "tower",
+      "name": "Seaview Garden Block 8",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-273799",
+      "sourceId": "csdi-building",
+      "distance": 555.526,
+      "lateral": 66.105,
+      "width": 7.826,
+      "depth": 8.421,
+      "height": 30.291,
+      "baseHeight": 16.037,
+      "category": "tower",
+      "name": "Seaview Garden Block 7",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-286449",
+      "sourceId": "csdi-building",
+      "distance": 557.276,
+      "lateral": 44.498,
+      "width": 9.059,
+      "depth": 6.931,
+      "height": 30.178,
+      "baseHeight": 16.15,
+      "category": "tower",
+      "name": "Seaview Garden Block 5",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-173657",
+      "sourceId": "csdi-building",
+      "distance": 559.935,
+      "lateral": 57.981,
+      "width": 8.817,
+      "depth": 7.42,
+      "height": 30.291,
+      "baseHeight": 16.037,
+      "category": "tower",
+      "name": "Seaview Garden Block 6",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-192460",
+      "sourceId": "csdi-building",
+      "distance": 563.616,
+      "lateral": 44.167,
+      "width": 12.95,
+      "depth": 12.978,
+      "height": 32.825,
+      "baseHeight": 13.049,
+      "category": "tower",
+      "name": "TUEN MUN COURT",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-234432",
+      "sourceId": "csdi-building",
+      "distance": 660.201,
+      "lateral": -96.76,
+      "width": 10.48,
+      "depth": 8.543,
+      "height": 21.82,
+      "baseHeight": 13.389,
+      "category": "midrise",
+      "name": "The Laguna Tower 5",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-234433",
+      "sourceId": "csdi-building",
+      "distance": 663.724,
+      "lateral": -97.709,
+      "width": 11.417,
+      "depth": 10.361,
+      "height": 21.82,
+      "baseHeight": 13.389,
+      "category": "midrise",
+      "name": "The Laguna Tower 6",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-232712",
+      "sourceId": "csdi-building",
+      "distance": 667.619,
+      "lateral": -96.914,
+      "width": 9.349,
+      "depth": 10.189,
+      "height": 22.009,
+      "baseHeight": 13.579,
+      "category": "midrise",
+      "name": "The Laguna Tower 1",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-232714",
+      "sourceId": "csdi-building",
+      "distance": 668.582,
+      "lateral": -98.218,
+      "width": 10.907,
+      "depth": 12.296,
+      "height": 21.972,
+      "baseHeight": 13.616,
+      "category": "midrise",
+      "name": "The Laguna Tower 2",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-234633",
+      "sourceId": "csdi-building",
+      "distance": 669.405,
+      "lateral": -97.504,
+      "width": 10.738,
+      "depth": 10.485,
+      "height": 21.972,
+      "baseHeight": 13.616,
+      "category": "midrise",
+      "name": "The Laguna Tower 3",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-291358",
+      "sourceId": "csdi-building",
+      "distance": 748.221,
+      "lateral": 48.794,
+      "width": 24,
+      "depth": 13.607,
+      "height": 24.203,
+      "baseHeight": 13.238,
+      "category": "midrise",
+      "name": "Gold Coast Bay The Reserve Tower 1",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-291302",
+      "sourceId": "csdi-building",
+      "distance": 761.65,
+      "lateral": 44.712,
+      "width": 7.236,
+      "depth": 18.025,
+      "height": 24.089,
+      "baseHeight": 13.352,
+      "category": "midrise",
+      "name": "Gold Coast Bay The Reserve Tower 2",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-291301",
+      "sourceId": "csdi-building",
+      "distance": 784.61,
+      "lateral": 46.002,
+      "width": 6.762,
+      "depth": 20.939,
+      "height": 23.976,
+      "baseHeight": 13.465,
+      "category": "midrise",
+      "name": "Gold Coast Bay The Uppland Tower 3",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-291359",
+      "sourceId": "csdi-building",
+      "distance": 798.646,
+      "lateral": 48.727,
+      "width": 24,
+      "depth": 13.333,
+      "height": 23.862,
+      "baseHeight": 13.579,
+      "category": "midrise",
+      "name": "Gold Coast Bay The Uppland Tower 5",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-73620",
+      "sourceId": "csdi-building",
+      "distance": 803.756,
+      "lateral": 73.313,
+      "width": 10.329,
+      "depth": 11.751,
+      "height": 24.884,
+      "baseHeight": 7.187,
+      "category": "midrise",
+      "name": "香港黃金海岸第一期Ｔｏｗｅｒ１大廈",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-299348",
+      "sourceId": "csdi-building",
+      "distance": 810.801,
+      "lateral": 46.758,
+      "width": 10.047,
+      "depth": 19.169,
+      "height": 20.27,
+      "baseHeight": 9.646,
+      "category": "midrise",
+      "name": "Starfront Royale Tower 1",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-51854",
+      "sourceId": "csdi-building",
+      "distance": 813.133,
+      "lateral": 77.563,
+      "width": 10.634,
+      "depth": 11.991,
+      "height": 24.884,
+      "baseHeight": 7.187,
+      "category": "midrise",
+      "name": "香港黃金海岸第一期Ｔｏｗｅｒ２大廈",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-273037",
+      "sourceId": "csdi-building",
+      "distance": 823.543,
+      "lateral": 82.932,
+      "width": 10.714,
+      "depth": 12.077,
+      "height": 24.846,
+      "baseHeight": 7.187,
+      "category": "midrise",
+      "name": "香港黃金海岸第一期Ｔｏｗｅｒ３大廈",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-299367",
+      "sourceId": "csdi-building",
+      "distance": 827.579,
+      "lateral": 54.917,
+      "width": 13.876,
+      "depth": 16.894,
+      "height": 22.766,
+      "baseHeight": 7.15,
+      "category": "midrise",
+      "name": "Starfront Royale Tower 2",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-94663",
+      "sourceId": "csdi-building",
+      "distance": 832.603,
+      "lateral": 89.482,
+      "width": 10.899,
+      "depth": 12.014,
+      "height": 24.543,
+      "baseHeight": 7.49,
+      "category": "midrise",
+      "name": "香港黃金海岸第一期Ｔｏｗｅｒ４大廈",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-120284",
+      "sourceId": "csdi-building",
+      "distance": 835.326,
+      "lateral": 107.383,
+      "width": 10.881,
+      "depth": 11.827,
+      "height": 25.451,
+      "baseHeight": 6.582,
+      "category": "midrise",
+      "name": "香港黃金海岸第一期Ｔｏｗｅｒ５大廈",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-299366",
+      "sourceId": "csdi-building",
+      "distance": 846.468,
+      "lateral": 58.514,
+      "width": 20.9,
+      "depth": 15.988,
+      "height": 22.804,
+      "baseHeight": 7.15,
+      "category": "midrise",
+      "name": "Seacoast Royale Tower 3",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-299357",
+      "sourceId": "csdi-building",
+      "distance": 854.526,
+      "lateral": 42.971,
+      "width": 8.859,
+      "depth": 13.254,
+      "height": 22.804,
+      "baseHeight": 7.15,
+      "category": "midrise",
+      "name": "Seacoast Royale Tower 5",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-194902",
+      "sourceId": "csdi-building",
+      "distance": 900.459,
+      "lateral": 119.481,
+      "width": 12.696,
+      "depth": 13.586,
+      "height": 33.203,
+      "baseHeight": 5.713,
+      "category": "tower",
+      "name": "Aegean Coast Tower 8",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-194899",
+      "sourceId": "csdi-building",
+      "distance": 909.912,
+      "lateral": 126.858,
+      "width": 12.309,
+      "depth": 13.075,
+      "height": 33.203,
+      "baseHeight": 5.713,
+      "category": "tower",
+      "name": "Aegean Coast Tower 7",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-194955",
+      "sourceId": "csdi-building",
+      "distance": 1082.598,
+      "lateral": 131.171,
+      "width": 12.841,
+      "depth": 13.653,
+      "height": 33.241,
+      "baseHeight": 5.713,
+      "category": "tower",
+      "name": "Aegean Coast Tower 6",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-186919",
+      "sourceId": "csdi-building",
+      "distance": 1101.674,
+      "lateral": 128.432,
+      "width": 13.053,
+      "depth": 13.314,
+      "height": 33.43,
+      "baseHeight": 5.713,
+      "category": "tower",
+      "name": "Aegean Coast Tower 5",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-82590",
+      "sourceId": "csdi-building",
+      "distance": 1112.962,
+      "lateral": -98.154,
+      "width": 12.384,
+      "depth": 10.612,
+      "height": 13.274,
+      "baseHeight": 11.461,
+      "category": "lowrise",
+      "name": "Avignon Tower 11",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-82591",
+      "sourceId": "csdi-building",
+      "distance": 1114.221,
+      "lateral": -98.726,
+      "width": 12.522,
+      "depth": 12.155,
+      "height": 13.274,
+      "baseHeight": 11.461,
+      "category": "lowrise",
+      "name": "Avignon Tower 10",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-204119",
+      "sourceId": "csdi-building",
+      "distance": 1121.642,
+      "lateral": 128.344,
+      "width": 12.951,
+      "depth": 13.277,
+      "height": 33.43,
+      "baseHeight": 5.713,
+      "category": "tower",
+      "name": "Aegean Coast Tower 3",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-82592",
+      "sourceId": "csdi-building",
+      "distance": 1123.422,
+      "lateral": -98.047,
+      "width": 10.724,
+      "depth": 12,
+      "height": 13.274,
+      "baseHeight": 11.461,
+      "category": "lowrise",
+      "name": "Avignon Tower 9",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-309310",
+      "sourceId": "csdi-building",
+      "distance": 1134.487,
+      "lateral": -97.481,
+      "width": 9.509,
+      "depth": 11.553,
+      "height": 13.274,
+      "baseHeight": 11.461,
+      "category": "lowrise",
+      "name": "Avignon Tower 8",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-203740",
+      "sourceId": "csdi-building",
+      "distance": 1134.546,
+      "lateral": 130.33,
+      "width": 13.307,
+      "depth": 13.658,
+      "height": 33.43,
+      "baseHeight": 5.713,
+      "category": "tower",
+      "name": "Aegean Coast Tower 2",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-82075",
+      "sourceId": "csdi-building",
+      "distance": 1142.527,
+      "lateral": -136.031,
+      "width": 14.376,
+      "depth": 11.886,
+      "height": 13.274,
+      "baseHeight": 11.007,
+      "category": "lowrise",
+      "name": "Avignon Tower 5",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-82594",
+      "sourceId": "csdi-building",
+      "distance": 1143.797,
+      "lateral": -98.822,
+      "width": 12.382,
+      "depth": 12.568,
+      "height": 13.274,
+      "baseHeight": 11.461,
+      "category": "lowrise",
+      "name": "Avignon Tower 7",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-107367",
+      "sourceId": "csdi-building",
+      "distance": 1147.198,
+      "lateral": -144.786,
+      "width": 13.035,
+      "depth": 14.114,
+      "height": 13.274,
+      "baseHeight": 11.007,
+      "category": "lowrise",
+      "name": "Avignon Tower 3",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-82038",
+      "sourceId": "csdi-building",
+      "distance": 1148.318,
+      "lateral": -98.531,
+      "width": 13.224,
+      "depth": 10.782,
+      "height": 13.274,
+      "baseHeight": 11.461,
+      "category": "lowrise",
+      "name": "Avignon Tower 6",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-202897",
+      "sourceId": "csdi-building",
+      "distance": 1148.844,
+      "lateral": 135.136,
+      "width": 13.347,
+      "depth": 14.06,
+      "height": 33.43,
+      "baseHeight": 5.713,
+      "category": "tower",
+      "name": "Aegean Coast Tower 1",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-82077",
+      "sourceId": "csdi-building",
+      "distance": 1168.099,
+      "lateral": -152.604,
+      "width": 9.101,
+      "depth": 14.619,
+      "height": 13.274,
+      "baseHeight": 11.007,
+      "category": "lowrise",
+      "name": "Avignon Tower 2",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-306586",
+      "sourceId": "csdi-building",
+      "distance": 1185.714,
+      "lateral": -98.651,
+      "width": 8.989,
+      "depth": 14.783,
+      "height": 24.014,
+      "baseHeight": 9.646,
+      "category": "midrise",
+      "name": "OCEAN CAMINO Tower 1",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-306588",
+      "sourceId": "csdi-building",
+      "distance": 1196.989,
+      "lateral": -97.523,
+      "width": 6.965,
+      "depth": 13.336,
+      "height": 24.014,
+      "baseHeight": 9.646,
+      "category": "midrise",
+      "name": "OCEAN CAMINO Tower 1A",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-275926",
+      "sourceId": "csdi-building",
+      "distance": 1208.485,
+      "lateral": -99.019,
+      "width": 14.858,
+      "depth": 10.227,
+      "height": 20.686,
+      "baseHeight": 12.822,
+      "category": "midrise",
+      "name": "MORI Tower 5",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-306770",
+      "sourceId": "csdi-building",
+      "distance": 1211.87,
+      "lateral": -99.137,
+      "width": 9.66,
+      "depth": 15.513,
+      "height": 24.014,
+      "baseHeight": 9.646,
+      "category": "midrise",
+      "name": "OCEAN CAMINO Tower 2",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-306560",
+      "sourceId": "csdi-building",
+      "distance": 1222.748,
+      "lateral": -97.669,
+      "width": 9.975,
+      "depth": 11.651,
+      "height": 22.236,
+      "baseHeight": 11.423,
+      "category": "midrise",
+      "name": "OCEAN CAMINO Tower 2A",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-179313",
+      "sourceId": "csdi-building",
+      "distance": 1236.193,
+      "lateral": 186.597,
+      "width": 9.491,
+      "depth": 9.512,
+      "height": 27.001,
+      "baseHeight": 5.372,
+      "category": "midrise",
+      "name": "Hong Kong Gold Coast Phase II Tower 6",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-306585",
+      "sourceId": "csdi-building",
+      "distance": 1242.031,
+      "lateral": -100.699,
+      "width": 17.709,
+      "depth": 12.012,
+      "height": 24.014,
+      "baseHeight": 9.646,
+      "category": "midrise",
+      "name": "OCEAN CAMINO Tower 3",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-176811",
+      "sourceId": "csdi-building",
+      "distance": 1243.838,
+      "lateral": 194.32,
+      "width": 8.502,
+      "depth": 9.989,
+      "height": 26.926,
+      "baseHeight": 5.41,
+      "category": "midrise",
+      "name": "Hong Kong Gold Coast Phase II Tower 7",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-306589",
+      "sourceId": "csdi-building",
+      "distance": 1253.838,
+      "lateral": -98.445,
+      "width": 9.025,
+      "depth": 14.277,
+      "height": 24.014,
+      "baseHeight": 9.646,
+      "category": "midrise",
+      "name": "OCEAN CAMINO Tower 3A",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-306584",
+      "sourceId": "csdi-building",
+      "distance": 1267.045,
+      "lateral": -98.594,
+      "width": 12.739,
+      "depth": 11.538,
+      "height": 24.014,
+      "baseHeight": 9.646,
+      "category": "midrise",
+      "name": "OCEAN CAMINO Tower 5",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-205461",
+      "sourceId": "csdi-building",
+      "distance": 1274.432,
+      "lateral": 191.188,
+      "width": 6.143,
+      "depth": 9.757,
+      "height": 27.001,
+      "baseHeight": 5.41,
+      "category": "midrise",
+      "name": "Hong Kong Gold Coast Phase II Tower 9",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-306562",
+      "sourceId": "csdi-building",
+      "distance": 1277.309,
+      "lateral": -100.216,
+      "width": 8.93,
+      "depth": 18.378,
+      "height": 24.052,
+      "baseHeight": 9.646,
+      "category": "midrise",
+      "name": "OCEAN CAMINO Tower 5A",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-200940",
+      "sourceId": "csdi-building",
+      "distance": 1284.935,
+      "lateral": 193.952,
+      "width": 8.791,
+      "depth": 9.971,
+      "height": 26.926,
+      "baseHeight": 5.41,
+      "category": "midrise",
+      "name": "Hong Kong Gold Coast Phase II Tower 10",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-174581",
+      "sourceId": "csdi-building",
+      "distance": 1297.523,
+      "lateral": -192.169,
+      "width": 13.42,
+      "depth": 9.398,
+      "height": 24.316,
+      "baseHeight": 13.2,
+      "category": "midrise",
+      "name": "TOWER 6A",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-275922",
+      "sourceId": "csdi-building",
+      "distance": 1310.451,
+      "lateral": -147.116,
+      "width": 13.614,
+      "depth": 20.918,
+      "height": 22.425,
+      "baseHeight": 15.053,
+      "category": "midrise",
+      "name": "TOWER 2",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-318691",
+      "sourceId": "csdi-building",
+      "distance": 1315.159,
+      "lateral": 61.756,
+      "width": 12.77,
+      "depth": 8.38,
+      "height": 23.636,
+      "baseHeight": 9.192,
+      "category": "midrise",
+      "name": "Tower 1",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-318692",
+      "sourceId": "csdi-building",
+      "distance": 1321.634,
+      "lateral": 50.401,
+      "width": 8.672,
+      "depth": 13.736,
+      "height": 23.636,
+      "baseHeight": 9.192,
+      "category": "midrise",
+      "name": "Tower 2",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-318693",
+      "sourceId": "csdi-building",
+      "distance": 1334.91,
+      "lateral": 48.483,
+      "width": 9.442,
+      "depth": 12.642,
+      "height": 23.825,
+      "baseHeight": 9.003,
+      "category": "midrise",
+      "name": "Tower 3",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-318690",
+      "sourceId": "csdi-building",
+      "distance": 1347.052,
+      "lateral": 57.159,
+      "width": 14.058,
+      "depth": 9.796,
+      "height": 23.636,
+      "baseHeight": 9.192,
+      "category": "midrise",
+      "name": "Tower 5",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-305076",
+      "sourceId": "csdi-building",
+      "distance": 1414.276,
+      "lateral": 48.968,
+      "width": 16.622,
+      "depth": 22.453,
+      "height": 19.4,
+      "baseHeight": 14.297,
+      "category": "midrise",
+      "name": "OMA by the Sea Tower 1",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-238938",
+      "sourceId": "csdi-building",
+      "distance": 1541.381,
+      "lateral": 93.7,
+      "width": 5.357,
+      "depth": 4.5,
+      "height": 6.694,
+      "baseHeight": 8.133,
+      "category": "lowrise",
+      "name": "South Sea Villa Block A",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-238933",
+      "sourceId": "csdi-building",
+      "distance": 1542.092,
+      "lateral": 93.884,
+      "width": 5.505,
+      "depth": 4.5,
+      "height": 6.694,
+      "baseHeight": 8.133,
+      "category": "lowrise",
+      "name": "South Sea Villa Block B",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-238936",
+      "sourceId": "csdi-building",
+      "distance": 1544.607,
+      "lateral": 95.468,
+      "width": 5.382,
+      "depth": 4.5,
+      "height": 6.694,
+      "baseHeight": 8.133,
+      "category": "lowrise",
+      "name": "South Sea Villa Block C",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-236200",
+      "sourceId": "csdi-building",
+      "distance": 1639.659,
+      "lateral": 102.679,
+      "width": 10.88,
+      "depth": 10.373,
+      "height": 7.185,
+      "baseHeight": 9.078,
+      "category": "lowrise",
+      "name": "Castle Peak Villas Block A",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-166593",
+      "sourceId": "csdi-building",
+      "distance": 1649.327,
+      "lateral": 118.442,
+      "width": 9.797,
+      "depth": 12.331,
+      "height": 10.4,
+      "baseHeight": 5.486,
+      "category": "lowrise",
+      "name": "Castle Peak Villas Block F",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-167287",
+      "sourceId": "csdi-building",
+      "distance": 1654.925,
+      "lateral": 97.962,
+      "width": 11.055,
+      "depth": 10.558,
+      "height": 9.568,
+      "baseHeight": 7.339,
+      "category": "lowrise",
+      "name": "Castle Peak Villas Block B",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-167063",
+      "sourceId": "csdi-building",
+      "distance": 1658.689,
+      "lateral": 110.29,
+      "width": 8.046,
+      "depth": 10.531,
+      "height": 9.908,
+      "baseHeight": 6.166,
+      "category": "lowrise",
+      "name": "Castle Peak Villas Block E",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-166834",
+      "sourceId": "csdi-building",
+      "distance": 1662.068,
+      "lateral": 104.579,
+      "width": 11.45,
+      "depth": 12.05,
+      "height": 10.362,
+      "baseHeight": 6.734,
+      "category": "lowrise",
+      "name": "Castle Peak Villas Block D",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-167499",
+      "sourceId": "csdi-building",
+      "distance": 1663.892,
+      "lateral": 93.133,
+      "width": 10.577,
+      "depth": 11.583,
+      "height": 11.459,
+      "baseHeight": 4.616,
+      "category": "lowrise",
+      "name": "Castle Peak Villas Block C",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-166435",
+      "sourceId": "csdi-building",
+      "distance": 1681.028,
+      "lateral": 39.309,
+      "width": 7.351,
+      "depth": 4.5,
+      "height": 4.462,
+      "baseHeight": 9.721,
+      "category": "lowrise",
+      "name": "The Castle Bay Block A2",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-167109",
+      "sourceId": "csdi-building",
+      "distance": 1683.657,
+      "lateral": 39.269,
+      "width": 7.256,
+      "depth": 4.5,
+      "height": 4.349,
+      "baseHeight": 9.721,
+      "category": "lowrise",
+      "name": "The Castle Bay Block A3",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-166652",
+      "sourceId": "csdi-building",
+      "distance": 1689.856,
+      "lateral": 39.302,
+      "width": 7.333,
+      "depth": 4.5,
+      "height": 4.349,
+      "baseHeight": 9.683,
+      "category": "lowrise",
+      "name": "The Castle Bay Block A6",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-166653",
+      "sourceId": "csdi-building",
+      "distance": 1692.406,
+      "lateral": 39.233,
+      "width": 7.17,
+      "depth": 4.5,
+      "height": 4.425,
+      "baseHeight": 9.683,
+      "category": "lowrise",
+      "name": "The Castle Bay Block A7",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-167108",
+      "sourceId": "csdi-building",
+      "distance": 1694.227,
+      "lateral": 39.293,
+      "width": 7.313,
+      "depth": 4.5,
+      "height": 4.349,
+      "baseHeight": 9.646,
+      "category": "lowrise",
+      "name": "The Castle Bay Block A8",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-166437",
+      "sourceId": "csdi-building",
+      "distance": 1696.021,
+      "lateral": 39.233,
+      "width": 7.17,
+      "depth": 4.5,
+      "height": 4.462,
+      "baseHeight": 9.646,
+      "category": "lowrise",
+      "name": "The Castle Bay Block A9",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-166651",
+      "sourceId": "csdi-building",
+      "distance": 1697.816,
+      "lateral": 39.291,
+      "width": 7.308,
+      "depth": 4.5,
+      "height": 4.387,
+      "baseHeight": 9.683,
+      "category": "lowrise",
+      "name": "The Castle Bay Block A10",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-168226",
+      "sourceId": "csdi-building",
+      "distance": 1715.287,
+      "lateral": 56.599,
+      "width": 4.877,
+      "depth": 4.517,
+      "height": 5.748,
+      "baseHeight": 5.334,
+      "category": "lowrise",
+      "name": "Villa De Mer Block 4",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-165321",
+      "sourceId": "csdi-building",
+      "distance": 1716.815,
+      "lateral": 51.137,
+      "width": 4.5,
+      "depth": 5.215,
+      "height": 5.219,
+      "baseHeight": 5.864,
+      "category": "lowrise",
+      "name": "Villa De Mer Block 2",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-29245",
+      "sourceId": "csdi-building",
+      "distance": 1822.982,
+      "lateral": -99.724,
+      "width": 12.446,
+      "depth": 14.944,
+      "height": 31.35,
+      "baseHeight": 9.419,
+      "category": "tower",
+      "name": "Grand Pacific Views Block 6",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-201110",
+      "sourceId": "csdi-building",
+      "distance": 1832.27,
+      "lateral": -99.7,
+      "width": 11.197,
+      "depth": 15.843,
+      "height": 31.237,
+      "baseHeight": 9.419,
+      "category": "tower",
+      "name": "Grand Pacific Views Block 5",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-28290",
+      "sourceId": "csdi-building",
+      "distance": 1841.771,
+      "lateral": -99.331,
+      "width": 9.414,
+      "depth": 16.114,
+      "height": 31.275,
+      "baseHeight": 9.419,
+      "category": "tower",
+      "name": "Grand Pacific Views Block 3",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-120233",
+      "sourceId": "csdi-building",
+      "distance": 1843.729,
+      "lateral": -120.47,
+      "width": 12.609,
+      "depth": 10.918,
+      "height": 30.14,
+      "baseHeight": 9.419,
+      "category": "tower",
+      "name": "Grand Pacific Heights Block 10",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-258974",
+      "sourceId": "csdi-building",
+      "distance": 1849.562,
+      "lateral": -108.211,
+      "width": 12.494,
+      "depth": 9.882,
+      "height": 30.14,
+      "baseHeight": 9.419,
+      "category": "tower",
+      "name": "Grand Pacific Heights Block 9",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-260224",
+      "sourceId": "csdi-building",
+      "distance": 1851.705,
+      "lateral": -95.889,
+      "width": 9.847,
+      "depth": 6.46,
+      "height": 29.081,
+      "baseHeight": 9.419,
+      "category": "tower",
+      "name": "Grand Pacific Heights Block 7",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-274015",
+      "sourceId": "csdi-building",
+      "distance": 1851.705,
+      "lateral": -96.479,
+      "width": 10.464,
+      "depth": 7.644,
+      "height": 29.081,
+      "baseHeight": 9.419,
+      "category": "tower",
+      "name": "Grand Pacific Heights Block 8",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-160935",
+      "sourceId": "csdi-building",
+      "distance": 1853.799,
+      "lateral": -99.253,
+      "width": 9.184,
+      "depth": 16.067,
+      "height": 31.085,
+      "baseHeight": 9.419,
+      "category": "tower",
+      "name": "Grand Pacific Views Block 2",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-137054",
+      "sourceId": "csdi-building",
+      "distance": 1867.303,
+      "lateral": -99.56,
+      "width": 10.385,
+      "depth": 16.055,
+      "height": 31.161,
+      "baseHeight": 9.419,
+      "category": "tower",
+      "name": "Grand Pacific Views Block 1",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-313050",
+      "sourceId": "csdi-building",
+      "distance": 1877.706,
+      "lateral": 38.847,
+      "width": 4.905,
+      "depth": 4.5,
+      "height": 5.332,
+      "baseHeight": 7.187,
+      "category": "lowrise",
+      "name": "H9",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-141785",
+      "sourceId": "csdi-building",
+      "distance": 1883.777,
+      "lateral": -99.772,
+      "width": 18.894,
+      "depth": 4.998,
+      "height": 5.219,
+      "baseHeight": 10.288,
+      "category": "lowrise",
+      "name": "Siu Lam Psychiatric Centre Junior Staff Married Quarters",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-231272",
+      "sourceId": "csdi-building",
+      "distance": 1905.362,
+      "lateral": 41.584,
+      "width": 9.413,
+      "depth": 7.543,
+      "height": 5.673,
+      "baseHeight": 16.528,
+      "category": "lowrise",
+      "name": "CSD Married Staff Quarters Block G",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-248091",
+      "sourceId": "csdi-building",
+      "distance": 1915.487,
+      "lateral": -151.274,
+      "width": 12.585,
+      "depth": 9.927,
+      "height": 8.471,
+      "baseHeight": 35.172,
+      "category": "lowrise",
+      "name": "Correctional Services Department Officers' Married Quarters Siu Lam Psychiatric Centre Block B",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-231267",
+      "sourceId": "csdi-building",
+      "distance": 1920.295,
+      "lateral": 40.57,
+      "width": 8.882,
+      "depth": 6.724,
+      "height": 5.635,
+      "baseHeight": 16.528,
+      "category": "lowrise",
+      "name": "CSD Married Staff Quarters Block H",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-304631",
+      "sourceId": "csdi-building",
+      "distance": 1928.835,
+      "lateral": -108.439,
+      "width": 24,
+      "depth": 28,
+      "height": 7.299,
+      "baseHeight": 25.68,
+      "category": "lowrise",
+      "name": "Siu Lam Integrated Rehabilitation Services Complex Low Block",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-304655",
+      "sourceId": "csdi-building",
+      "distance": 1942.021,
+      "lateral": -108.439,
+      "width": 24,
+      "depth": 28,
+      "height": 7.034,
+      "baseHeight": 33.319,
+      "category": "lowrise",
+      "name": "Siu Lam Integrated Rehabilitation Services Complex High Block",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-82603",
+      "sourceId": "csdi-building",
+      "distance": 1965.973,
+      "lateral": 116.453,
+      "width": 14.786,
+      "depth": 15.194,
+      "height": 8.244,
+      "baseHeight": 4.881,
+      "category": "lowrise",
+      "name": "Marine Police West Divisional Headquarters",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-232148",
+      "sourceId": "csdi-building",
+      "distance": 2087.432,
+      "lateral": -93.834,
+      "width": 4.5,
+      "depth": 6.21,
+      "height": 4,
+      "baseHeight": 5.334,
+      "category": "lowrise",
+      "name": "TUEN MUN ROAD BUS-BUS INTERCHANGE (KOWLOON BOUND) PUBLIC TOILET",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-231550",
+      "sourceId": "csdi-building",
+      "distance": 2154.031,
+      "lateral": -96.033,
+      "width": 10.841,
+      "depth": 5.296,
+      "height": 4,
+      "baseHeight": 5.183,
+      "category": "lowrise",
+      "name": "VTC MARITIME SERVICES TRAINING INSTITUTE",
+      "blockType": "Open-sided Structure"
+    },
+    {
+      "id": "csdi-building-231551",
+      "sourceId": "csdi-building",
+      "distance": 2160.229,
+      "lateral": -93.23,
+      "width": 4.636,
+      "depth": 4.5,
+      "height": 4,
+      "baseHeight": 4.729,
+      "category": "lowrise",
+      "name": "VTC MARITIME SERVICES TRAINING INSTITUTE",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-156227",
+      "sourceId": "csdi-building",
+      "distance": 2166.25,
+      "lateral": -93.405,
+      "width": 4.5,
+      "depth": 5.112,
+      "height": 4,
+      "baseHeight": 5.297,
+      "category": "lowrise",
+      "name": "VTC MARITIME SERVICES TRAINING INSTITUTE",
+      "blockType": "Temporary Structure"
+    },
+    {
+      "id": "csdi-building-156223",
+      "sourceId": "csdi-building",
+      "distance": 2172.856,
+      "lateral": -93.182,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 4,
+      "baseHeight": 5.297,
+      "category": "lowrise",
+      "name": "VTC MARITIME SERVICES TRAINING INSTITUTE",
+      "blockType": "Temporary Structure"
+    },
+    {
+      "id": "csdi-building-143451",
+      "sourceId": "csdi-building",
+      "distance": 2172.915,
+      "lateral": -93.587,
+      "width": 4.5,
+      "depth": 5.586,
+      "height": 4,
+      "baseHeight": 3.368,
+      "category": "lowrise",
+      "name": "VTC MARITIME SERVICES TRAINING INSTITUTE",
+      "blockType": "Temporary Structure"
+    },
+    {
+      "id": "csdi-building-166792",
+      "sourceId": "csdi-building",
+      "distance": 2184.923,
+      "lateral": -93.533,
+      "width": 5.448,
+      "depth": 4.5,
+      "height": 4,
+      "baseHeight": 5.486,
+      "category": "lowrise",
+      "name": "VTC MARITIME SERVICES TRAINING INSTITUTE",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-97317",
+      "sourceId": "csdi-building",
+      "distance": 2187.846,
+      "lateral": -94.403,
+      "width": 6.217,
+      "depth": 6.236,
+      "height": 4,
+      "baseHeight": 3.368,
+      "category": "lowrise",
+      "name": "VOCATIONAL TRAINING COUNCIL WOFOO FOUNDATION DR JOSEPH LEE WHOLE PERSON DEVELOPMENT EDUCATION CENTRE",
+      "blockType": "Open-sided Structure"
+    },
+    {
+      "id": "csdi-building-182142",
+      "sourceId": "csdi-building",
+      "distance": 2189.891,
+      "lateral": -94.024,
+      "width": 5.53,
+      "depth": 5.847,
+      "height": 4,
+      "baseHeight": 5.561,
+      "category": "lowrise",
+      "name": "VOCATIONAL TRAINING COUNCIL WOFOO FOUNDATION DR JOSEPH LEE WHOLE PERSON DEVELOPMENT EDUCATION CENTRE",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-97318",
+      "sourceId": "csdi-building",
+      "distance": 2191.585,
+      "lateral": -93.803,
+      "width": 5.443,
+      "depth": 5.313,
+      "height": 4,
+      "baseHeight": 3.368,
+      "category": "lowrise",
+      "name": "VOCATIONAL TRAINING COUNCIL WOFOO FOUNDATION DR JOSEPH LEE WHOLE PERSON DEVELOPMENT EDUCATION CENTRE",
+      "blockType": "Open-sided Structure"
+    },
+    {
+      "id": "csdi-building-182143",
+      "sourceId": "csdi-building",
+      "distance": 2194.149,
+      "lateral": -93.439,
+      "width": 4.881,
+      "depth": 4.846,
+      "height": 4,
+      "baseHeight": 5.561,
+      "category": "lowrise",
+      "name": "VOCATIONAL TRAINING COUNCIL WOFOO FOUNDATION DR JOSEPH LEE WHOLE PERSON DEVELOPMENT EDUCATION CENTRE",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-12973",
+      "sourceId": "csdi-building",
+      "distance": 2197.696,
+      "lateral": -100.846,
+      "width": 15.871,
+      "depth": 14.787,
+      "height": 4,
+      "baseHeight": 4.767,
+      "category": "lowrise",
+      "name": "Professional Development Training Block",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-200994",
+      "sourceId": "csdi-building",
+      "distance": 2203.119,
+      "lateral": -108.439,
+      "width": 24,
+      "depth": 28,
+      "height": 4,
+      "baseHeight": 5.561,
+      "category": "lowrise",
+      "name": "VTC MARITIME SERVICES TRAINING INSTITUTE",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-166145",
+      "sourceId": "csdi-building",
+      "distance": 2208.611,
+      "lateral": -93.182,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 4,
+      "baseHeight": 5.183,
+      "category": "lowrise",
+      "name": "VTC MARITIME SERVICES TRAINING INSTITUTE",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-231072",
+      "sourceId": "csdi-building",
+      "distance": 2217.271,
+      "lateral": -93.182,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 4,
+      "baseHeight": 5.334,
+      "category": "lowrise",
+      "name": "大欖涌天后廟",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-50808",
+      "sourceId": "csdi-building",
+      "distance": 2218.734,
+      "lateral": -93.182,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 4,
+      "baseHeight": 5.561,
+      "category": "lowrise",
+      "name": "VTC MARITIME SERVICES TRAINING INSTITUTE",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-80716",
+      "sourceId": "csdi-building",
+      "distance": 2225.451,
+      "lateral": -96.887,
+      "width": 10.377,
+      "depth": 9.058,
+      "height": 4,
+      "baseHeight": 5.788,
+      "category": "lowrise",
+      "name": "VOCATIONAL TRAINING COUNCIL WOFOO FOUNDATION DR JOSEPH LEE WHOLE PERSON DEVELOPMENT EDUCATION CENTRE",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-288127",
+      "sourceId": "csdi-building",
+      "distance": 2225.734,
+      "lateral": -103.022,
+      "width": 11.735,
+      "depth": 23.25,
+      "height": 4,
+      "baseHeight": 5.788,
+      "category": "lowrise",
+      "name": "VOCATIONAL TRAINING COUNCIL WOFOO FOUNDATION DR JOSEPH LEE WHOLE PERSON DEVELOPMENT EDUCATION CENTRE",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-95257",
+      "sourceId": "csdi-building",
+      "distance": 2242.547,
+      "lateral": -99.084,
+      "width": 13.136,
+      "depth": 12.551,
+      "height": 4,
+      "baseHeight": 5.75,
+      "category": "lowrise",
+      "name": "VOCATIONAL TRAINING COUNCIL WOFOO FOUNDATION DR JOSEPH LEE WHOLE PERSON DEVELOPMENT EDUCATION CENTRE",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-270632",
+      "sourceId": "csdi-building",
+      "distance": 2900.3,
+      "lateral": 64.426,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 4,
+      "baseHeight": 13.541,
+      "category": "lowrise",
+      "name": "Vistacove 9",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-270631",
+      "sourceId": "csdi-building",
+      "distance": 2902.873,
+      "lateral": 64.755,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 4,
+      "baseHeight": 13.314,
+      "category": "lowrise",
+      "name": "Vistacove 8",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-270709",
+      "sourceId": "csdi-building",
+      "distance": 2902.9,
+      "lateral": 59.221,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 4.841,
+      "baseHeight": 13.541,
+      "category": "lowrise",
+      "name": "Vistacove 19",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-270710",
+      "sourceId": "csdi-building",
+      "distance": 2905.345,
+      "lateral": 59.647,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 4.992,
+      "baseHeight": 13.314,
+      "category": "lowrise",
+      "name": "Vistacove 18",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-270714",
+      "sourceId": "csdi-building",
+      "distance": 2905.867,
+      "lateral": 65.893,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 4,
+      "baseHeight": 13.125,
+      "category": "lowrise",
+      "name": "Vistacove 7",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-270711",
+      "sourceId": "csdi-building",
+      "distance": 2908.203,
+      "lateral": 60.76,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 5.181,
+      "baseHeight": 13.125,
+      "category": "lowrise",
+      "name": "Vistacove 17",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-271184",
+      "sourceId": "csdi-building",
+      "distance": 2908.817,
+      "lateral": 67.014,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 4,
+      "baseHeight": 12.898,
+      "category": "lowrise",
+      "name": "Vistacove 6",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-270712",
+      "sourceId": "csdi-building",
+      "distance": 2911.359,
+      "lateral": 62.247,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 5.408,
+      "baseHeight": 12.898,
+      "category": "lowrise",
+      "name": "Vistacove 16",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-271183",
+      "sourceId": "csdi-building",
+      "distance": 2911.595,
+      "lateral": 68.071,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 4,
+      "baseHeight": 12.747,
+      "category": "lowrise",
+      "name": "Vistacove 5",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-270706",
+      "sourceId": "csdi-building",
+      "distance": 2918.007,
+      "lateral": 63.054,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 5.332,
+      "baseHeight": 12.747,
+      "category": "lowrise",
+      "name": "Vistacove 15",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-270713",
+      "sourceId": "csdi-building",
+      "distance": 2922.817,
+      "lateral": 68.591,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 4,
+      "baseHeight": 12.747,
+      "category": "lowrise",
+      "name": "Vistacove 3",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-270634",
+      "sourceId": "csdi-building",
+      "distance": 2924.78,
+      "lateral": 63.093,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 4.727,
+      "baseHeight": 12.747,
+      "category": "lowrise",
+      "name": "Vistacove 12",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-270708",
+      "sourceId": "csdi-building",
+      "distance": 2926.238,
+      "lateral": 69.366,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 4,
+      "baseHeight": 12.898,
+      "category": "lowrise",
+      "name": "Vistacove 2",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-270633",
+      "sourceId": "csdi-building",
+      "distance": 2927.742,
+      "lateral": 63.538,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 4,
+      "baseHeight": 12.898,
+      "category": "lowrise",
+      "name": "Vistacove 11",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-270707",
+      "sourceId": "csdi-building",
+      "distance": 2929.477,
+      "lateral": 70.18,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 4,
+      "baseHeight": 13.049,
+      "category": "lowrise",
+      "name": "Vistacove 1",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-192700",
+      "sourceId": "csdi-building",
+      "distance": 2931.038,
+      "lateral": 71.197,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 4,
+      "baseHeight": 10.629,
+      "category": "lowrise",
+      "name": "Vistacove Substation",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-270705",
+      "sourceId": "csdi-building",
+      "distance": 2931.041,
+      "lateral": 64.49,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 4,
+      "baseHeight": 13.049,
+      "category": "lowrise",
+      "name": "Vistacove 10",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-206436",
+      "sourceId": "csdi-building",
+      "distance": 2945.925,
+      "lateral": 75.449,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 4,
+      "baseHeight": 9.797,
+      "category": "lowrise",
+      "name": "Bayside Villas Refuse Collection Point",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-226511",
+      "sourceId": "csdi-building",
+      "distance": 3137.24,
+      "lateral": 109.621,
+      "width": 10.311,
+      "depth": 11.775,
+      "height": 19.514,
+      "baseHeight": 6.582,
+      "category": "midrise",
+      "name": "Block1",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-274168",
+      "sourceId": "csdi-building",
+      "distance": 3147.77,
+      "lateral": 109.078,
+      "width": 9.821,
+      "depth": 11.581,
+      "height": 19.778,
+      "baseHeight": 6.318,
+      "category": "midrise",
+      "name": "Block2",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-324553",
+      "sourceId": "csdi-building",
+      "distance": 3165.175,
+      "lateral": 75.075,
+      "width": 9.192,
+      "depth": 9.998,
+      "height": 23.749,
+      "baseHeight": 15.734,
+      "category": "midrise",
+      "name": "Perfetto Senso",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-323216",
+      "sourceId": "csdi-building",
+      "distance": 3173.839,
+      "lateral": 81.781,
+      "width": 9.225,
+      "depth": 10.071,
+      "height": 23.749,
+      "baseHeight": 15.696,
+      "category": "midrise",
+      "name": "Perfetto Posto",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-220916",
+      "sourceId": "csdi-building",
+      "distance": 3177.505,
+      "lateral": 43.88,
+      "width": 9.559,
+      "depth": 12.359,
+      "height": 32.144,
+      "baseHeight": 18.041,
+      "category": "tower",
+      "name": "Palace",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-323215",
+      "sourceId": "csdi-building",
+      "distance": 3178.114,
+      "lateral": 87.01,
+      "width": 9.131,
+      "depth": 10.04,
+      "height": 23.749,
+      "baseHeight": 14.6,
+      "category": "midrise",
+      "name": "Unicorn Heights",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-324554",
+      "sourceId": "csdi-building",
+      "distance": 3184.591,
+      "lateral": 93.076,
+      "width": 9.296,
+      "depth": 9.758,
+      "height": 23.749,
+      "baseHeight": 14.562,
+      "category": "midrise",
+      "name": "Triumphant Heights",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-323210",
+      "sourceId": "csdi-building",
+      "distance": 3184.963,
+      "lateral": 108.73,
+      "width": 8.33,
+      "depth": 10.299,
+      "height": 23.636,
+      "baseHeight": 12.141,
+      "category": "midrise",
+      "name": "Savoy Heights",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-219545",
+      "sourceId": "csdi-building",
+      "distance": 3189.459,
+      "lateral": 43.859,
+      "width": 9.298,
+      "depth": 12.317,
+      "height": 32.144,
+      "baseHeight": 17.738,
+      "category": "tower",
+      "name": "Genial",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-324655",
+      "sourceId": "csdi-building",
+      "distance": 3193.911,
+      "lateral": 110.877,
+      "width": 6.586,
+      "depth": 9.735,
+      "height": 23.749,
+      "baseHeight": 12.141,
+      "category": "midrise",
+      "name": "Regent Heights",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-323217",
+      "sourceId": "csdi-building",
+      "distance": 3200.436,
+      "lateral": 110.312,
+      "width": 7.769,
+      "depth": 10.114,
+      "height": 23.9,
+      "baseHeight": 12.141,
+      "category": "midrise",
+      "name": "Queen's Heights",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-219773",
+      "sourceId": "csdi-building",
+      "distance": 3202.816,
+      "lateral": 44.785,
+      "width": 9.632,
+      "depth": 12.338,
+      "height": 32.144,
+      "baseHeight": 16.717,
+      "category": "tower",
+      "name": "Courser",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-220526",
+      "sourceId": "csdi-building",
+      "distance": 3215.705,
+      "lateral": 50.998,
+      "width": 11.979,
+      "depth": 11.827,
+      "height": 32.107,
+      "baseHeight": 15.394,
+      "category": "tower",
+      "name": "Manhattan Heights",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-323213",
+      "sourceId": "csdi-building",
+      "distance": 3223.769,
+      "lateral": 60.587,
+      "width": 11.88,
+      "depth": 11.835,
+      "height": 31.955,
+      "baseHeight": 14.902,
+      "category": "tower",
+      "name": "Lincoln Heights",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-323209",
+      "sourceId": "csdi-building",
+      "distance": 3239.12,
+      "lateral": 70.188,
+      "width": 11.847,
+      "depth": 11.805,
+      "height": 32.22,
+      "baseHeight": 14.448,
+      "category": "tower",
+      "name": "Kingston Heights",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-219548",
+      "sourceId": "csdi-building",
+      "distance": 3252.327,
+      "lateral": 69.981,
+      "width": 11.234,
+      "depth": 12.789,
+      "height": 25.224,
+      "baseHeight": 13.2,
+      "category": "midrise",
+      "name": "Hoover Heights",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-221005",
+      "sourceId": "csdi-building",
+      "distance": 3271.708,
+      "lateral": 64.004,
+      "width": 11.147,
+      "depth": 12.17,
+      "height": 24.921,
+      "baseHeight": 13.2,
+      "category": "midrise",
+      "name": "Grenville Heights",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-219854",
+      "sourceId": "csdi-building",
+      "distance": 3299.657,
+      "lateral": 55.228,
+      "width": 11.058,
+      "depth": 10.868,
+      "height": 24.884,
+      "baseHeight": 13.2,
+      "category": "midrise",
+      "name": "Fontana Heights",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-220953",
+      "sourceId": "csdi-building",
+      "distance": 3336.432,
+      "lateral": 71.747,
+      "width": 24,
+      "depth": 28,
+      "height": 4.5,
+      "baseHeight": 9.646,
+      "category": "lowrise",
+      "name": "Hong Kong Garden Carpark B",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-323206",
+      "sourceId": "csdi-building",
+      "distance": 3347.454,
+      "lateral": 116.519,
+      "width": 10.87,
+      "depth": 13.107,
+      "height": 14.37,
+      "baseHeight": 6.545,
+      "category": "midrise",
+      "name": "Imperial Heights",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-219828",
+      "sourceId": "csdi-building",
+      "distance": 3357.761,
+      "lateral": 59.676,
+      "width": 12.794,
+      "depth": 10.749,
+      "height": 25.224,
+      "baseHeight": 12.784,
+      "category": "midrise",
+      "name": "Estoril Heights",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-73433",
+      "sourceId": "csdi-building",
+      "distance": 3358.941,
+      "lateral": 136.198,
+      "width": 9.034,
+      "depth": 9.488,
+      "height": 20.421,
+      "baseHeight": 6.809,
+      "category": "midrise",
+      "name": "Hong Kong Garden Block 1",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-221008",
+      "sourceId": "csdi-building",
+      "distance": 3360.282,
+      "lateral": 72.812,
+      "width": 12.915,
+      "depth": 10.783,
+      "height": 25.224,
+      "baseHeight": 11.272,
+      "category": "midrise",
+      "name": "Dominion Heights",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-219132",
+      "sourceId": "csdi-building",
+      "distance": 3362.497,
+      "lateral": 86.101,
+      "width": 12.77,
+      "depth": 10.578,
+      "height": 25.224,
+      "baseHeight": 9.646,
+      "category": "midrise",
+      "name": "Carmel Heights",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-74654",
+      "sourceId": "csdi-building",
+      "distance": 3371.823,
+      "lateral": 133.292,
+      "width": 9.063,
+      "depth": 9.467,
+      "height": 20.761,
+      "baseHeight": 6.809,
+      "category": "midrise",
+      "name": "Hong Kong Garden Block 2",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-219154",
+      "sourceId": "csdi-building",
+      "distance": 3374.875,
+      "lateral": 108.439,
+      "width": 22.04,
+      "depth": 28,
+      "height": 5.899,
+      "baseHeight": 6.847,
+      "category": "lowrise",
+      "name": "Hong Kong Garden Carpark A",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-74768",
+      "sourceId": "csdi-building",
+      "distance": 3380.328,
+      "lateral": 131.57,
+      "width": 8.171,
+      "depth": 11.063,
+      "height": 20.951,
+      "baseHeight": 6.809,
+      "category": "midrise",
+      "name": "Hong Kong Garden Block 3",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-74702",
+      "sourceId": "csdi-building",
+      "distance": 3388.696,
+      "lateral": 95.398,
+      "width": 8.897,
+      "depth": 8.363,
+      "height": 24.921,
+      "baseHeight": 8.171,
+      "category": "midrise",
+      "name": "Hong Kong Garden Block 6",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-74658",
+      "sourceId": "csdi-building",
+      "distance": 3388.696,
+      "lateral": 107.659,
+      "width": 8.861,
+      "depth": 8.36,
+      "height": 24.884,
+      "baseHeight": 7.414,
+      "category": "midrise",
+      "name": "Hong Kong Garden Block 5",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-74699",
+      "sourceId": "csdi-building",
+      "distance": 3388.696,
+      "lateral": 131.224,
+      "width": 7.924,
+      "depth": 11.023,
+      "height": 20.761,
+      "baseHeight": 6.809,
+      "category": "midrise",
+      "name": "Hong Kong Garden Block 4",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-336819",
+      "sourceId": "csdi-building",
+      "distance": 3397.44,
+      "lateral": 127.838,
+      "width": 5.655,
+      "depth": 13.435,
+      "height": 13.69,
+      "baseHeight": 6.582,
+      "category": "lowrise",
+      "name": "Lung Tang Court Block A",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-110875",
+      "sourceId": "csdi-building",
+      "distance": 3399.26,
+      "lateral": 106.287,
+      "width": 12.253,
+      "depth": 14.631,
+      "height": 28.174,
+      "baseHeight": 10.515,
+      "category": "tower",
+      "name": "Royal Sea Crest Tower 2",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-336818",
+      "sourceId": "csdi-building",
+      "distance": 3402.813,
+      "lateral": 127.954,
+      "width": 5.607,
+      "depth": 13.483,
+      "height": 13.576,
+      "baseHeight": 6.582,
+      "category": "lowrise",
+      "name": "Lung Tang Court Block B",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-110979",
+      "sourceId": "csdi-building",
+      "distance": 3409.553,
+      "lateral": 99.037,
+      "width": 11.642,
+      "depth": 15.341,
+      "height": 28.136,
+      "baseHeight": 10.515,
+      "category": "tower",
+      "name": "Royal Sea Crest Tower 1",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-248897",
+      "sourceId": "csdi-building",
+      "distance": 3418.829,
+      "lateral": 93.95,
+      "width": 4.5,
+      "depth": 6.946,
+      "height": 4,
+      "baseHeight": 7.679,
+      "category": "lowrise",
+      "name": "Tsing Lung Tau Sub-station",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-235241",
+      "sourceId": "csdi-building",
+      "distance": 3432.566,
+      "lateral": 90.147,
+      "width": 4.5,
+      "depth": 4.978,
+      "height": 4,
+      "baseHeight": 8.549,
+      "category": "lowrise",
+      "name": "Lung Yue Road Public Toilet",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-74765",
+      "sourceId": "csdi-building",
+      "distance": 3624.706,
+      "lateral": 117.477,
+      "width": 9.21,
+      "depth": 12.73,
+      "height": 27.984,
+      "baseHeight": 20.65,
+      "category": "midrise",
+      "name": "Sea Crest Villa Phase 4 Block 13",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-74659",
+      "sourceId": "csdi-building",
+      "distance": 3632.103,
+      "lateral": 109.518,
+      "width": 9.774,
+      "depth": 12.108,
+      "height": 35.056,
+      "baseHeight": 20.65,
+      "category": "tower",
+      "name": "Sea Crest Villa Phase 4 Block 12",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-74770",
+      "sourceId": "csdi-building",
+      "distance": 3639.036,
+      "lateral": 99.633,
+      "width": 10.575,
+      "depth": 11.298,
+      "height": 32.069,
+      "baseHeight": 20.65,
+      "category": "tower",
+      "name": "Sea Crest Villa Phase 4 Block 11",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-219354",
+      "sourceId": "csdi-building",
+      "distance": 3646.228,
+      "lateral": -101.857,
+      "width": 18.356,
+      "depth": 15.014,
+      "height": 4.349,
+      "baseHeight": 46.63,
+      "category": "lowrise",
+      "name": "Sham Tseng Treatment Works",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-73436",
+      "sourceId": "csdi-building",
+      "distance": 3707.33,
+      "lateral": 98.451,
+      "width": 8.39,
+      "depth": 13.625,
+      "height": 27.984,
+      "baseHeight": 15.621,
+      "category": "midrise",
+      "name": "Sea Crest Villa Phase 3 Block 10",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-73437",
+      "sourceId": "csdi-building",
+      "distance": 3719.711,
+      "lateral": 102.572,
+      "width": 7.75,
+      "depth": 13.971,
+      "height": 35.283,
+      "baseHeight": 15.621,
+      "category": "tower",
+      "name": "Sea Crest Villa Phase 3 Block 9",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-74652",
+      "sourceId": "csdi-building",
+      "distance": 3731.869,
+      "lateral": 102.378,
+      "width": 7.645,
+      "depth": 13.988,
+      "height": 35.283,
+      "baseHeight": 15.621,
+      "category": "tower",
+      "name": "Sea Crest Villa Phase 3 Block 8",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-74700",
+      "sourceId": "csdi-building",
+      "distance": 3750.915,
+      "lateral": 99.36,
+      "width": 8.335,
+      "depth": 13.667,
+      "height": 27.947,
+      "baseHeight": 15.621,
+      "category": "midrise",
+      "name": "Sea Crest Villa Phase 3 Block 7",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-114766",
+      "sourceId": "csdi-building",
+      "distance": 3776.237,
+      "lateral": 42.922,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 4,
+      "baseHeight": 21.52,
+      "category": "lowrise",
+      "name": "深井排棉角村合作社青年康樂中心",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-267151",
+      "sourceId": "csdi-building",
+      "distance": 3796.221,
+      "lateral": 56.302,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 4,
+      "baseHeight": 14.335,
+      "category": "lowrise",
+      "name": "Pai Min Kok Village Village Office",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-262616",
+      "sourceId": "csdi-building",
+      "distance": 3812.548,
+      "lateral": 52.404,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 4,
+      "baseHeight": 13.2,
+      "category": "lowrise",
+      "name": "排棉角村龍子苑",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-218965",
+      "sourceId": "csdi-building",
+      "distance": 3840.915,
+      "lateral": 50.122,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 4,
+      "baseHeight": 23.297,
+      "category": "lowrise",
+      "name": "Sea Crest Villa Phase II Block 6",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-74461",
+      "sourceId": "csdi-building",
+      "distance": 3841.352,
+      "lateral": 53.902,
+      "width": 9.699,
+      "depth": 13.284,
+      "height": 33.619,
+      "baseHeight": 23.827,
+      "category": "tower",
+      "name": "Sea Crest Villa Phase 2 Block 6",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-218209",
+      "sourceId": "csdi-building",
+      "distance": 3852.017,
+      "lateral": 44.537,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 4,
+      "baseHeight": 23.297,
+      "category": "lowrise",
+      "name": "Sea Crest Villa Phase II Block 5",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-74522",
+      "sourceId": "csdi-building",
+      "distance": 3856.627,
+      "lateral": 46.204,
+      "width": 9.718,
+      "depth": 13.287,
+      "height": 33.657,
+      "baseHeight": 23.827,
+      "category": "tower",
+      "name": "Sea Crest Villa Phase 2 Block 5",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-218952",
+      "sourceId": "csdi-building",
+      "distance": 3874.648,
+      "lateral": 54.492,
+      "width": 9.864,
+      "depth": 11.619,
+      "height": 37.287,
+      "baseHeight": 23.033,
+      "category": "tower",
+      "name": "Anglers' Bay Tower 1",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-248385",
+      "sourceId": "csdi-building",
+      "distance": 3881.914,
+      "lateral": 48.409,
+      "width": 9.444,
+      "depth": 11.921,
+      "height": 37.287,
+      "baseHeight": 23.033,
+      "category": "tower",
+      "name": "Anglers' Bay Tower 2",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-74460",
+      "sourceId": "csdi-building",
+      "distance": 3898.927,
+      "lateral": 42.403,
+      "width": 10.705,
+      "depth": 10.229,
+      "height": 42.582,
+      "baseHeight": 22.276,
+      "category": "tower",
+      "name": "Sea Crest Villa Phase 1 Block 4",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-74462",
+      "sourceId": "csdi-building",
+      "distance": 3906.846,
+      "lateral": 42.294,
+      "width": 10.985,
+      "depth": 9.599,
+      "height": 41.485,
+      "baseHeight": 22.276,
+      "category": "tower",
+      "name": "Sea Crest Villa Phase 1 Block 3",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-74463",
+      "sourceId": "csdi-building",
+      "distance": 3911.805,
+      "lateral": 42.707,
+      "width": 11.237,
+      "depth": 10.55,
+      "height": 40.237,
+      "baseHeight": 22.276,
+      "category": "tower",
+      "name": "Sea Crest Villa Phase 1 Block 2",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-74465",
+      "sourceId": "csdi-building",
+      "distance": 3921.938,
+      "lateral": 43.618,
+      "width": 11.439,
+      "depth": 11.071,
+      "height": 39.405,
+      "baseHeight": 22.276,
+      "category": "tower",
+      "name": "Sea Crest Villa Phase 1 Block 1",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-220140",
+      "sourceId": "csdi-building",
+      "distance": 3950.957,
+      "lateral": 65.963,
+      "width": 11.389,
+      "depth": 11.906,
+      "height": 37.968,
+      "baseHeight": 7.377,
+      "category": "tower",
+      "name": "Lido Garden Tower 1",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-220044",
+      "sourceId": "csdi-building",
+      "distance": 3958.338,
+      "lateral": 67.488,
+      "width": 11.714,
+      "depth": 12.105,
+      "height": 38.157,
+      "baseHeight": 7.377,
+      "category": "tower",
+      "name": "Lido Garden Tower 2",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-219040",
+      "sourceId": "csdi-building",
+      "distance": 3967.491,
+      "lateral": 69.326,
+      "width": 11.813,
+      "depth": 11.959,
+      "height": 38.006,
+      "baseHeight": 7.377,
+      "category": "tower",
+      "name": "Lido Garden Tower 3",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-219728",
+      "sourceId": "csdi-building",
+      "distance": 3977.132,
+      "lateral": 71.446,
+      "width": 11.825,
+      "depth": 12.092,
+      "height": 37.93,
+      "baseHeight": 7.377,
+      "category": "tower",
+      "name": "Lido Garden Tower 4",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-219315",
+      "sourceId": "csdi-building",
+      "distance": 3988.997,
+      "lateral": 74.088,
+      "width": 11.936,
+      "depth": 12.043,
+      "height": 37.93,
+      "baseHeight": 7.377,
+      "category": "tower",
+      "name": "Lido Garden Tower 5",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-210683",
+      "sourceId": "csdi-building",
+      "distance": 4012.84,
+      "lateral": 81.105,
+      "width": 12.562,
+      "depth": 14.229,
+      "height": 62.587,
+      "baseHeight": 14.259,
+      "category": "tower",
+      "name": "Bellagio Tower 9",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-219429",
+      "sourceId": "csdi-building",
+      "distance": 4024.779,
+      "lateral": 84.4,
+      "width": 12.601,
+      "depth": 14.202,
+      "height": 62.36,
+      "baseHeight": 14.259,
+      "category": "tower",
+      "name": "Bellagio Tower 8",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-15748",
+      "sourceId": "csdi-building",
+      "distance": 4027.994,
+      "lateral": 59.207,
+      "width": 24,
+      "depth": 28,
+      "height": 7.336,
+      "baseHeight": 5.448,
+      "category": "lowrise",
+      "name": "Sham Tseng Catholic Primary School",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-219352",
+      "sourceId": "csdi-building",
+      "distance": 4038.583,
+      "lateral": 89.635,
+      "width": 12.813,
+      "depth": 13.671,
+      "height": 61.263,
+      "baseHeight": 14.259,
+      "category": "tower",
+      "name": "Bellagio Tower 7",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-220126",
+      "sourceId": "csdi-building",
+      "distance": 4052.668,
+      "lateral": 97.847,
+      "width": 12.443,
+      "depth": 12.787,
+      "height": 60.545,
+      "baseHeight": 14.259,
+      "category": "tower",
+      "name": "Bellagio Tower 6",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-218082",
+      "sourceId": "csdi-building",
+      "distance": 4064.637,
+      "lateral": 43.987,
+      "width": 11.614,
+      "depth": 13.719,
+      "height": 39.783,
+      "baseHeight": 8.473,
+      "category": "tower",
+      "name": "Rhine Garden Block 1",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-218073",
+      "sourceId": "csdi-building",
+      "distance": 4089.413,
+      "lateral": 44.062,
+      "width": 11.927,
+      "depth": 13.645,
+      "height": 39.67,
+      "baseHeight": 8.473,
+      "category": "tower",
+      "name": "Rhine Garden Block 2",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-218053",
+      "sourceId": "csdi-building",
+      "distance": 4114.769,
+      "lateral": 43.227,
+      "width": 10.182,
+      "depth": 12.925,
+      "height": 38.611,
+      "baseHeight": 8.473,
+      "category": "tower",
+      "name": "Rhine Garden Block 3",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-218570",
+      "sourceId": "csdi-building",
+      "distance": 4135.226,
+      "lateral": 43.351,
+      "width": 10.438,
+      "depth": 13.038,
+      "height": 39.746,
+      "baseHeight": 8.473,
+      "category": "tower",
+      "name": "Rhine Garden Block 4",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-218203",
+      "sourceId": "csdi-building",
+      "distance": 4163.563,
+      "lateral": 43.289,
+      "width": 10.398,
+      "depth": 12.912,
+      "height": 39.481,
+      "baseHeight": 8.473,
+      "category": "tower",
+      "name": "Rhine Garden Block 5",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-210673",
+      "sourceId": "csdi-building",
+      "distance": 4209.953,
+      "lateral": 102.609,
+      "width": 13.33,
+      "depth": 14.697,
+      "height": 59.978,
+      "baseHeight": 14.259,
+      "category": "tower",
+      "name": "Bellagio Tower 5",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-248197",
+      "sourceId": "csdi-building",
+      "distance": 4212.453,
+      "lateral": 41.633,
+      "width": 9.893,
+      "depth": 8.838,
+      "height": 6.807,
+      "baseHeight": 6.318,
+      "category": "lowrise",
+      "name": "Sham Tseng Fire Station Cum Ambulance Depot",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-218656",
+      "sourceId": "csdi-building",
+      "distance": 4220.694,
+      "lateral": 110.189,
+      "width": 13.886,
+      "depth": 14.418,
+      "height": 61.036,
+      "baseHeight": 14.259,
+      "category": "tower",
+      "name": "Bellagio Tower 3",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-330984",
+      "sourceId": "csdi-building",
+      "distance": 4223.446,
+      "lateral": 71.787,
+      "width": 24,
+      "depth": 28,
+      "height": 6.731,
+      "baseHeight": 5.221,
+      "category": "lowrise",
+      "name": "The Garden Co. Ltd",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-219442",
+      "sourceId": "csdi-building",
+      "distance": 4229.824,
+      "lateral": 119.995,
+      "width": 14.022,
+      "depth": 14.241,
+      "height": 62.095,
+      "baseHeight": 14.259,
+      "category": "tower",
+      "name": "Bellagio Tower 2",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-218979",
+      "sourceId": "csdi-building",
+      "distance": 4235.541,
+      "lateral": 126.499,
+      "width": 15.233,
+      "depth": 14.69,
+      "height": 62.133,
+      "baseHeight": 14.259,
+      "category": "tower",
+      "name": "Bellagio Tower 1",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-220146",
+      "sourceId": "csdi-building",
+      "distance": 4241.909,
+      "lateral": 38.182,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 4,
+      "baseHeight": 3.368,
+      "category": "lowrise",
+      "name": "RHINE TERRACE",
+      "blockType": "Open-sided Structure"
+    },
+    {
+      "id": "csdi-building-218635",
+      "sourceId": "csdi-building",
+      "distance": 4242.378,
+      "lateral": 44.18,
+      "width": 13.935,
+      "depth": 11.954,
+      "height": 34.413,
+      "baseHeight": 20.612,
+      "category": "tower",
+      "name": "Rhine Terrace",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-220041",
+      "sourceId": "csdi-building",
+      "distance": 4244.176,
+      "lateral": 38.182,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 4,
+      "baseHeight": 20.234,
+      "category": "lowrise",
+      "name": "RHINE TERRACE",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-219008",
+      "sourceId": "csdi-building",
+      "distance": 4246.424,
+      "lateral": 113.025,
+      "width": 7.996,
+      "depth": 12.031,
+      "height": 62.398,
+      "baseHeight": 10.667,
+      "category": "tower",
+      "name": "Ocean Pointe Tower 1",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-230953",
+      "sourceId": "csdi-building",
+      "distance": 4248.422,
+      "lateral": 52.388,
+      "width": 24,
+      "depth": 25.166,
+      "height": 14.597,
+      "baseHeight": 6.015,
+      "category": "midrise",
+      "name": "RHINE TERRACE",
+      "blockType": "Podium"
+    },
+    {
+      "id": "csdi-building-219285",
+      "sourceId": "csdi-building",
+      "distance": 4257.937,
+      "lateral": 110.371,
+      "width": 10.409,
+      "depth": 10.453,
+      "height": 62.436,
+      "baseHeight": 10.667,
+      "category": "tower",
+      "name": "Ocean Pointe Tower 2",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-218953",
+      "sourceId": "csdi-building",
+      "distance": 4258.251,
+      "lateral": 97.109,
+      "width": 12.492,
+      "depth": 7.21,
+      "height": 62.284,
+      "baseHeight": 10.667,
+      "category": "tower",
+      "name": "Ocean Pointe Tower 3",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-219093",
+      "sourceId": "csdi-building",
+      "distance": 4267.279,
+      "lateral": 76.837,
+      "width": 24,
+      "depth": 28,
+      "height": 26.094,
+      "baseHeight": 4.881,
+      "category": "midrise",
+      "name": "The Garden Co. Ltd",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-1936",
+      "sourceId": "csdi-building",
+      "distance": 4306.427,
+      "lateral": -93.182,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 4,
+      "baseHeight": 30.861,
+      "category": "lowrise",
+      "name": "Sham Tseng East Tsuen Public Toilet",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-219356",
+      "sourceId": "csdi-building",
+      "distance": 4307.864,
+      "lateral": -93.182,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 4,
+      "baseHeight": 31.617,
+      "category": "lowrise",
+      "name": "深井東村康樂中心",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-219551",
+      "sourceId": "csdi-building",
+      "distance": 4310.699,
+      "lateral": 88.505,
+      "width": 15.763,
+      "depth": 8.88,
+      "height": 7.374,
+      "baseHeight": 5.297,
+      "category": "lowrise",
+      "name": "Sham Tseng Substation",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-324918",
+      "sourceId": "csdi-building",
+      "distance": 4319.709,
+      "lateral": 38.182,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 4,
+      "baseHeight": 24.583,
+      "category": "lowrise",
+      "name": "天水山莊",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-219471",
+      "sourceId": "csdi-building",
+      "distance": 4528.31,
+      "lateral": 42.031,
+      "width": 6.708,
+      "depth": 12.358,
+      "height": 4,
+      "baseHeight": 23.108,
+      "category": "lowrise",
+      "name": "FUNG LOI",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-336664",
+      "sourceId": "csdi-building",
+      "distance": 4606.185,
+      "lateral": 61.767,
+      "width": 4.871,
+      "depth": 5.258,
+      "height": 4,
+      "baseHeight": 18.079,
+      "category": "lowrise",
+      "name": "Vista Del Mar 1",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-336809",
+      "sourceId": "csdi-building",
+      "distance": 4606.615,
+      "lateral": 39.387,
+      "width": 6.345,
+      "depth": 5.037,
+      "height": 4,
+      "baseHeight": 21.444,
+      "category": "lowrise",
+      "name": "Vista Del Mar House 7",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-336807",
+      "sourceId": "csdi-building",
+      "distance": 4608.523,
+      "lateral": 40.145,
+      "width": 7.453,
+      "depth": 7.094,
+      "height": 4,
+      "baseHeight": 21.444,
+      "category": "lowrise",
+      "name": "Vista Del Mar 8-9",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-336661",
+      "sourceId": "csdi-building",
+      "distance": 4611.256,
+      "lateral": 59.903,
+      "width": 7.207,
+      "depth": 7.94,
+      "height": 4,
+      "baseHeight": 18.079,
+      "category": "lowrise",
+      "name": "Vista Del Mar House 2-3",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-336808",
+      "sourceId": "csdi-building",
+      "distance": 4615.042,
+      "lateral": 47.752,
+      "width": 5.848,
+      "depth": 5.133,
+      "height": 4,
+      "baseHeight": 19.894,
+      "category": "lowrise",
+      "name": "Vista Del Mar 4",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-336803",
+      "sourceId": "csdi-building",
+      "distance": 4616.683,
+      "lateral": 42.69,
+      "width": 7.635,
+      "depth": 7.105,
+      "height": 4,
+      "baseHeight": 19.894,
+      "category": "lowrise",
+      "name": "Vista Del Mar 5-6",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-219453",
+      "sourceId": "csdi-building",
+      "distance": 4628.175,
+      "lateral": 79.404,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 4,
+      "baseHeight": 9.721,
+      "category": "lowrise",
+      "name": "Casam Sewage Pumping Station",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-220040",
+      "sourceId": "csdi-building",
+      "distance": 4632.613,
+      "lateral": 97.919,
+      "width": 5.057,
+      "depth": 5.37,
+      "height": 4,
+      "baseHeight": 6.015,
+      "category": "lowrise",
+      "name": "CASAM BEACH",
+      "blockType": "Open-sided Structure"
+    },
+    {
+      "id": "csdi-building-219625",
+      "sourceId": "csdi-building",
+      "distance": 4633.659,
+      "lateral": 96.966,
+      "width": 4.892,
+      "depth": 4.911,
+      "height": 4,
+      "baseHeight": 6.015,
+      "category": "lowrise",
+      "name": "Casam Beach Shed 5",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-218668",
+      "sourceId": "csdi-building",
+      "distance": 4634.517,
+      "lateral": 65.018,
+      "width": 6.339,
+      "depth": 8.775,
+      "height": 4,
+      "baseHeight": 14.259,
+      "category": "lowrise",
+      "name": "Villamar",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-210669",
+      "sourceId": "csdi-building",
+      "distance": 4640.763,
+      "lateral": 108.502,
+      "width": 4.763,
+      "depth": 4.5,
+      "height": 4,
+      "baseHeight": 4.956,
+      "category": "lowrise",
+      "name": "Casam Beach Shed 4",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-238634",
+      "sourceId": "csdi-building",
+      "distance": 4658.437,
+      "lateral": 117.016,
+      "width": 7.021,
+      "depth": 10.175,
+      "height": 5.181,
+      "baseHeight": 8.624,
+      "category": "lowrise",
+      "name": "Riviera Apartment",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-238610",
+      "sourceId": "csdi-building",
+      "distance": 4677.859,
+      "lateral": 104.024,
+      "width": 8.611,
+      "depth": 6.43,
+      "height": 4,
+      "baseHeight": 13.427,
+      "category": "lowrise",
+      "name": "Edinburgh Villa",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-287235",
+      "sourceId": "csdi-building",
+      "distance": 4686.046,
+      "lateral": 112.816,
+      "width": 4.503,
+      "depth": 5.299,
+      "height": 4,
+      "baseHeight": 18.646,
+      "category": "lowrise",
+      "name": "House G",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-287231",
+      "sourceId": "csdi-building",
+      "distance": 4689.144,
+      "lateral": 108.562,
+      "width": 4.632,
+      "depth": 5.218,
+      "height": 4,
+      "baseHeight": 22.768,
+      "category": "lowrise",
+      "name": "House A",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-287183",
+      "sourceId": "csdi-building",
+      "distance": 4693.492,
+      "lateral": 111.685,
+      "width": 4.535,
+      "depth": 4.5,
+      "height": 4,
+      "baseHeight": 22.768,
+      "category": "lowrise",
+      "name": "House B",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-287181",
+      "sourceId": "csdi-building",
+      "distance": 4696.955,
+      "lateral": 113.759,
+      "width": 4.535,
+      "depth": 4.5,
+      "height": 4,
+      "baseHeight": 22.768,
+      "category": "lowrise",
+      "name": "House C",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-219627",
+      "sourceId": "csdi-building",
+      "distance": 4900.872,
+      "lateral": 163.782,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 62.209,
+      "baseHeight": 6.204,
+      "category": "tower",
+      "name": null,
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-336526",
+      "sourceId": "csdi-building",
+      "distance": 4906.925,
+      "lateral": 130.537,
+      "width": 24,
+      "depth": 27.418,
+      "height": 17.244,
+      "baseHeight": 15.129,
+      "category": "midrise",
+      "name": "Royal View Hotel",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-217629",
+      "sourceId": "csdi-building",
+      "distance": 4913.463,
+      "lateral": 52.52,
+      "width": 4.639,
+      "depth": 4.5,
+      "height": 4.311,
+      "baseHeight": 17.549,
+      "category": "lowrise",
+      "name": "Lindo Green Lam's",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-271237",
+      "sourceId": "csdi-building",
+      "distance": 4918.793,
+      "lateral": 53.717,
+      "width": 4.5,
+      "depth": 4.755,
+      "height": 4.198,
+      "baseHeight": 17.549,
+      "category": "lowrise",
+      "name": "Lindo Green Block B",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-17807",
+      "sourceId": "csdi-building",
+      "distance": 4982.555,
+      "lateral": 38.229,
+      "width": 4.5,
+      "depth": 4.632,
+      "height": 4,
+      "baseHeight": 19.44,
+      "category": "lowrise",
+      "name": "Vodana Court",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-217313",
+      "sourceId": "csdi-building",
+      "distance": 5004.511,
+      "lateral": 39.759,
+      "width": 6.359,
+      "depth": 7.081,
+      "height": 4,
+      "baseHeight": 16.679,
+      "category": "lowrise",
+      "name": "The Wonderland",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-217152",
+      "sourceId": "csdi-building",
+      "distance": 5005.449,
+      "lateral": 78.293,
+      "width": 12.014,
+      "depth": 12.228,
+      "height": 7.185,
+      "baseHeight": 8.133,
+      "category": "lowrise",
+      "name": "Ting Kau Villa",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-131124",
+      "sourceId": "csdi-building",
+      "distance": 5005.613,
+      "lateral": 42.717,
+      "width": 10.323,
+      "depth": 11.475,
+      "height": 4,
+      "baseHeight": 14.637,
+      "category": "lowrise",
+      "name": "HILLSIDE",
+      "blockType": "Podium"
+    },
+    {
+      "id": "csdi-building-217088",
+      "sourceId": "csdi-building",
+      "distance": 5027.171,
+      "lateral": 40.947,
+      "width": 6.569,
+      "depth": 9.916,
+      "height": 4,
+      "baseHeight": 19.402,
+      "category": "lowrise",
+      "name": "La Casetta",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-15757",
+      "sourceId": "csdi-building",
+      "distance": 5073.361,
+      "lateral": 85.243,
+      "width": 4.64,
+      "depth": 4.5,
+      "height": 5.294,
+      "baseHeight": 4.994,
+      "category": "lowrise",
+      "name": "Royal Dragon Villa Block 5",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-15680",
+      "sourceId": "csdi-building",
+      "distance": 5074.363,
+      "lateral": 83.666,
+      "width": 4.64,
+      "depth": 4.5,
+      "height": 5.105,
+      "baseHeight": 4.994,
+      "category": "lowrise",
+      "name": "Royal Dragon Villa Block 6",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-15678",
+      "sourceId": "csdi-building",
+      "distance": 5074.363,
+      "lateral": 61.157,
+      "width": 5.684,
+      "depth": 4.5,
+      "height": 4.387,
+      "baseHeight": 7.15,
+      "category": "lowrise",
+      "name": "Royal Dragon Villa Block 1",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-15687",
+      "sourceId": "csdi-building",
+      "distance": 5075.759,
+      "lateral": 82.295,
+      "width": 4.677,
+      "depth": 4.5,
+      "height": 5.03,
+      "baseHeight": 4.994,
+      "category": "lowrise",
+      "name": "Royal Dragon Villa Block 7",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-15686",
+      "sourceId": "csdi-building",
+      "distance": 5077.161,
+      "lateral": 61.419,
+      "width": 5.667,
+      "depth": 4.5,
+      "height": 4.387,
+      "baseHeight": 6.998,
+      "category": "lowrise",
+      "name": "Royal Dragon Villa Block 2",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-15690",
+      "sourceId": "csdi-building",
+      "distance": 5078.181,
+      "lateral": 80.709,
+      "width": 4.665,
+      "depth": 4.5,
+      "height": 4.992,
+      "baseHeight": 4.994,
+      "category": "lowrise",
+      "name": "Royal Dragon Villa Block 8",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-15756",
+      "sourceId": "csdi-building",
+      "distance": 5079.412,
+      "lateral": 63.142,
+      "width": 5.667,
+      "depth": 4.5,
+      "height": 4.387,
+      "baseHeight": 6.582,
+      "category": "lowrise",
+      "name": "Royal Dragon Villa Block 3",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-334505",
+      "sourceId": "csdi-building",
+      "distance": 5083.963,
+      "lateral": 56.047,
+      "width": 6.994,
+      "depth": 5.988,
+      "height": 4.878,
+      "baseHeight": 8.398,
+      "category": "lowrise",
+      "name": "Villa Mecmar",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-295765",
+      "sourceId": "csdi-building",
+      "distance": 5090.868,
+      "lateral": 62.811,
+      "width": 5.914,
+      "depth": 5.133,
+      "height": 5.332,
+      "baseHeight": 6.582,
+      "category": "lowrise",
+      "name": "Eaglet House",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-217723",
+      "sourceId": "csdi-building",
+      "distance": 5100.258,
+      "lateral": 59.41,
+      "width": 8.838,
+      "depth": 9.372,
+      "height": 4,
+      "baseHeight": 7.339,
+      "category": "lowrise",
+      "name": "The Haven",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-218097",
+      "sourceId": "csdi-building",
+      "distance": 5108.923,
+      "lateral": 59.327,
+      "width": 4.5,
+      "depth": 5.783,
+      "height": 4,
+      "baseHeight": 7.301,
+      "category": "lowrise",
+      "name": "Anton Villa",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-218534",
+      "sourceId": "csdi-building",
+      "distance": 5111.031,
+      "lateral": 56.515,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 4,
+      "baseHeight": 7.301,
+      "category": "lowrise",
+      "name": "ANTON VILLA",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-218412",
+      "sourceId": "csdi-building",
+      "distance": 5116.496,
+      "lateral": 56.415,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 4,
+      "baseHeight": 7.944,
+      "category": "lowrise",
+      "name": "ROSE VILLA",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-219274",
+      "sourceId": "csdi-building",
+      "distance": 5119.34,
+      "lateral": 62.833,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 4,
+      "baseHeight": 5.75,
+      "category": "lowrise",
+      "name": "MING VILLA",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-218054",
+      "sourceId": "csdi-building",
+      "distance": 5120.423,
+      "lateral": 59.143,
+      "width": 4.5,
+      "depth": 6.4,
+      "height": 4.198,
+      "baseHeight": 7.301,
+      "category": "lowrise",
+      "name": "Rose Villa",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-219261",
+      "sourceId": "csdi-building",
+      "distance": 5127.377,
+      "lateral": 59.709,
+      "width": 4.838,
+      "depth": 5.469,
+      "height": 4,
+      "baseHeight": 6.318,
+      "category": "lowrise",
+      "name": "Lan Kwa Villa",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-74403",
+      "sourceId": "csdi-building",
+      "distance": 5133.651,
+      "lateral": 60.07,
+      "width": 4.5,
+      "depth": 6.248,
+      "height": 4.122,
+      "baseHeight": 6.28,
+      "category": "lowrise",
+      "name": "謙廬",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-218035",
+      "sourceId": "csdi-building",
+      "distance": 5139.81,
+      "lateral": 61.619,
+      "width": 4.843,
+      "depth": 5.651,
+      "height": 4,
+      "baseHeight": 6.28,
+      "category": "lowrise",
+      "name": "森苑",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-218591",
+      "sourceId": "csdi-building",
+      "distance": 5335.353,
+      "lateral": 61.049,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 4,
+      "baseHeight": 8.398,
+      "category": "lowrise",
+      "name": "Approach Beach Refuse Collection Point",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-220045",
+      "sourceId": "csdi-building",
+      "distance": 5338.54,
+      "lateral": 64.752,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 4,
+      "baseHeight": 4.881,
+      "category": "lowrise",
+      "name": "Approach Beach Shed 4",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-218666",
+      "sourceId": "csdi-building",
+      "distance": 5339.835,
+      "lateral": 64.6,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 4,
+      "baseHeight": 4.881,
+      "category": "lowrise",
+      "name": "Approach Beach Shed 3",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-220124",
+      "sourceId": "csdi-building",
+      "distance": 5373.584,
+      "lateral": 40.074,
+      "width": 6.237,
+      "depth": 7.347,
+      "height": 14.635,
+      "baseHeight": 25.377,
+      "category": "midrise",
+      "name": "Keymount Lodge",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-229932",
+      "sourceId": "csdi-building",
+      "distance": 5375.391,
+      "lateral": 45.201,
+      "width": 14.67,
+      "depth": 14.178,
+      "height": 4.462,
+      "baseHeight": 20.915,
+      "category": "lowrise",
+      "name": "KEYMOUNT LODGE",
+      "blockType": "Podium"
+    },
+    {
+      "id": "csdi-building-220119",
+      "sourceId": "csdi-building",
+      "distance": 5378.01,
+      "lateral": 40.442,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 4,
+      "baseHeight": 22.957,
+      "category": "lowrise",
+      "name": "KEYMOUNT LODGE",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-218991",
+      "sourceId": "csdi-building",
+      "distance": 5381.061,
+      "lateral": 43.237,
+      "width": 10.687,
+      "depth": 12.538,
+      "height": 16.677,
+      "baseHeight": 22.957,
+      "category": "midrise",
+      "name": "Sunny Villa Block 1",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-219739",
+      "sourceId": "csdi-building",
+      "distance": 5383.874,
+      "lateral": 49.711,
+      "width": 10.619,
+      "depth": 12.491,
+      "height": 16.715,
+      "baseHeight": 22.957,
+      "category": "midrise",
+      "name": "Sunny Villa Block 2",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-218473",
+      "sourceId": "csdi-building",
+      "distance": 5393.11,
+      "lateral": 50.982,
+      "width": 11.754,
+      "depth": 11.918,
+      "height": 16.829,
+      "baseHeight": 22.957,
+      "category": "midrise",
+      "name": "Sunny Villa Block 3",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-317301",
+      "sourceId": "csdi-building",
+      "distance": 5403.175,
+      "lateral": 126.865,
+      "width": 24,
+      "depth": 28,
+      "height": 15.543,
+      "baseHeight": 10.137,
+      "category": "midrise",
+      "name": "Grand Bay View Hotel",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-220067",
+      "sourceId": "csdi-building",
+      "distance": 5404.54,
+      "lateral": 86.561,
+      "width": 7.814,
+      "depth": 10.096,
+      "height": 34.754,
+      "baseHeight": 19.856,
+      "category": "tower",
+      "name": "Golden Villa Block A",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-218529",
+      "sourceId": "csdi-building",
+      "distance": 5407.051,
+      "lateral": 60.76,
+      "width": 4.71,
+      "depth": 8.816,
+      "height": 29.838,
+      "baseHeight": 23.487,
+      "category": "tower",
+      "name": "Hanley Villa Block 7",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-218624",
+      "sourceId": "csdi-building",
+      "distance": 5411.579,
+      "lateral": 91.231,
+      "width": 8.028,
+      "depth": 10.018,
+      "height": 34.451,
+      "baseHeight": 19.856,
+      "category": "tower",
+      "name": "Golden Villa Block B",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-217712",
+      "sourceId": "csdi-building",
+      "distance": 5413.899,
+      "lateral": 61.475,
+      "width": 5.088,
+      "depth": 8.834,
+      "height": 29.951,
+      "baseHeight": 23.487,
+      "category": "tower",
+      "name": "Hanley Villa Block 6",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-218512",
+      "sourceId": "csdi-building",
+      "distance": 5424.363,
+      "lateral": 62.378,
+      "width": 5.062,
+      "depth": 8.905,
+      "height": 30.102,
+      "baseHeight": 23.487,
+      "category": "tower",
+      "name": "Hanley Villa Block 5",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-110491",
+      "sourceId": "csdi-building",
+      "distance": 5491.575,
+      "lateral": 38.182,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 8.244,
+      "baseHeight": 29.273,
+      "category": "lowrise",
+      "name": "CHIU'S GARDEN",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-110489",
+      "sourceId": "csdi-building",
+      "distance": 5493.201,
+      "lateral": 38.182,
+      "width": 4.5,
+      "depth": 4.5,
+      "height": 8.433,
+      "baseHeight": 29.386,
+      "category": "lowrise",
+      "name": "CHIU'S GARDEN",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-218143",
+      "sourceId": "csdi-building",
+      "distance": 5505.301,
+      "lateral": 69.214,
+      "width": 7.247,
+      "depth": 10.383,
+      "height": 34.073,
+      "baseHeight": 22.314,
+      "category": "tower",
+      "name": "Hanley Villa Block 4",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-218580",
+      "sourceId": "csdi-building",
+      "distance": 5536.982,
+      "lateral": 69.216,
+      "width": 6.774,
+      "depth": 10.227,
+      "height": 34.073,
+      "baseHeight": 22.314,
+      "category": "tower",
+      "name": "Hanley Villa Block 3",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-218460",
+      "sourceId": "csdi-building",
+      "distance": 5568.904,
+      "lateral": 63.933,
+      "width": 8.804,
+      "depth": 8.826,
+      "height": 36.115,
+      "baseHeight": 22.314,
+      "category": "tower",
+      "name": "Hanley Villa Block 2",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-218106",
+      "sourceId": "csdi-building",
+      "distance": 5585.374,
+      "lateral": 52.409,
+      "width": 10.24,
+      "depth": 7.557,
+      "height": 38.082,
+      "baseHeight": 22.314,
+      "category": "tower",
+      "name": "Hanley Villa Block 1",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-229710",
+      "sourceId": "csdi-building",
+      "distance": 5631.883,
+      "lateral": 53.439,
+      "width": 24,
+      "depth": 28,
+      "height": 13.122,
+      "baseHeight": 17.36,
+      "category": "lowrise",
+      "name": "THE WESTMINSTER TERRACE",
+      "blockType": "Podium"
+    },
+    {
+      "id": "csdi-building-15628",
+      "sourceId": "csdi-building",
+      "distance": 5632.371,
+      "lateral": 47.505,
+      "width": 8.871,
+      "depth": 15.394,
+      "height": 45.796,
+      "baseHeight": 26.398,
+      "category": "tower",
+      "name": "The Westminster Terrace",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-218999",
+      "sourceId": "csdi-building",
+      "distance": 5634.714,
+      "lateral": 92.249,
+      "width": 5.488,
+      "depth": 15.115,
+      "height": 18.417,
+      "baseHeight": 9.797,
+      "category": "midrise",
+      "name": "Marina Tower",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-219399",
+      "sourceId": "csdi-building",
+      "distance": 5643.831,
+      "lateral": 82.495,
+      "width": 4.5,
+      "depth": 15.192,
+      "height": 16.45,
+      "baseHeight": 9.721,
+      "category": "midrise",
+      "name": "Beach Tower",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-218861",
+      "sourceId": "csdi-building",
+      "distance": 5687.34,
+      "lateral": 43.384,
+      "width": 6.968,
+      "depth": 11.166,
+      "height": 15.959,
+      "baseHeight": 19.894,
+      "category": "midrise",
+      "name": "Greenview Terrace Block 1",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-219220",
+      "sourceId": "csdi-building",
+      "distance": 5693.5,
+      "lateral": 45.423,
+      "width": 7.554,
+      "depth": 12.491,
+      "height": 16.186,
+      "baseHeight": 19.894,
+      "category": "midrise",
+      "name": "Greenview Terrace Block 2",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-217544",
+      "sourceId": "csdi-building",
+      "distance": 5809.622,
+      "lateral": 59.252,
+      "width": 11.993,
+      "depth": 11.847,
+      "height": 43.83,
+      "baseHeight": 12.557,
+      "category": "tower",
+      "name": "Belvedere Garden Phase 2 Block 9",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-216832",
+      "sourceId": "csdi-building",
+      "distance": 5844.076,
+      "lateral": 60.183,
+      "width": 11.405,
+      "depth": 11.755,
+      "height": 44.132,
+      "baseHeight": 12.557,
+      "category": "tower",
+      "name": "Belvedere Garden Phase 2 Block 8",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-216799",
+      "sourceId": "csdi-building",
+      "distance": 5857.341,
+      "lateral": 84.369,
+      "width": 11.846,
+      "depth": 11.963,
+      "height": 40.918,
+      "baseHeight": 12.255,
+      "category": "tower",
+      "name": "Belvedere Garden Phase 2 Block 1",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-216568",
+      "sourceId": "csdi-building",
+      "distance": 5870.765,
+      "lateral": 56.396,
+      "width": 11.814,
+      "depth": 11.98,
+      "height": 44.132,
+      "baseHeight": 12.557,
+      "category": "tower",
+      "name": "Belvedere Garden Phase 2 Block 7",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-217604",
+      "sourceId": "csdi-building",
+      "distance": 5878.191,
+      "lateral": 80.174,
+      "width": 11.903,
+      "depth": 11.996,
+      "height": 40.653,
+      "baseHeight": 12.255,
+      "category": "tower",
+      "name": "Belvedere Garden Phase 2 Block 2",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-219235",
+      "sourceId": "csdi-building",
+      "distance": 5885.301,
+      "lateral": 51.934,
+      "width": 11.729,
+      "depth": 11.924,
+      "height": 44.284,
+      "baseHeight": 12.557,
+      "category": "tower",
+      "name": "Belvedere Garden Phase 2 Block 6",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-216763",
+      "sourceId": "csdi-building",
+      "distance": 5892.662,
+      "lateral": 75.67,
+      "width": 11.948,
+      "depth": 11.9,
+      "height": 40.426,
+      "baseHeight": 12.255,
+      "category": "tower",
+      "name": "Belvedere Garden Phase 2 Block 3",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-217530",
+      "sourceId": "csdi-building",
+      "distance": 5899.921,
+      "lateral": 47.422,
+      "width": 11.82,
+      "depth": 11.963,
+      "height": 43.263,
+      "baseHeight": 12.557,
+      "category": "tower",
+      "name": "Belvedere Garden Phase 2 Block 5",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-216570",
+      "sourceId": "csdi-building",
+      "distance": 5907.552,
+      "lateral": 71.174,
+      "width": 11.783,
+      "depth": 11.859,
+      "height": 40.388,
+      "baseHeight": 12.255,
+      "category": "tower",
+      "name": "Belvedere Garden Phase 2 Block 4",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-218373",
+      "sourceId": "csdi-building",
+      "distance": 5914.754,
+      "lateral": 89.692,
+      "width": 14.184,
+      "depth": 14.012,
+      "height": 43.263,
+      "baseHeight": 9.835,
+      "category": "tower",
+      "name": "Belvedere Garden Phase 3 Block 1",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-217585",
+      "sourceId": "csdi-building",
+      "distance": 5928.923,
+      "lateral": 86.135,
+      "width": 14.12,
+      "depth": 14.033,
+      "height": 43.111,
+      "baseHeight": 9.835,
+      "category": "tower",
+      "name": "Belvedere Garden Phase 3 Block 2",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-216756",
+      "sourceId": "csdi-building",
+      "distance": 5943.904,
+      "lateral": 80.622,
+      "width": 14.147,
+      "depth": 14.204,
+      "height": 42.922,
+      "baseHeight": 9.835,
+      "category": "tower",
+      "name": "Belvedere Garden Phase 3 Block 3",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-217211",
+      "sourceId": "csdi-building",
+      "distance": 5948.897,
+      "lateral": 97.463,
+      "width": 14.028,
+      "depth": 13.942,
+      "height": 43.716,
+      "baseHeight": 9.835,
+      "category": "tower",
+      "name": "Belvedere Garden Phase 3 Block 4",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-216960",
+      "sourceId": "csdi-building",
+      "distance": 5963.651,
+      "lateral": 93.132,
+      "width": 14.179,
+      "depth": 13.886,
+      "height": 43.603,
+      "baseHeight": 9.835,
+      "category": "tower",
+      "name": "Belvedere Garden Phase 3 Block 5",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-216700",
+      "sourceId": "csdi-building",
+      "distance": 5974.862,
+      "lateral": 50.712,
+      "width": 11.406,
+      "depth": 12.77,
+      "height": 37.061,
+      "baseHeight": 10.099,
+      "category": "tower",
+      "name": "Belvedere Garden Phase 1 Tower 3",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-217279",
+      "sourceId": "csdi-building",
+      "distance": 5978.613,
+      "lateral": 88.423,
+      "width": 14.181,
+      "depth": 14.031,
+      "height": 44.208,
+      "baseHeight": 7.83,
+      "category": "tower",
+      "name": "Belvedere Garden Phase 3 Block 6",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-216159",
+      "sourceId": "csdi-building",
+      "distance": 5991.201,
+      "lateral": 45.685,
+      "width": 11.364,
+      "depth": 12.711,
+      "height": 36.834,
+      "baseHeight": 10.099,
+      "category": "tower",
+      "name": "Belvedere Garden Phase 1 Tower 2",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-218278",
+      "sourceId": "csdi-building",
+      "distance": 5993.214,
+      "lateral": 83.673,
+      "width": 14.306,
+      "depth": 14.022,
+      "height": 44.057,
+      "baseHeight": 7.83,
+      "category": "tower",
+      "name": "Belvedere Garden Phase 3 Block 7",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-64668",
+      "sourceId": "csdi-building",
+      "distance": 6000,
+      "lateral": 75.671,
+      "width": 24,
+      "depth": 28,
+      "height": 53.889,
+      "baseHeight": 4.994,
+      "category": "tower",
+      "name": "TML Tower",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-215737",
+      "sourceId": "csdi-building",
+      "distance": 6000,
+      "lateral": 44.351,
+      "width": 12.086,
+      "depth": 14.271,
+      "height": 48.33,
+      "baseHeight": 14.864,
+      "category": "tower",
+      "name": "The Panorama",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-14712",
+      "sourceId": "csdi-building",
+      "distance": 6000,
+      "lateral": -99.033,
+      "width": 12.386,
+      "depth": 13.152,
+      "height": 45.342,
+      "baseHeight": 17.398,
+      "category": "tower",
+      "name": "Summit Terrace Tower 5",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-15279",
+      "sourceId": "csdi-building",
+      "distance": 6000,
+      "lateral": -98.671,
+      "width": 12.386,
+      "depth": 12.138,
+      "height": 45.267,
+      "baseHeight": 17.398,
+      "category": "tower",
+      "name": "Summit Terrace Tower 3",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-14931",
+      "sourceId": "csdi-building",
+      "distance": 6000,
+      "lateral": -98.678,
+      "width": 11.948,
+      "depth": 12.587,
+      "height": 45.418,
+      "baseHeight": 12.557,
+      "category": "tower",
+      "name": "Summit Terrace Tower 1",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-15107",
+      "sourceId": "csdi-building",
+      "distance": 6000,
+      "lateral": -98.671,
+      "width": 12.386,
+      "depth": 12.138,
+      "height": 44.132,
+      "baseHeight": 17.398,
+      "category": "tower",
+      "name": "Summit Terrace Tower 2",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-289245",
+      "sourceId": "csdi-building",
+      "distance": 6000,
+      "lateral": -108.439,
+      "width": 24,
+      "depth": 28,
+      "height": 43.3,
+      "baseHeight": 17.587,
+      "category": "tower",
+      "name": "Hong Kong Adventist Hospital - Tsuen Wan",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-217872",
+      "sourceId": "csdi-building",
+      "distance": 6000,
+      "lateral": 64.369,
+      "width": 12.868,
+      "depth": 11.11,
+      "height": 39.027,
+      "baseHeight": 8.549,
+      "category": "tower",
+      "name": "Serenade Cove Tower C",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-216092",
+      "sourceId": "csdi-building",
+      "distance": 6000,
+      "lateral": 77.385,
+      "width": 12.645,
+      "depth": 12.205,
+      "height": 39.027,
+      "baseHeight": 8.549,
+      "category": "tower",
+      "name": "Serenade Cove Tower A",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-215751",
+      "sourceId": "csdi-building",
+      "distance": 6000,
+      "lateral": 43.497,
+      "width": 11.377,
+      "depth": 12.624,
+      "height": 36.72,
+      "baseHeight": 10.099,
+      "category": "tower",
+      "name": "Belvedere Garden Phase 1 Tower 1",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-217914",
+      "sourceId": "csdi-building",
+      "distance": 6000,
+      "lateral": 74.212,
+      "width": 12.759,
+      "depth": 11.694,
+      "height": 36.834,
+      "baseHeight": 8.549,
+      "category": "tower",
+      "name": "Serenade Cove Tower B",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-216669",
+      "sourceId": "csdi-building",
+      "distance": 6000,
+      "lateral": 57.079,
+      "width": 24,
+      "depth": 23.604,
+      "height": 35.888,
+      "baseHeight": 7.528,
+      "category": "tower",
+      "name": "Southeast Industrial Building",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-216179",
+      "sourceId": "csdi-building",
+      "distance": 6000,
+      "lateral": 52.907,
+      "width": 24,
+      "depth": 26.582,
+      "height": 35.813,
+      "baseHeight": 7.566,
+      "category": "tower",
+      "name": "Kong Nam Industrial Building",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-300087",
+      "sourceId": "csdi-building",
+      "distance": 6000,
+      "lateral": 46.064,
+      "width": 16.437,
+      "depth": 14.816,
+      "height": 36.153,
+      "baseHeight": 5.145,
+      "category": "tower",
+      "name": "International Enterprise Centre 1",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-323890",
+      "sourceId": "csdi-building",
+      "distance": 6000,
+      "lateral": 66.134,
+      "width": 23.754,
+      "depth": 18.001,
+      "height": 36.229,
+      "baseHeight": 5.07,
+      "category": "tower",
+      "name": "GDS HK3 Data Center",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-222837",
+      "sourceId": "csdi-building",
+      "distance": 6000,
+      "lateral": -118.48,
+      "width": 11.231,
+      "depth": 10.88,
+      "height": 34.943,
+      "baseHeight": 36.949,
+      "category": "tower",
+      "name": "Allway Gardens Block G",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-215505",
+      "sourceId": "csdi-building",
+      "distance": 6000,
+      "lateral": -123.694,
+      "width": 11.283,
+      "depth": 10.994,
+      "height": 34.905,
+      "baseHeight": 36.949,
+      "category": "tower",
+      "name": "Allway Gardens Block H",
+      "blockType": "Tower"
+    },
+    {
+      "id": "csdi-building-222868",
+      "sourceId": "csdi-building",
+      "distance": 6000,
+      "lateral": -113.25,
+      "width": 11.244,
+      "depth": 11.083,
+      "height": 33.922,
+      "baseHeight": 36.949,
+      "category": "tower",
+      "name": "Allway Gardens Block F",
+      "blockType": "Tower"
+    }
+  ]
+}

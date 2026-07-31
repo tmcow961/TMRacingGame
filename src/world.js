@@ -86,6 +86,40 @@ function makeRouteStrip(track, rows, segments = 320) {
   return geometry;
 }
 
+function makeProfileStrip(track, offsets, heightFor, colorFor) {
+  const profiles = track.terrainProfiles.profiles;
+  const positions = [];
+  const colors = [];
+  const uvs = [];
+  const indices = [];
+  const color = new THREE.Color();
+  profiles.forEach((profile, profileIndex) => {
+    const sample = track.canonicalSample(track.progressAtDistance(profile.distance), 1);
+    offsets.forEach((offset, rowIndex) => {
+      const position = sample.point.clone().addScaledVector(sample.right, offset);
+      position.y = heightFor(profile.distance, offset, rowIndex, sample);
+      positions.push(position.x, position.y, position.z);
+      color.set(colorFor(profile.distance, offset, rowIndex, position.y));
+      colors.push(color.r, color.g, color.b);
+      uvs.push(rowIndex / Math.max(1, offsets.length - 1), profileIndex / Math.max(1, profiles.length - 1) * 90);
+    });
+    if (profileIndex < profiles.length - 1) {
+      for (let rowIndex = 0; rowIndex < offsets.length - 1; rowIndex += 1) {
+        const start = profileIndex * offsets.length + rowIndex;
+        const next = start + offsets.length;
+        indices.push(start, next, start + 1, next, next + 1, start + 1);
+      }
+    }
+  });
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+  geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+  geometry.setIndex(indices);
+  geometry.computeVertexNormals();
+  return geometry;
+}
+
 function setRouteTransform(object, sample, position, scale = new THREE.Vector3(1, 1, 1)) {
   const normal = sample.tangent.clone().cross(sample.right).normalize();
   const rotation = new THREE.Matrix4().makeBasis(sample.right, normal, sample.tangent);
@@ -115,7 +149,7 @@ export class GameWorld {
     this.renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'high-performance' });
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    this.renderer.shadowMap.type = THREE.PCFShadowMap;
     this.renderer.domElement.className = 'game-canvas';
     this.container.prepend(this.renderer.domElement);
     this.clockTime = 0;
@@ -174,54 +208,63 @@ export class GameWorld {
     this.scene.add(new THREE.HemisphereLight(0xdff9ff, 0x446643, 2.25));
     const sun = new THREE.DirectionalLight(0xfff4d2, 3.2);
     sun.position.set(-220, 340, -180); sun.castShadow = true;
-    sun.shadow.mapSize.set(1024, 1024); sun.shadow.camera.left = -100; sun.shadow.camera.right = 100; sun.shadow.camera.top = 100; sun.shadow.camera.bottom = -100; sun.shadow.camera.far = 800;
+    sun.shadow.mapSize.set(768, 768); sun.shadow.camera.left = -100; sun.shadow.camera.right = 100; sun.shadow.camera.top = 100; sun.shadow.camera.bottom = -100; sun.shadow.camera.far = 800;
     this.sun = sun; this.scene.add(sun);
   }
 
   buildEnvironment() {
     const ground = new THREE.Mesh(
       new THREE.PlaneGeometry(3600, 7200),
-      new THREE.MeshStandardMaterial({ color: 0x557c50, roughness: 1 }),
+      new THREE.MeshStandardMaterial({ color: 0x52665a, roughness: 1 }),
     );
     ground.rotation.x = -Math.PI / 2;
-    ground.position.set(400, -10, 2850);
+    ground.position.set(400, this.track.seaLevel - 8, 2850);
     ground.receiveShadow = true;
     ground.name = 'distant-ground';
     this.scene.add(ground);
 
     const hillside = new THREE.Mesh(
-      makeRouteStrip(this.track, [
-        { offset: 20, height: -.6 },
-        { offset: 55, height: (p) => 8 + Math.sin(p * 52) * 3 },
-        { offset: 115, height: (p) => 30 + Math.sin(p * 31) * 9 },
-        { offset: 210, height: (p) => 62 + Math.sin(p * 23) * 15 },
-      ]),
-      new THREE.MeshStandardMaterial({ color: 0x3f7547, roughness: 1, flatShading: true }),
+      makeProfileStrip(
+        this.track,
+        [28, 50, 100, 220, 420],
+        (distance, offset, rowIndex, sample) => rowIndex === 0
+          ? sample.point.y - .55
+          : Math.max(sample.point.y - 5, this.track.terrainHeightAt(distance, offset)),
+        (_distance, _offset, rowIndex, height) => rowIndex <= 1
+          ? 0x66725b
+          : height > 95 ? 0x596459 : height > 48 ? 0x4e704d : 0x477a4c,
+      ),
+      new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1, flatShading: true }),
     );
     hillside.receiveShadow = true;
     hillside.name = 'tuen-mun-road-hillside';
     this.scene.add(hillside);
 
     const coast = new THREE.Mesh(
-      makeRouteStrip(this.track, [
-        { offset: -19, height: -.45 },
-        { offset: -42, height: -2.5 },
-        { offset: -78, height: -6 },
-        { offset: -105, absoluteY: -1.7 },
-      ]),
-      new THREE.MeshStandardMaterial({ color: 0x65785b, roughness: 1, flatShading: true }),
+      makeProfileStrip(
+        this.track,
+        [-68, -90, -170, -250],
+        (distance, offset, rowIndex, sample) => rowIndex === 0
+          ? sample.point.y - .7
+          : Math.max(this.track.seaLevel - .8, this.track.terrainHeightAt(distance, offset)),
+        (_distance, _offset, rowIndex, height) => rowIndex >= 2 && height <= this.track.seaLevel + 1
+          ? 0x6f7767
+          : rowIndex === 0 ? 0x727567 : 0x557459,
+      ),
+      new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1, flatShading: true }),
     );
     coast.receiveShadow = true;
     coast.name = 'coastal-slope';
     this.scene.add(coast);
 
     const sea = new THREE.Mesh(
-      makeRouteStrip(this.track, [
-        { offset: -100, absoluteY: -1.8 },
-        { offset: -270, absoluteY: -1.9 },
-        { offset: -520, absoluteY: -2 },
-      ]),
-      new THREE.MeshStandardMaterial({ color: 0x278ba5, roughness: .3, metalness: .08 }),
+      makeProfileStrip(
+        this.track,
+        [-230, -520, -900],
+        (_distance, _offset, rowIndex) => this.track.seaLevel - rowIndex * .08,
+        () => 0x2687a0,
+      ),
+      new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .24, metalness: .12 }),
     );
     sea.name = 'coastal-water';
     this.scene.add(sea);
@@ -363,29 +406,11 @@ export class GameWorld {
     lamps.userData.hideOnLow = true;
     this.scene.add(lamps);
 
-    const wallCount = 110;
-    const retainingWalls = new THREE.InstancedMesh(
-      new THREE.BoxGeometry(1, 5, 1),
-      new THREE.MeshStandardMaterial({ color: 0x899285, roughness: 1 }),
-      wallCount,
-    );
-    for (let i = 0; i < wallCount; i += 1) {
-      const progress = (i + .5) / wallCount;
-      const sample = this.track.sample(progress, 1);
-      const next = this.track.sample(Math.min(1, progress + 1 / wallCount), 1);
-      const position = sample.point.clone().addScaledVector(sample.right, this.track.roadWidthAtDistance(sample.distance) / 2 + 6.5);
-      position.y += 1.7;
-      setRouteTransform(matrix, sample, position, new THREE.Vector3(1, 1, sample.point.distanceTo(next.point) + 2));
-      retainingWalls.setMatrixAt(i, matrix);
-    }
-    retainingWalls.name = 'hillside-retaining-walls';
-    this.scene.add(retainingWalls);
   }
 
   buildLandmarks() {
-    this.buildBuildingCluster('tuen-mun', -1, 18, 0xd9c8ad);
-    this.buildBuildingCluster('sham-tseng', -1, 24, 0xe3d4b9);
-    this.buildBuildingCluster('tsuen-wan', -1, 22, 0xc9d0ca);
+    this.buildGeographicBuildings();
+    this.buildGeographicStructures();
     this.buildTingKauBridge();
     this.buildCoveredSections();
     this.buildCowInterchange();
@@ -398,6 +423,98 @@ export class GameWorld {
       sign.position.y += 8;
       sign.name = `location-sign-${anchor.id}`;
       this.scene.add(sign);
+    }
+  }
+
+  buildGeographicBuildings() {
+    const styles = {
+      tower: { color: 0xcfd4d0, roof: 0x5f6968 },
+      midrise: { color: 0xb9c3c2, roof: 0x6e7773 },
+      lowrise: { color: 0xd7c8ad, roof: 0x74705f },
+    };
+    const matrix = new THREE.Matrix4();
+    for (const [category, style] of Object.entries(styles)) {
+      const entries = this.track.buildings.filter((building) => building.category === category);
+      const material = new THREE.MeshStandardMaterial({ color: style.color, roughness: .9 });
+      const buildings = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), material, entries.length);
+      const roofs = new THREE.InstancedMesh(
+        new THREE.BoxGeometry(1, 1, 1),
+        new THREE.MeshStandardMaterial({ color: style.roof, roughness: .82 }),
+        entries.length,
+      );
+      entries.forEach((building, index) => {
+        const sample = this.track.canonicalSample(this.track.progressAtDistance(building.distance), 1);
+        const position = sample.point.clone().addScaledVector(sample.right, building.lateral);
+        const baseHeight = Math.max(this.track.seaLevel, building.baseHeight);
+        position.y = baseHeight + building.height / 2;
+        setRouteTransform(matrix, sample, position, new THREE.Vector3(building.width, building.height, building.depth));
+        buildings.setMatrixAt(index, matrix);
+        const roofPosition = position.clone();
+        roofPosition.y += building.height / 2 + .45;
+        setRouteTransform(matrix, sample, roofPosition, new THREE.Vector3(building.width * .72, .9, building.depth * .68));
+        roofs.setMatrixAt(index, matrix);
+      });
+      buildings.receiveShadow = true;
+      buildings.name = `csdi-${category}-buildings`;
+      buildings.userData.sourceId = 'csdi-building';
+      roofs.name = `csdi-${category}-roofs`;
+      roofs.userData.hideOnLow = category !== 'tower';
+      this.scene.add(buildings, roofs);
+    }
+  }
+
+  buildGeographicStructures() {
+    const concrete = new THREE.MeshStandardMaterial({ color: 0xabb2ad, roughness: .9 });
+    const rock = new THREE.MeshStandardMaterial({ color: 0x737b70, roughness: 1 });
+    for (const structure of this.track.structures) {
+      if (structure.type === 'viaduct') {
+        const count = Math.max(2, Math.ceil((structure.endDistance - structure.startDistance) / 30));
+        for (const direction of [1, -1]) {
+          const piers = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), concrete, count);
+          const undersides = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), concrete, count);
+          const matrix = new THREE.Matrix4();
+          for (let index = 0; index < count; index += 1) {
+            const distance = THREE.MathUtils.lerp(structure.startDistance, structure.endDistance, (index + .5) / count);
+            const sample = this.track.canonicalSample(this.track.progressAtDistance(distance), direction);
+            const canonicalLateral = direction === -1 ? -44 : 0;
+            const terrainHeight = this.track.terrainHeightAt(distance, canonicalLateral);
+            const pierHeight = Math.max(3, sample.point.y - terrainHeight);
+            const pierPosition = sample.point.clone();
+            pierPosition.y = sample.point.y - pierHeight / 2 - .45;
+            setRouteTransform(matrix, sample, pierPosition, new THREE.Vector3(2.4, pierHeight, 2.4));
+            piers.setMatrixAt(index, matrix);
+            const nextDistance = THREE.MathUtils.lerp(structure.startDistance, structure.endDistance, Math.min(1, (index + 1.5) / count));
+            const next = this.track.canonicalSample(this.track.progressAtDistance(nextDistance), direction);
+            const undersidePosition = sample.point.clone();
+            undersidePosition.y -= .65;
+            setRouteTransform(matrix, sample, undersidePosition, new THREE.Vector3(this.track.roadWidthAtDistance(distance) + 2.5, 1.1, sample.point.distanceTo(next.point) + 2));
+            undersides.setMatrixAt(index, matrix);
+          }
+          piers.name = `${structure.id}-${direction}-piers`;
+          undersides.name = `${structure.id}-${direction}-deck-underside`;
+          piers.userData.hideOnLow = true;
+          undersides.userData.hideOnLow = direction === -1;
+          this.scene.add(piers, undersides);
+        }
+      } else if (structure.type === 'cut-slope' || structure.type === 'retaining-wall') {
+        const count = Math.max(2, Math.ceil((structure.endDistance - structure.startDistance) / 24));
+        const walls = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), rock, count);
+        const matrix = new THREE.Matrix4();
+        for (let index = 0; index < count; index += 1) {
+          const distance = THREE.MathUtils.lerp(structure.startDistance, structure.endDistance, (index + .5) / count);
+          const sample = this.track.canonicalSample(this.track.progressAtDistance(distance), 1);
+          const lateral = structure.side * (this.track.roadWidthAtDistance(distance) / 2 + 6.5);
+          const terrainHeight = this.track.terrainHeightAt(distance, lateral + structure.side * 20);
+          const height = THREE.MathUtils.clamp(terrainHeight - sample.point.y + 3, 5, 22);
+          const position = sample.point.clone().addScaledVector(sample.right, lateral);
+          position.y += height / 2 - .5;
+          setRouteTransform(matrix, sample, position, new THREE.Vector3(1.4, height, (structure.endDistance - structure.startDistance) / count + 2));
+          walls.setMatrixAt(index, matrix);
+        }
+        walls.name = structure.id;
+        walls.userData.sourceId = structure.sourceId;
+        this.scene.add(walls);
+      }
     }
   }
 
@@ -698,7 +815,7 @@ export class GameWorld {
     this.obstacleSeed=direction===-1?randomSeed():this.forwardObstacleSeed;this.setActiveCarriagewayCollision(direction);this.buildObstacleScenes(direction,this.obstacleSeed);
     const choices=[appearance,...COWS.filter((c)=>c.id!==appearance.id)];
     const laneOffset=GAME.trackWidth/3;const lanes=[-laneOffset,0,laneOffset,-laneOffset,0,laneOffset];
-    for(let i=0;i<6;i+=1){const progress=i<3?.004:0;const s=this.track.sample(progress,direction);const pos=s.point.clone().addScaledVector(s.right,lanes[i]);pos.y+=COW_GROUND_OFFSET;const body=this.physics.createRigidBody(RAPIER.RigidBodyDesc.dynamic().setTranslation(pos.x,pos.y,pos.z).setLinearDamping(.25).lockRotations().setCcdEnabled(true));const events=RAPIER.ActiveEvents.COLLISION_EVENTS|RAPIER.ActiveEvents.CONTACT_FORCE_EVENTS;const collider=this.createCollider(RAPIER.ColliderDesc.cuboid(COW_COLLIDER_HALF_WIDTH,.85*COW_SCALE,1.42*COW_SCALE).setRestitution(.72).setFriction(.25).setActiveEvents(events).setContactForceEventThreshold(0).setCollisionGroups(interactionGroups(COLLISION_GROUP_RACER,COLLISION_FILTER_NORMAL)),{type:'racer',id:i},body);const visual=createCow(choices[i%choices.length],i===0);visual.scale.setScalar(COW_SCALE);visual.position.set(pos.x,pos.y-COW_GROUND_OFFSET,pos.z);this.scene.add(visual);this.racers.push({id:i,body,collider,visual,isPlayer:i===0,progress,checkpoint:0,speed:0,heading:Math.atan2(s.tangent.x,s.tangent.z),turnSpeedFactor:1,lateral:lanes[i],grounded:true,jumpCooldown:0,airborne:false,jumpPhasing:false,finished:false,finishTime:null,stuck:0,lastProgress:0,protection:0,steer:0,accelerating:i!==0,braking:false,lane:lanes[i],aiAvoidLateral:lanes[i],aiObstacleDistance:null,busLaneViolationTime:0,mistake:Math.random()*6,lastPosition:pos.clone(),movementWindow:0,forwardMovement:0,windowForwardMovement:0,actualForwardSpeed:0});}
+    for(let i=0;i<6;i+=1){const progress=i<3?.004:0;const s=this.track.sample(progress,direction);const pos=s.point.clone().addScaledVector(s.right,lanes[i]);pos.y+=COW_GROUND_OFFSET;const body=this.physics.createRigidBody(RAPIER.RigidBodyDesc.dynamic().setTranslation(pos.x,pos.y,pos.z).setLinearDamping(.25).lockRotations().setCcdEnabled(true));const events=RAPIER.ActiveEvents.COLLISION_EVENTS|RAPIER.ActiveEvents.CONTACT_FORCE_EVENTS;const collider=this.createCollider(RAPIER.ColliderDesc.cuboid(COW_COLLIDER_HALF_WIDTH,.85*COW_SCALE,1.42*COW_SCALE).setRestitution(.72).setFriction(.25).setActiveEvents(events).setContactForceEventThreshold(0).setCollisionGroups(interactionGroups(COLLISION_GROUP_RACER,COLLISION_FILTER_NORMAL)),{type:'racer',id:i},body);const visual=createCow(choices[i%choices.length],i===0);visual.scale.setScalar(COW_SCALE);visual.position.set(pos.x,pos.y-COW_GROUND_OFFSET,pos.z);this.scene.add(visual);this.racers.push({id:i,body,collider,visual,isPlayer:i===0,progress,checkpoint:0,speed:0,heading:Math.atan2(s.tangent.x,s.tangent.z),turnSpeedFactor:1,lateral:lanes[i],grounded:true,jumpCooldown:0,airborne:false,jumpPhasing:false,jumpGroundY:null,finished:false,finishTime:null,stuck:0,lastProgress:0,protection:0,steer:0,accelerating:i!==0,braking:false,lane:lanes[i],aiAvoidLateral:lanes[i],aiObstacleDistance:null,busLaneViolationTime:0,mistake:Math.random()*6,lastPosition:pos.clone(),movementWindow:0,forwardMovement:0,windowForwardMovement:0,actualForwardSpeed:0});}
   }
 
   setRaceRunning(running){this.raceRunning=running;}
@@ -802,7 +919,9 @@ export class GameWorld {
     const acceleration=wasRecovering?Math.max(GAME.acceleration,recoveryAcceleration):GAME.acceleration;
     racer.speed=nextRacerSpeed(racer.speed,accelerating,braking,target,acceleration,dt);
     racer.jumpCooldown=Math.max(0,racer.jumpCooldown-dt);racer.protection=Math.max(0,racer.protection-dt);if(racer.protection<=0&&!racer.jumpPhasing)setRacerCollisionFilter(racer,COLLISION_FILTER_NORMAL);
-    const groundY=s.point.y+COW_GROUND_OFFSET;const vertical=racer.body.linvel().y;
+    const groundY=s.point.y+COW_GROUND_OFFSET;
+    if(racer.jumpPhasing&&racer.jumpGroundY!==null){const roadRise=groundY-racer.jumpGroundY;if(Math.abs(roadRise)>.0001){const airbornePosition=racer.body.translation();racer.body.setTranslation({x:airbornePosition.x,y:airbornePosition.y+roadRise,z:airbornePosition.z},true);pos.y+=roadRise;}racer.jumpGroundY=groundY;}
+    const vertical=racer.body.linvel().y;
     const groundGap=pos.y-groundY;
     racer.grounded=shouldFollowGround(racer.airborne,groundGap,vertical);
     let didJump=false;
@@ -810,10 +929,10 @@ export class GameWorld {
       racer.airborne=false;
       if(Math.abs(groundGap)>.001){racer.body.setTranslation({x:pos.x,y:groundY,z:pos.z},true);pos.y=groundY;}
       if(vertical!==0){const velocity=racer.body.linvel();racer.body.setLinvel({x:velocity.x,y:0,z:velocity.z},true);}
-      if(jump&&racer.jumpCooldown<=0){racer.body.setLinvel({x:0,y:GAME.jumpVelocity,z:0},true);racer.grounded=false;racer.airborne=true;racer.jumpPhasing=true;didJump=true;setRacerCollisionFilter(racer,COLLISION_FILTER_JUMP);this.audio.play('jump');}
+      if(jump&&racer.jumpCooldown<=0){racer.body.setLinvel({x:0,y:GAME.jumpVelocity,z:0},true);racer.grounded=false;racer.airborne=true;racer.jumpPhasing=true;racer.jumpGroundY=groundY;didJump=true;setRacerCollisionFilter(racer,COLLISION_FILTER_JUMP);this.audio.play('jump');}
     }else if(!racer.airborne&&groundGap>GROUND_FOLLOW_DISTANCE)racer.airborne=true;
     const landingPosition=racer.body.translation();const landingVertical=racer.body.linvel().y;
-    if(!didJump&&racer.airborne&&landingVertical<0&&landingPosition.y<=groundY+.18){racer.body.setTranslation({x:landingPosition.x,y:groundY,z:landingPosition.z},true);racer.body.setLinvel({x:0,y:0,z:0},true);racer.grounded=true;racer.airborne=false;racer.jumpPhasing=false;racer.jumpCooldown=GAME.jumpCooldown;if(racer.protection<=0)setRacerCollisionFilter(racer,COLLISION_FILTER_NORMAL);if(racer.isPlayer)this.audio.play('land');}
+    if(!didJump&&racer.airborne&&landingVertical<0&&landingPosition.y<=groundY+.18){racer.body.setTranslation({x:landingPosition.x,y:groundY,z:landingPosition.z},true);racer.body.setLinvel({x:0,y:0,z:0},true);racer.grounded=true;racer.airborne=false;racer.jumpPhasing=false;racer.jumpGroundY=null;racer.jumpCooldown=GAME.jumpCooldown;if(racer.protection<=0)setRacerCollisionFilter(racer,COLLISION_FILTER_NORMAL);if(racer.isPlayer)this.audio.play('land');}
     const headingTurnRate=GAME.steerRate*(racer.airborne?.45:1);
     racer.heading=normalizeAngle(racer.heading+racer.steer*headingTurnRate*dt);
     const velocity=tmp.set(Math.sin(racer.heading),0,Math.cos(racer.heading)).multiplyScalar(racer.speed);
@@ -826,7 +945,7 @@ export class GameWorld {
     if(racer.progress>=.997){racer.finished=true;racer.finishTime=elapsed;racer.speed=0;if(racer.isPlayer)this.onPlayerFinish?.();}
   }
 
-  recover(racer,reason,notify=true){const progress=this.track.recoveryProgress(racer.checkpoint);const s=this.track.sample(progress,this.direction);const p=s.point.clone().addScaledVector(s.right,racer.lane*.6);p.y+=COW_GROUND_OFFSET+.1;racer.body.setTranslation(p,true);racer.body.setLinvel({x:0,y:0,z:0},true);racer.progress=progress;racer.lastProgress=progress;racer.heading=Math.atan2(s.tangent.x,s.tangent.z);racer.stuck=0;racer.speed=15;racer.protection=1.5;racer.airborne=false;racer.jumpPhasing=false;racer.movementWindow=0;racer.forwardMovement=0;racer.windowForwardMovement=0;racer.actualForwardSpeed=0;racer.lastPosition.copy(p);setRacerCollisionFilter(racer,0);if(racer.isPlayer&&notify){this.lastRecovery={reason,time:this.clockTime};this.onRecovery?.(reason);}}
+  recover(racer,reason,notify=true){const progress=this.track.recoveryProgress(racer.checkpoint);const s=this.track.sample(progress,this.direction);const p=s.point.clone().addScaledVector(s.right,racer.lane*.6);p.y+=COW_GROUND_OFFSET+.1;racer.body.setTranslation(p,true);racer.body.setLinvel({x:0,y:0,z:0},true);racer.progress=progress;racer.lastProgress=progress;racer.heading=Math.atan2(s.tangent.x,s.tangent.z);racer.stuck=0;racer.speed=15;racer.protection=1.5;racer.airborne=false;racer.jumpPhasing=false;racer.jumpGroundY=null;racer.movementWindow=0;racer.forwardMovement=0;racer.windowForwardMovement=0;racer.actualForwardSpeed=0;racer.lastPosition.copy(p);setRacerCollisionFilter(racer,0);if(racer.isPlayer&&notify){this.lastRecovery={reason,time:this.clockTime};this.onRecovery?.(reason);}}
 
   bypassAiObstacle(racer){const currentDistance=racer.progress*this.track.length;const distance=Math.min(this.track.length*.99,Math.max(currentDistance+AI_BYPASS_DISTANCE,(racer.aiObstacleDistance??currentDistance)+AI_BYPASS_DISTANCE));const progress=distance/this.track.length;const s=this.track.sample(progress,this.direction);const roadHalfWidth=this.track.roadWidthAtDistance(s.distance)/2;const lateral=THREE.MathUtils.clamp(racer.aiAvoidLateral??racer.lane,-roadHalfWidth+2.5,roadHalfWidth-2.5);const p=s.point.clone().addScaledVector(s.right,lateral);p.y+=COW_GROUND_OFFSET+.1;racer.body.setTranslation(p,true);racer.body.setLinvel({x:0,y:0,z:0},true);racer.progress=progress;racer.lastProgress=progress;racer.heading=Math.atan2(s.tangent.x,s.tangent.z);racer.lateral=lateral;racer.lane=lateral;racer.stuck=0;racer.speed=GAME.aiBaseSpeed*GAME.turnSpeedMultiplier;racer.turnSpeedFactor=GAME.turnSpeedMultiplier;racer.protection=1.25;racer.movementWindow=0;racer.forwardMovement=0;racer.windowForwardMovement=0;racer.actualForwardSpeed=0;racer.lastPosition.copy(p);setRacerCollisionFilter(racer,0);}
 

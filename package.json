@@ -8,6 +8,7 @@
     "build": "vite build --configLoader runner",
     "preview": "vite preview --configLoader runner",
     "generate:track": "node scripts/generate-track-data.mjs",
+    "generate:environment": "node scripts/generate-csdi-environment.mjs",
     "test:track": "node scripts/validate-track.mjs",
     "test:ai": "node scripts/simulate-route-ai.mjs",
     "test:gameplay": "node scripts/validate-gameplay.mjs",

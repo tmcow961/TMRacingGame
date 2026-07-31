@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
+<qgis projectname="Tuen Mun Road Authoring" version="3.34.0">
+  <homePath path="."/>
+  <title>Tuen Mun Road Authoring</title>
+  <projectCrs>
+    <spatialrefsys nativeFormat="Wkt">
+      <wkt>PROJCRS["Hong Kong 1980 Grid System",BASEGEOGCRS["Hong Kong 1980",DATUM["Hong Kong 1980",ELLIPSOID["International 1924",6378388,297,LENGTHUNIT["metre",1]]],PRIMEM["Greenwich",0,ANGLEUNIT["degree",0.0174532925199433]]],CONVERSION["Hong Kong 1980 Grid",METHOD["Transverse Mercator",ID["EPSG",9807]],PARAMETER["Latitude of natural origin",22.3121333333333,ANGLEUNIT["degree",0.0174532925199433]],PARAMETER["Longitude of natural origin",114.178555555556,ANGLEUNIT["degree",0.0174532925199433]],PARAMETER["Scale factor at natural origin",1,SCALEUNIT["unity",1]],PARAMETER["False easting",836694.05,LENGTHUNIT["metre",1]],PARAMETER["False northing",819069.8,LENGTHUNIT["metre",1]]],CS[Cartesian,2],AXIS["northing (N)",north,ORDER[1],LENGTHUNIT["metre",1]],AXIS["easting (E)",east,ORDER[2],LENGTHUNIT["metre",1]],USAGE[SCOPE["Engineering survey, topographic mapping."],AREA["Hong Kong."],BBOX[22.13,113.76,22.58,114.51]],ID["EPSG",2326]]</wkt>
+      <proj4>+proj=tmerc +lat_0=22.3121333333333 +lon_0=114.178555555556 +k=1 +x_0=836694.05 +y_0=819069.8 +ellps=intl +units=m +no_defs</proj4>
+      <srsid>2326</srsid>
+      <srid>2326</srid>
+      <authid>EPSG:2326</authid>
+      <description>Hong Kong 1980 Grid System</description>
+      <projectionacronym>tmerc</projectionacronym>
+      <ellipsoidacronym>EPSG:7022</ellipsoidacronym>
+      <geographicflag>false</geographicflag>
+    </spatialrefsys>
+  </projectCrs>
+  <layer-tree-group name="" checked="Qt::Checked" expanded="1">
+    <layer-tree-layer id="tuen_mun_road_source" name="Tuen Mun Road source alignment" checked="Qt::Checked" expanded="1" source="../src/data/tuen-mun-road.source.geojson" providerKey="ogr"/>
+  </layer-tree-group>
+  <projectlayers>
+    <maplayer type="vector" geometry="Line" simplifyDrawingHints="1" simplifyDrawingTol="1" simplifyLocal="1" autoRefreshMode="Disabled" autoRefreshTime="0">
+      <id>tuen_mun_road_source</id>
+      <datasource>../src/data/tuen-mun-road.source.geojson</datasource>
+      <layername>Tuen Mun Road source alignment</layername>
+      <srs>
+        <spatialrefsys nativeFormat="Wkt">
+          <authid>EPSG:4326</authid>
+          <description>WGS 84</description>
+          <geographicflag>true</geographicflag>
+        </spatialrefsys>
+      </srs>
+      <provider encoding="UTF-8">ogr</provider>
+      <renderer-v2 type="singleSymbol" enableorderby="0" referencescale="-1" forceraster="0">
+        <symbols>
+          <symbol type="line" name="0" alpha="1" clip_to_extent="1">
+            <layer class="SimpleLine" enabled="1" pass="0" locked="0">
+              <Option type="Map"><Option name="line_color" value="31,130,92,255" type="QString"/><Option name="line_width" value="1.2" type="QString"/><Option name="line_width_unit" value="MM" type="QString"/></Option>
+            </layer>
+          </symbol>
+        </symbols>
+      </renderer-v2>
+    </maplayer>
+  </projectlayers>
+  <layerorder><layer id="tuen_mun_road_source"/></layerorder>
+</qgis>

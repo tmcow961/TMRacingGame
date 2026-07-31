@@ -57,7 +57,7 @@ async function runViewport(name, viewport, direction, quality = 'high') {
 
   if (name.startsWith('desktop')) {
     await page.locator('[data-action="credits"]').click();
-    assert.equal(await page.locator('.source-list li').count(), 4, 'Credits must list route, elevation, interchange location and visual-reference sources');
+    assert.ok(await page.locator('.source-list li').count() >= 9, 'Credits must list route, terrain, building, interchange and visual-reference sources');
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'Credits overflow horizontally');
     await page.screenshot({ path: path.join(outputDirectory, 'desktop-credits.png'), fullPage: true });
     await page.locator('[data-action="title"]').click();
@@ -74,11 +74,13 @@ async function runViewport(name, viewport, direction, quality = 'high') {
       const { world, state } = window.__TMR_DEBUG__;
       state.raceTime = 45;
       world.updateBusLaneState(state.raceTime);
-      const buildings = world.scene.children.filter((child) => child.name.endsWith('-residential-cluster'));
+      const buildings = world.scene.children.filter((child) => child.name.startsWith('csdi-') && child.name.endsWith('-buildings'));
       let minimumBuildingClearance = Infinity;
+      let buildingCount = 0;
       for (const building of buildings) {
         const values = building.instanceMatrix.array;
         for (let index = 0; index < building.count; index += 1) {
+          buildingCount += 1;
           const offset = index * 16;
           const center = { x: values[offset + 12], y: values[offset + 13], z: values[offset + 14] };
           const width = Math.hypot(values[offset], values[offset + 1], values[offset + 2]);
@@ -95,6 +97,7 @@ async function runViewport(name, viewport, direction, quality = 'high') {
         status: world.getBusLaneStatus(),
         hasReverseBusLaneMesh: Boolean(world.busLaneMeshes.negative),
         forwardBusLaneVisible: world.busLaneMeshes.positive.visible,
+        buildingCount,
         minimumBuildingClearance,
       };
     });
@@ -103,6 +106,7 @@ async function runViewport(name, viewport, direction, quality = 'high') {
     assert.equal(reverseChecks.status.active, false, `${name} reverse bus lane became active during restricted hours`);
     assert.equal(reverseChecks.hasReverseBusLaneMesh, false, `${name} still contains reverse bus-lane geometry`);
     assert.equal(reverseChecks.forwardBusLaneVisible, false, `${name} displays the forward bus lane during a reverse race`);
+    assert.ok(reverseChecks.buildingCount >= 300, `${name} did not render the CSDI building corridor`);
     assert.ok(reverseChecks.minimumBuildingClearance > 0, `${name} has a building footprint on the reverse road: ${reverseChecks.minimumBuildingClearance}`);
     assert.ok(await page.locator('#clock-status').evaluate((element) => element.classList.contains('hidden')), `${name} displays reverse bus-lane HUD status`);
   }
