@@ -158,10 +158,11 @@ async function fetchTerrain(route, trackLength) {
     const distance = trackLength * profileIndex / (profileCount - 1);
     const sample = routeSample(route, distance / scale);
     for (const offset of TERRAIN_OFFSETS) {
-      const offsetMetres = offset / scale;
+      // The game camera displays positive world lateral on the player's left.
+      const sourceOffsetMetres = -offset / scale;
       const point = {
-        x: sample.point.x + sample.right.x * offsetMetres,
-        y: sample.point.y + sample.right.y * offsetMetres,
+        x: sample.point.x + sample.right.x * sourceOffsetMetres,
+        y: sample.point.y + sample.right.y * sourceOffsetMetres,
       };
       requests.push({ profileIndex, distance, offset, coordinate: coordinateFromMetres(point, route.latitude) });
     }
@@ -280,6 +281,15 @@ function interpolateRoadHeight(samples, distance) {
   return start.height + (end.height - start.height) * Math.max(0, Math.min(1, mix));
 }
 
+function clearedBuildingLateral(lateral, width, depth) {
+  const footprintRadius = Math.hypot(width / 2, depth / 2);
+  const minimumPositive = 35 + footprintRadius;
+  const minimumNegative = 190 + footprintRadius;
+  return lateral >= 0
+    ? Math.max(minimumPositive, lateral)
+    : Math.min(-minimumNegative, lateral);
+}
+
 function normalizeBuildings(features, route, trackLength, terrain) {
   const scale = trackLength / route.length;
   const buildings = [];
@@ -303,12 +313,7 @@ function normalizeBuildings(features, route, trackLength, terrain) {
     const width = Math.max(4.5, Math.min(24, widthMetres * scale));
     const depth = Math.max(4.5, Math.min(28, depthMetres * scale));
     const height = Math.max(4, Math.min(76, heightMetres * scale));
-    const footprintRadius = Math.hypot(width / 2, depth / 2);
-    const minimumPositive = 35 + footprintRadius;
-    const minimumNegative = 90 + footprintRadius;
-    const lateral = nearest.signedDistance >= 0
-      ? Math.max(minimumPositive, nearest.signedDistance * scale)
-      : Math.min(-minimumNegative, nearest.signedDistance * scale);
+    const lateral = clearedBuildingLateral(-nearest.signedDistance * scale, width, depth);
     const sourceBase = Number(properties.BaseHeight);
     const roadHeight = interpolateRoadHeight(terrain.roadElevationSamples, distance);
     const baseHeight = Number.isFinite(sourceBase)
@@ -363,6 +368,7 @@ async function main() {
     version: 1,
     generatedAt: new Date().toISOString().slice(0, 10),
     coordinateSystem: 'Source data EPSG:4326; normalized placements use canonical route distance and lateral game units',
+    lateralOrientation: 'visual-left-positive',
     compressionScale: round(terrainRaw.scale, 6),
     sources: ['csdi-dtm-5m', 'csdi-building', 'csdi-3d-nontextured', 'csdi-3d-individualised', 'openstreetmap-route'],
     seaLevel: terrain.seaLevel,
@@ -399,5 +405,54 @@ async function reclampExisting() {
   console.log(`Reclamped ${samples.length} road elevations for spline-safe grades.`);
 }
 
-if (process.argv.includes('--reclamp')) await reclampExisting();
+function interpolateTerrainOffset(offsets, elevations, target) {
+  const clamped = Math.max(offsets[0], Math.min(offsets.at(-1), target));
+  let index = 1;
+  while (index < offsets.length - 1 && offsets[index] < clamped) index += 1;
+  const startOffset = offsets[index - 1];
+  const endOffset = offsets[index];
+  const startHeight = elevations[index - 1];
+  const endHeight = elevations[index];
+  if (startHeight === null && endHeight === null) return null;
+  if (startHeight === null) return endHeight;
+  if (endHeight === null) return startHeight;
+  return startHeight + (endHeight - startHeight) * (clamped - startOffset) / Math.max(.001, endOffset - startOffset);
+}
+
+async function reorientExisting() {
+  const environment = JSON.parse(await readFile(OUTPUT_PATH, 'utf8'));
+  if (environment.lateralOrientation === 'visual-left-positive') {
+    console.log('Environment lateral orientation is already current.');
+    return;
+  }
+  const offsets = environment.terrainProfiles.offsets;
+  for (const profile of environment.terrainProfiles.profiles) {
+    const sourceElevations = [...profile.elevations];
+    profile.elevations = offsets.map((offset) => {
+      const height = interpolateTerrainOffset(offsets, sourceElevations, -offset);
+      return height === null ? null : round(height);
+    });
+  }
+  environment.buildings = environment.buildings.map((building) => ({
+    ...building,
+    lateral: round(clearedBuildingLateral(-building.lateral, building.width, building.depth)),
+  }));
+  environment.lateralOrientation = 'visual-left-positive';
+  await writeFile(OUTPUT_PATH, `${JSON.stringify(environment, null, 2)}\n`);
+  console.log(`Reoriented ${environment.terrainProfiles.profiles.length} terrain profiles and ${environment.buildings.length} buildings.`);
+}
+
+async function reclearExistingBuildings() {
+  const environment = JSON.parse(await readFile(OUTPUT_PATH, 'utf8'));
+  environment.buildings = environment.buildings.map((building) => ({
+    ...building,
+    lateral: round(clearedBuildingLateral(building.lateral, building.width, building.depth)),
+  }));
+  await writeFile(OUTPUT_PATH, `${JSON.stringify(environment, null, 2)}\n`);
+  console.log(`Recleared ${environment.buildings.length} buildings for both carriageways.`);
+}
+
+if (process.argv.includes('--reclear')) await reclearExistingBuildings();
+else if (process.argv.includes('--reorient')) await reorientExisting();
+else if (process.argv.includes('--reclamp')) await reclampExisting();
 else await main();

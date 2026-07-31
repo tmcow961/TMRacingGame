@@ -32,11 +32,17 @@ assert.equal(track.environmentData.roadElevationSourceId, 'csdi-dtm-5m', 'Road e
 assert.equal(track.terrainProfiles.sourceId, 'csdi-dtm-5m', 'Terrain profiles must retain their CSDI provenance');
 assert.equal(track.environmentData.buildingSourceId, 'csdi-building', 'Buildings must retain their CSDI provenance');
 assert.ok(track.environmentData.sources.includes('csdi-3d-individualised'), 'Coastline references must be listed in the environment sources');
+assert.equal(track.environmentData.lateralOrientation, 'visual-left-positive', 'Geographic environment data must use the game lateral convention');
 assert.ok(track.terrainProfiles.offsets[0] <= -500 && track.terrainProfiles.offsets.at(-1) >= 400, 'Terrain profiles must cover the coast and hillside background');
 assert.ok(Math.max(...track.roadElevationSamples.map((sample) => sample.height)) - Math.min(...track.roadElevationSamples.map((sample) => sample.height)) >= 25, 'The official road profile must preserve recognizable uphill and downhill sections');
 assert.ok(track.buildings.length >= 300, 'The route must include the official CSDI-derived building corridor');
 assert.ok(track.structures.some((structure) => structure.type === 'viaduct'), 'The environment must include elevated-road structure zones');
 assert.ok(track.structures.some((structure) => structure.type === 'cut-slope'), 'The environment must include a cut-slope zone');
+
+const tingKauDistance = track.getAnchor('ting-kau').distance;
+assert.ok(track.terrainHeightAt(tingKauDistance, 90) > track.terrainHeightAt(tingKauDistance, -90) + 20, 'Ting Kau mountains must render on the visible left');
+const tingKauBuildings = track.buildings.filter((building) => Math.abs(building.distance - tingKauDistance) <= 600);
+assert.ok(tingKauBuildings.filter((building) => building.lateral < 0).length > tingKauBuildings.filter((building) => building.lateral > 0).length, 'Ting Kau residential buildings must retain their geographic side');
 
 let minimumBuildingClearance = Infinity;
 for (const building of track.buildings) {

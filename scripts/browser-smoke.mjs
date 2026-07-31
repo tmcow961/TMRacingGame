@@ -69,6 +69,16 @@ async function runViewport(name, viewport, direction, quality = 'high') {
   await page.locator('[data-action="prepare"]').click();
   await page.locator('[data-action="begin"]').click();
   await page.waitForTimeout(5200);
+  if (direction === 1) {
+    const bridgeLateral = await page.evaluate(() => {
+      const { world } = window.__TMR_DEBUG__;
+      const bridge = world.scene.getObjectByName('ting-kau-bridge-landmark');
+      const anchor = world.track.getAnchor('ting-kau');
+      const sample = world.track.sample(anchor.progress, 1);
+      return bridge.position.clone().sub(sample.point).dot(sample.right);
+    });
+    assert.ok(bridgeLateral < -200, `${name} Ting Kau Bridge is not on the visible right: ${bridgeLateral.toFixed(1)}`);
+  }
   if (direction === -1) {
     const reverseChecks = await page.evaluate(() => {
       const { world, state } = window.__TMR_DEBUG__;

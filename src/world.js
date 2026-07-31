@@ -669,7 +669,7 @@ export class GameWorld {
         }
       }
     }
-    bridge.position.copy(sample.point).addScaledVector(sample.right, 255);
+    bridge.position.copy(sample.point).addScaledVector(sample.right, -255);
     bridge.position.y = -2;
     bridge.rotation.y = Math.atan2(sample.tangent.x, sample.tangent.z);
     bridge.name = 'ting-kau-bridge-landmark';
