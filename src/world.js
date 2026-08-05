@@ -30,6 +30,8 @@ const AI_BYPASS_DISTANCE = 72;
 const AI_STEER_LOOKAHEAD = 72;
 const AI_REVERSE_STEER_LOOKAHEAD = 50;
 const REVERSE_RAIL_EXTRA_OFFSET = .4;
+const SCENERY_RAMP_WIDTH = 8;
+const SCENERY_RAMP_ROAD_GAP = 4;
 const COW_INTERCHANGE_APPROACH_DISTANCE = 140;
 const DEFAULT_COW_INTERCHANGE_TRIGGER_HALF_LENGTH = 48;
 const normalizeAngle = (angle) => Math.atan2(Math.sin(angle), Math.cos(angle));
@@ -50,6 +52,11 @@ export function isRailContactNearBoundary(lateral, trackWidth = GAME.trackWidth)
 
 export function shouldFollowGround(airborne, groundGap, verticalSpeed) {
   return !airborne && groundGap <= GROUND_FOLLOW_DISTANCE && groundGap >= -GROUND_PENETRATION_LIMIT && verticalSpeed <= 1;
+}
+
+export function sceneryRampLateral(track, progress, localProgress) {
+  const outsideRoad = track.roadWidthAtProgress(progress) / 2 + SCENERY_RAMP_WIDTH / 2 + SCENERY_RAMP_ROAD_GAP;
+  return -outsideRoad - Math.sin(localProgress * Math.PI) * 40;
 }
 
 function setRacerCollisionFilter(racer, filter) {
@@ -307,7 +314,7 @@ export class GameWorld {
       const start = Math.max(0, anchor.progress - .018);
       const end = Math.min(1, anchor.progress + .024);
       const ramp = new THREE.Mesh(
-        this.track.makeCarriagewayGeometry(-1, 8, 70, -.28, (_progress, local) => -Math.sin(local * Math.PI) * 48, start, end),
+        this.track.makeCarriagewayGeometry(-1, SCENERY_RAMP_WIDTH, 70, -.28, (progress, local) => sceneryRampLateral(this.track, progress, local), start, end),
         companionMaterial,
       );
       ramp.name = `scenery-ramp-${anchorId}`;
@@ -445,7 +452,7 @@ export class GameWorld {
       entries.forEach((building, index) => {
         const sample = this.track.canonicalSample(this.track.progressAtDistance(building.distance), 1);
         const position = sample.point.clone().addScaledVector(sample.right, building.lateral);
-        const baseHeight = Math.max(this.track.seaLevel, building.baseHeight);
+        const baseHeight = Math.max(this.track.seaLevel, this.track.environmentHeightAtDistance(building.baseHeight, building.distance));
         position.y = baseHeight + building.height / 2;
         setRouteTransform(matrix, sample, position, new THREE.Vector3(building.width, building.height, building.depth));
         buildings.setMatrixAt(index, matrix);

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { GAME } from '../src/config.js';
-import { GameWorld, isRailContactNearBoundary, nextRacerSpeed, shouldFollowGround } from '../src/world.js';
+import { GameWorld, isRailContactNearBoundary, nextRacerSpeed, sceneryRampLateral, shouldFollowGround } from '../src/world.js';
 import { Track } from '../src/track.js';
 
 assert.equal(nextRacerSpeed(0, false, false, GAME.targetSpeed, GAME.acceleration, 1), 0, 'The player must remain stopped without acceleration input');
@@ -17,6 +17,17 @@ assert.ok(reverseObstaclesA.every((obstacle) => obstacle.cars.length >= 3 && obs
 assert.ok(reverseObstaclesA.every((obstacle, index) => index === 0 || obstacle.raceDistance - reverseObstaclesA[index - 1].raceDistance >= 150), 'Reverse accidents must remain at least 150 m apart');
 const reverseInterchangeDistance = track.length - track.cowStops[0].distance;
 assert.ok(reverseObstaclesA.every((obstacle) => Math.abs(obstacle.raceDistance - reverseInterchangeDistance) >= 150), 'Reverse accidents must leave the interchange clear');
+for (const anchorId of ['siu-lam', 'sham-tseng', 'yau-kom-tau']) {
+  const anchor = track.getAnchor(anchorId);
+  const start = Math.max(0, anchor.progress - .018);
+  const end = Math.min(1, anchor.progress + .024);
+  for (let index = 0; index <= 20; index += 1) {
+    const local = index / 20;
+    const progress = start + (end - start) * local;
+    const rampInnerEdge = Math.abs(sceneryRampLateral(track, progress, local)) - 4;
+    assert.ok(rampInnerEdge >= track.roadWidthAtProgress(progress) / 2 + 4, `${anchorId} scenery ramp enters the reverse road`);
+  }
+}
 assert.equal(isRailContactNearBoundary(2.2), false, 'A centre-road player position cannot produce barrier feedback');
 assert.equal(isRailContactNearBoundary(GAME.trackWidth / 2 - .2), true, 'A player beside the road edge can produce barrier feedback');
 assert.equal(shouldFollowGround(false, .1, -.4), true, 'A grounded cow must follow a small downhill road step');

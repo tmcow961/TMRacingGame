@@ -122,7 +122,9 @@ async function runViewport(name, viewport, direction, quality = 'high') {
       state.raceTime = 45;
       world.updateBusLaneState(state.raceTime);
       const buildings = world.scene.children.filter((child) => child.name.startsWith('csdi-') && child.name.endsWith('-buildings'));
+      const sceneryRamps = world.scene.children.filter((child) => child.name.startsWith('scenery-ramp-'));
       let minimumBuildingClearance = Infinity;
+      let minimumRampClearance = Infinity;
       let buildingCount = 0;
       for (const building of buildings) {
         const values = building.instanceMatrix.array;
@@ -140,12 +142,25 @@ async function runViewport(name, viewport, direction, quality = 'high') {
           minimumBuildingClearance = Math.min(minimumBuildingClearance, clearance);
         }
       }
+      const point = world.racers[0].visual.position.clone();
+      for (const ramp of sceneryRamps) {
+        const positions = ramp.geometry.attributes.position.array;
+        for (let index = 0; index < positions.length; index += 3) {
+          point.set(positions[index], positions[index + 1], positions[index + 2]);
+          const progress = world.track.nearestProgress(point, 0, -1);
+          const sample = world.track.sample(progress, -1);
+          const lateral = Math.abs(point.clone().sub(sample.point).dot(sample.right));
+          minimumRampClearance = Math.min(minimumRampClearance, lateral - world.track.roadWidthAtDistance(sample.distance) / 2);
+        }
+      }
       return {
         status: world.getBusLaneStatus(),
         hasReverseBusLaneMesh: Boolean(world.busLaneMeshes.negative),
         forwardBusLaneVisible: world.busLaneMeshes.positive.visible,
         buildingCount,
         minimumBuildingClearance,
+        sceneryRampCount: sceneryRamps.length,
+        minimumRampClearance,
       };
     });
     await page.waitForTimeout(100);
@@ -155,6 +170,8 @@ async function runViewport(name, viewport, direction, quality = 'high') {
     assert.equal(reverseChecks.forwardBusLaneVisible, false, `${name} displays the forward bus lane during a reverse race`);
     assert.ok(reverseChecks.buildingCount >= 300, `${name} did not render the CSDI building corridor`);
     assert.ok(reverseChecks.minimumBuildingClearance > 0, `${name} has a building footprint on the reverse road: ${reverseChecks.minimumBuildingClearance}`);
+    assert.equal(reverseChecks.sceneryRampCount, 3, `${name} did not render all scenery ramps`);
+    assert.ok(reverseChecks.minimumRampClearance >= 2.5, `${name} has a scenery ramp entering the reverse road: ${reverseChecks.minimumRampClearance}`);
     assert.ok(await page.locator('#clock-status').evaluate((element) => element.classList.contains('hidden')), `${name} displays reverse bus-lane HUD status`);
   }
   const racePixels = await canvasPixels(page);

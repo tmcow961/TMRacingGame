@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { Track } from '../src/track.js';
+import { ROAD_GRADE_EXAGGERATION, Track } from '../src/track.js';
 import { GAME } from '../src/config.js';
 
 const track = new Track();
@@ -35,6 +35,14 @@ assert.ok(track.environmentData.sources.includes('csdi-3d-individualised'), 'Coa
 assert.equal(track.environmentData.lateralOrientation, 'visual-left-positive', 'Geographic environment data must use the game lateral convention');
 assert.ok(track.terrainProfiles.offsets[0] <= -500 && track.terrainProfiles.offsets.at(-1) >= 400, 'Terrain profiles must cover the coast and hillside background');
 assert.ok(Math.max(...track.roadElevationSamples.map((sample) => sample.height)) - Math.min(...track.roadElevationSamples.map((sample) => sample.height)) >= 25, 'The official road profile must preserve recognizable uphill and downhill sections');
+assert.equal(track.roadGradeExaggeration, 3, 'The playable road grade must be exaggerated three times');
+const sourceBaseline = track.roadElevationSamples[0].height;
+for (let index = 0; index < track.roadElevationSamples.length; index += 1) {
+  const sourceHeight = track.roadElevationSamples[index].height;
+  const gameplayHeight = track.gameplayRoadElevationSamples[index].height;
+  const expectedHeight = sourceBaseline + (sourceHeight - sourceBaseline) * ROAD_GRADE_EXAGGERATION;
+  assert.ok(Math.abs(gameplayHeight - expectedHeight) < 1e-8, `Road elevation exaggeration changed at sample ${index}`);
+}
 assert.ok(track.buildings.length >= 300, 'The route must include the official CSDI-derived building corridor');
 assert.ok(track.structures.some((structure) => structure.type === 'viaduct'), 'The environment must include elevated-road structure zones');
 assert.ok(track.structures.some((structure) => structure.type === 'cut-slope'), 'The environment must include a cut-slope zone');
@@ -62,6 +70,7 @@ assert.ok(track.reverseRoutePoints.length >= 90, 'Reverse carriageway must conta
 assert.ok(Math.abs(track.reverseCurve.getLength() - 6000) <= 300, `Reverse route length ${track.reverseCurve.getLength().toFixed(1)} is outside the 6000 +/- 5% target`);
 let minimumCarriagewayGap = Infinity;
 let reverseMinimumRadius = Infinity;
+let maximumReverseGrade = 0;
 let reversePrevious = null;
 let reversePreviousHeading = null;
 for (let i = 0; i <= track.sampleCount; i += 1) {
@@ -71,6 +80,8 @@ for (let i = 0; i <= track.sampleCount; i += 1) {
   minimumCarriagewayGap = Math.min(minimumCarriagewayGap, forward.point.distanceTo(reverse.point) - track.roadWidthAtProgress(progress));
   if (reversePrevious) {
     const step = reverse.point.clone().sub(reversePrevious);
+    const planarDistance = Math.hypot(step.x, step.z);
+    maximumReverseGrade = Math.max(maximumReverseGrade, Math.abs(step.y) / Math.max(planarDistance, .001));
     const heading = Math.atan2(step.x, step.z);
     const turn = reversePreviousHeading === null ? 0 : Math.abs(Math.atan2(Math.sin(heading - reversePreviousHeading), Math.cos(heading - reversePreviousHeading)));
     if (turn > .0001) reverseMinimumRadius = Math.min(reverseMinimumRadius, Math.hypot(step.x, step.z) / turn);
@@ -80,6 +91,7 @@ for (let i = 0; i <= track.sampleCount; i += 1) {
 }
 assert.ok(minimumCarriagewayGap >= 7, `Carriageways are too close: paved gap ${minimumCarriagewayGap.toFixed(1)} units`);
 assert.ok(reverseMinimumRadius >= 24, `Reverse minimum curve radius ${reverseMinimumRadius.toFixed(1)} is too tight`);
+assert.ok(maximumReverseGrade >= .18 && maximumReverseGrade <= .24, `Reverse maximum grade ${(maximumReverseGrade * 100).toFixed(1)}% does not match the requested 3x profile`);
 
 let maximumRailIntrusion = -Infinity;
 for (let i = 0; i < GAME.railSegments; i += 1) {
@@ -134,7 +146,8 @@ for (let i = 0; i < track.sampleCount; i += 1) {
   previousHeading = heading;
 }
 assert.ok(minimumRadius >= 24, `Minimum curve radius ${minimumRadius.toFixed(1)} is too tight for the widened road`);
-assert.ok(maximumGrade <= .08, `Maximum grade ${(maximumGrade * 100).toFixed(1)}% is too abrupt`);
+assert.ok(maximumGrade >= .18, `Maximum grade ${(maximumGrade * 100).toFixed(1)}% does not visibly exaggerate the original road profile`);
+assert.ok(maximumGrade <= .24, `Maximum grade ${(maximumGrade * 100).toFixed(1)}% is sharper than the requested 3x profile`);
 
 let minimumNonlocalDistance = Infinity;
 for (let i = 0; i < track.samples.length; i += 4) {
@@ -162,13 +175,16 @@ console.log(JSON.stringify({
   obstacles: track.obstacles.length,
   minimumCurveRadius: Number(minimumRadius.toFixed(1)),
   maximumGradePercent: Number((maximumGrade * 100).toFixed(1)),
+  roadGradeExaggeration: track.roadGradeExaggeration,
   minimumNonlocalDistance: Number(minimumNonlocalDistance.toFixed(1)),
   maximumRailIntrusion: Number(maximumRailIntrusion.toFixed(2)),
   minimumCarriagewayGap: Number(minimumCarriagewayGap.toFixed(2)),
   reverseMinimumRadius: Number(reverseMinimumRadius.toFixed(1)),
+  maximumReverseGradePercent: Number((maximumReverseGrade * 100).toFixed(1)),
   maximumReverseRailIntrusion: Number(maximumReverseRailIntrusion.toFixed(2)),
   roadElevationSamples: track.roadElevationSamples.length,
   roadElevationRange: Number((Math.max(...track.roadElevationSamples.map((sample) => sample.height)) - Math.min(...track.roadElevationSamples.map((sample) => sample.height))).toFixed(1)),
+  gameplayRoadElevationRange: Number((Math.max(...track.gameplayRoadElevationSamples.map((sample) => sample.height)) - Math.min(...track.gameplayRoadElevationSamples.map((sample) => sample.height))).toFixed(1)),
   terrainProfiles: track.terrainProfiles.profiles.length,
   buildings: track.buildings.length,
   minimumBuildingClearance: Number(minimumBuildingClearance.toFixed(2)),
